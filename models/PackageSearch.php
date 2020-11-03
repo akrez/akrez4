@@ -18,9 +18,8 @@ class PackageSearch extends Package
     public function rules()
     {
         return [
-            [['id', 'updated_at', 'product_id'], 'integer'],
-            [['status', 'user_name'], 'safe'],
-            [['price'], 'number'],
+            [['id'], 'integer'],
+            [['status'], 'safe'],
         ];
     }
 
@@ -40,14 +39,19 @@ class PackageSearch extends Package
      *
      * @return ActiveDataProvider
      */
-    public function search($params)
+    public function search($params, $parentModel)
     {
-        $query = Package::find();
+        $query = Package::userValidQuery()->andWhere(['product_id' => $parentModel->id]);
 
         // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'sort' => [
+                'defaultOrder' => [
+                    'updated_at' => SORT_DESC,
+                ]
+            ],
         ]);
 
         $this->load($params);
@@ -61,13 +65,8 @@ class PackageSearch extends Package
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
-            'updated_at' => $this->updated_at,
-            'price' => $this->price,
-            'product_id' => $this->product_id,
+            'status' => $this->status,
         ]);
-
-        $query->andFilterWhere(['like', 'status', $this->status])
-                ->andFilterWhere(['like', 'user_name', $this->user_name]);
 
         return $dataProvider;
     }
