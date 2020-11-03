@@ -22,7 +22,6 @@ class Category extends ActiveRecord
     public $price_min;
     public $price_max;
     public $des;
-    public $garanties;
 
     public static function tableName()
     {
@@ -48,12 +47,10 @@ class Category extends ActiveRecord
             'price_min' => null,
             'price_max' => null,
             'des' => null,
-            'garanties' => [],
         ];
         $this->price_min = $arrayParams['price_min'];
         $this->price_max = $arrayParams['price_max'];
         $this->des = $arrayParams['des'];
-        $this->garanties = $arrayParams['garanties'];
     }
 
     public function beforeSave($insert)
@@ -66,7 +63,6 @@ class Category extends ActiveRecord
                     'price_min' => $this->price_min,
                     'price_max' => $this->price_max,
                     'des' => $this->des,
-                    'garanties' => $this->garanties,
         ]);
 
         return true;
