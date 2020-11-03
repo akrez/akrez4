@@ -1,0 +1,456 @@
+<?php
+
+namespace app\models;
+
+use app\components\Helper;
+use Yii;
+use yii\helpers\Json;
+use yii\web\IdentityInterface;
+
+/**
+ * This is the model class for table "user".
+ *
+ * @property string $name
+ * @property int|null $updated_at
+ * @property int|null $created_at
+ * @property int $status
+ * @property string|null $title
+ * @property string|null $logo
+ * @property string|null $token
+ * @property string|null $password_hash
+ * @property string|null $verify_token
+ * @property int|null $verify_at
+ * @property string|null $reset_token
+ * @property int|null $reset_at
+ * @property string|null $email
+ * @property string|null $params { "address":"", "phone":"", "mobile":"", "instagram":"", "telegram":"", "facebook":"", "twitter":"", "slug":"", "des":"" }
+ */
+class User extends ActiveRecord implements IdentityInterface
+{
+    const TIMEOUT_RESET = 120;
+
+    public $image;
+    public $password;
+    public $_user;
+    //
+    public $address;
+    public $phone;
+    public $mobile;
+    public $instagram;
+    public $telegram;
+    public $facebook;
+    public $twitter;
+    public $slug;
+    public $des;
+    //
+    public $cache_category;
+    public $cache_options;
+
+    public static function tableName()
+    {
+        return 'user';
+    }
+
+    public function rules()
+    {
+        return [
+            [['title',], 'string', 'max' => 60, 'on' => 'profile',],
+            [['des',], 'string', 'max' => 160, 'on' => 'profile',],
+            [['slug',], 'string', 'max' => 160, 'on' => 'profile',],
+            [['twitter',], 'match', 'pattern' => '/^[A-Za-z0-9_]{1,15}$/', 'on' => 'profile',],
+            [['facebook',], 'match', 'pattern' => '/^[a-z\\d.]{5,}$/i', 'on' => 'profile',],
+            [['telegram',], 'match', 'pattern' => '/^[a-z\\d.]+$/i', 'on' => 'profile',],
+            [['instagram',], 'match', 'pattern' => '/^[a-z\\d.]{5,}$/i', 'on' => 'profile',],
+            [['mobile',], 'match', 'pattern' => '/^[0-9+]+$/', 'on' => 'profile',],
+            [['phone',], 'match', 'pattern' => '/^[0-9+]+$/', 'on' => 'profile',],
+            [['address',], 'string', 'max' => 2048, 'on' => 'profile',],
+            [['password',], 'minLenValidation', 'params' => ['min' => 6,], 'on' => 'profile',],
+            [['image',], 'file', 'on' => 'profile',],
+            //
+            [['name',], 'required', 'on' => 'signup',],
+            [['name',], 'unique', 'on' => 'signup',],
+            [['name',], 'match', 'pattern' => '/^[a-z]+$/', 'on' => 'signup',],
+            [['title',], 'required', 'on' => 'signup',],
+            [['title',], 'string', 'max' => 60, 'on' => 'signup',],
+            [['email',], 'required', 'on' => 'signup',],
+            [['email',], 'unique', 'on' => 'signup',],
+            [['email',], 'email', 'on' => 'signup',],
+            [['password',], 'required', 'on' => 'signup',],
+            [['password',], 'minLenValidation', 'params' => ['min' => 6,], 'on' => 'signup',],
+            //
+            [['name',], 'required', 'on' => 'signin',],
+            [['name',], 'match', 'pattern' => '/^[a-z]+$/', 'on' => 'signin',],
+            [['password',], 'required', 'on' => 'signin',],
+            [['password',], 'signinValidation', 'on' => 'signin',],
+            [['password',], 'minLenValidation', 'params' => ['min' => 6,], 'on' => 'signin',],
+            //
+            [['email',], 'required', 'on' => 'resetPasswordRequest',],
+            [['email',], 'resetPasswordRequestValidation', 'on' => 'resetPasswordRequest',],
+            [['email',], 'email', 'on' => 'resetPasswordRequest',],
+            //
+            [['email',], 'required', 'on' => 'verifyRequest',],
+            [['email',], 'verifyRequestValidation', 'on' => 'verifyRequest',],
+            [['email',], 'email', 'on' => 'verifyRequest',],
+            //
+            [['email',], 'required', 'on' => 'resetPassword',],
+            [['email',], 'resetPasswordValidation', 'on' => 'resetPassword',],
+            [['email',], 'email', 'on' => 'resetPassword',],
+            [['password',], 'required', 'on' => 'resetPassword',],
+            [['password',], 'minLenValidation', 'params' => ['min' => 6,], 'on' => 'resetPassword',],
+            [['reset_token',], 'required', 'on' => 'resetPassword',],
+            //
+            [['email',], 'required', 'on' => 'verify',],
+            [['email',], 'verifyValidation', 'on' => 'verify',],
+            [['email',], 'email', 'on' => 'verify',],
+            [['verify_token',], 'required', 'on' => 'verify',],
+        ];
+    }
+
+    public function dumpRules()
+    {
+        $attributesRules = [
+            'name' => [
+                ['match', 'pattern' => '/^[a-z]+$/'],
+            ],
+            'title' => [
+                ['string', 'max' => 60],
+            ],
+            'email' => [
+                ['email'],
+            ],
+            //
+            'password' => [
+                ['minLenValidation', 'params' => ['min' => 6]],
+            ],
+            //
+            'des' => [
+                ['string', 'max' => 160],
+            ],
+            'slug' => [
+                ['string', 'max' => 160],
+            ],
+            'twitter' => [
+                ['match', 'pattern' => '/^[A-Za-z0-9_]{1,15}$/'],
+            ],
+            'facebook' => [
+                ['match', 'pattern' => '/^[a-z\d.]{5,}$/i'],
+            ],
+            'telegram' => [
+                ['match', 'pattern' => '/^[a-z\d.]+$/i'],
+            ],
+            'instagram' => [
+                ['match', 'pattern' => '/^[a-z\d.]{5,}$/i'],
+            ],
+            'mobile' => [
+                ['match', 'pattern' => '/^[0-9+]+$/'],
+            ],
+            'phone' => [
+                ['match', 'pattern' => '/^[0-9+]+$/'],
+            ],
+            'address' => [
+                ['string', 'max' => 2048],
+            ],
+            //
+            'image' => [
+                ['file'],
+            ],
+        ];
+
+        $scenariosRules = [
+            'profile' => [
+                'title' => [],
+                'des' => [],
+                'slug' => [],
+                'twitter' => [],
+                'facebook' => [],
+                'telegram' => [],
+                'instagram' => [],
+                'mobile' => [],
+                'phone' => [],
+                'address' => [],
+                'password' => [],
+                'image' => [],
+            ],
+            'signup' => [
+                'name' => [['required'], ['unique'],],
+                'title' => [['required'],],
+                'email' => [['required'], ['unique'],],
+                'password' => [['required'],],
+            ],
+            'signin' => [
+                'name' => [['required']],
+                'password' => [['required'], ['signinValidation']],
+            ],
+            'resetPasswordRequest' => [
+                'email' => [['required'], ['resetPasswordRequestValidation']],
+            ],
+            'verifyRequest' => [
+                'email' => [['required'], ['verifyRequestValidation']],
+            ],
+            'resetPassword' => [
+                'email' => [['required'], ['resetPasswordValidation']],
+                'password' => [['required']],
+                'reset_token' => [['required']],
+            ],
+            'verify' => [
+                'email' => [['required'], ['verifyValidation']],
+                'verify_token' => [['required']],
+            ],
+        ];
+
+        die(str_replace(["0 => [", "1 => '"], ["[", "'"], Helper::rulesDumper($scenariosRules, $attributesRules)));
+    }
+
+    /////
+    public function afterFind()
+    {
+        parent::afterFind();
+        $arrayParams = (array) Json::decode($this->params) + [
+            'des' => null,
+            'slug' => null,
+            'twitter' => null,
+            'facebook' => null,
+            'telegram' => null,
+            'instagram' => null,
+            'mobile' => null,
+            'phone' => null,
+            'address' => null,
+            //
+            'cache_category' => [],
+            'cache_options' => [],
+        ];
+        $this->des = $arrayParams['des'];
+        $this->slug = $arrayParams['slug'];
+        $this->instagram = $arrayParams['instagram'];
+        $this->telegram = $arrayParams['telegram'];
+        $this->facebook = $arrayParams['facebook'];
+        $this->twitter = $arrayParams['twitter'];
+        $this->phone = $arrayParams['phone'];
+        $this->mobile = $arrayParams['mobile'];
+        $this->address = $arrayParams['address'];
+        //
+        $this->cache_category = $arrayParams['cache_category'];
+        $this->cache_options = $arrayParams['cache_options'];
+    }
+
+    public function beforeSave($insert)
+    {
+        if (!parent::beforeSave($insert)) {
+            return false;
+        }
+        $this->params = [
+            'des' => $this->des,
+            'slug' => $this->slug,
+            'instagram' => $this->instagram,
+            'telegram' => $this->telegram,
+            'facebook' => $this->facebook,
+            'twitter' => $this->twitter,
+            'phone' => $this->phone,
+            'mobile' => $this->mobile,
+            'address' => $this->address,
+            //
+            'cache_category' => (array) $this->cache_category,
+            'cache_options' => (array) $this->cache_options,
+        ];
+        $this->params = Json::encode($this->params);
+        return true;
+    }
+
+    /////
+
+    public function signinValidation($attribute, $params)
+    {
+        if (!$this->hasErrors()) {
+            $user = self::find()->where(['status' => [Status::STATUS_ACTIVE, Status::STATUS_DISABLE]])->andWhere(['name' => $this->name])->one();
+            if ($user && $user->validatePassword($this->password)) {
+                return $this->_user = $user;
+            }
+            $this->addError($attribute, Yii::t('yii', '{attribute} is invalid.', ['attribute' => $this->getAttributeLabel($attribute)]));
+        }
+        return $this->_user = null;
+    }
+
+    public function resetPasswordRequestValidation($attribute, $params)
+    {
+        if (!$this->hasErrors()) {
+            $user = self::find()->where(['status' => [Status::STATUS_ACTIVE, Status::STATUS_DISABLE]])->andWhere(['email' => $this->email])->one();
+            if ($user) {
+                return $this->_user = $user;
+            }
+            $this->addError($attribute, Yii::t('yii', '{attribute} is invalid.', ['attribute' => $this->getAttributeLabel($attribute)]));
+        }
+        return $this->_user = null;
+    }
+
+    public function verifyRequestValidation($attribute, $params)
+    {
+        if (!$this->hasErrors()) {
+            $user = self::find()->where(['status' => [Status::STATUS_UNVERIFIED]])->andWhere(['email' => $this->email])->one();
+            if ($user) {
+                return $this->_user = $user;
+            }
+            $this->addError($attribute, Yii::t('yii', '{attribute} is invalid.', ['attribute' => $this->getAttributeLabel($attribute)]));
+        }
+        return $this->_user = null;
+    }
+
+    public function resetPasswordValidation($attribute, $params)
+    {
+        if (!$this->hasErrors()) {
+            $user = self::find()->where(['status' => [Status::STATUS_ACTIVE, Status::STATUS_DISABLE]])->andWhere(['email' => $this->email])->andWhere(['reset_token' => $this->reset_token])->andWhere(['>', 'reset_at', time() - self::TIMEOUT_RESET])->one();
+            if ($user) {
+                return $this->_user = $user;
+            }
+            $this->addError($attribute, Yii::t('yii', '{attribute} is invalid.', ['attribute' => $this->getAttributeLabel($attribute)]));
+        }
+        return $this->_user = null;
+    }
+
+    public function verifyValidation($attribute, $params)
+    {
+        if (!$this->hasErrors()) {
+            $user = self::find()->where(['status' => [Status::STATUS_UNVERIFIED]])->andWhere(['email' => $this->email])->andWhere(['verify_token' => $this->verify_token])->andWhere(['>', 'verify_at', time() - self::TIMEOUT_RESET])->one();
+            if ($user) {
+                return $this->_user = $user;
+            }
+            $this->addError($attribute, Yii::t('yii', '{attribute} is invalid.', ['attribute' => $this->getAttributeLabel($attribute)]));
+        }
+        return $this->_user = null;
+    }
+
+    ////
+
+    public static function findIdentity($name)
+    {
+        return static::find()->where(['name' => $name])->andWhere(['status' => [Status::STATUS_ACTIVE, Status::STATUS_DISABLE]])->one();
+    }
+
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
+        return static::find()->where(['token' => $token])->andWhere(['status' => [Status::STATUS_ACTIVE, Status::STATUS_DISABLE]])->one();
+    }
+
+    public function getId()
+    {
+        return $this->getPrimaryKey();
+    }
+
+    public function getAuthKey()
+    {
+        return $this->token;
+    }
+
+    public function validateAuthKey($authKey)
+    {
+        return $this->getAuthKey() === $authKey;
+    }
+
+    /////
+
+    public function minLenValidation($attribute, $params, $validator)
+    {
+        $min = $params['min'];
+        if (strlen($this->$attribute) < $min) {
+            $this->addError($attribute, Yii::t('yii', '{attribute} must be no less than {min}.', ['min' => $min, 'attribute' => $this->getAttributeLabel($attribute)]));
+        }
+    }
+
+    public function maxLenValidation($attribute, $params, $validator)
+    {
+        $max = $params['max'];
+        if ($max < strlen($this->$attribute)) {
+            $this->addError($attribute, Yii::t('yii', '{attribute} must be no greater than {max}.', ['max' => $max, 'attribute' => $this->getAttributeLabel($attribute)]));
+        }
+    }
+
+    public function setPasswordHash($password)
+    {
+        $this->password_hash = Yii::$app->security->generatePasswordHash($password);
+    }
+
+    public function setAuthKey()
+    {
+        return $this->token = Yii::$app->security->generateRandomString();
+    }
+
+    public function setVerifyToken($setNull = false)
+    {
+        if ($setNull === true) {
+            $this->verify_token = null;
+            $this->verify_at = null;
+        } else {
+            if (empty($this->verify_token) || time() - self::TIMEOUT_RESET > $this->verify_at) {
+                $this->verify_token = self::generateVerifyToken();
+            }
+            $this->verify_at = time();
+        }
+    }
+
+    public function setResetToken($setNull = false)
+    {
+        if ($setNull === true) {
+            $this->reset_token = null;
+            $this->reset_at = null;
+        } else {
+            if (empty($this->reset_token) || time() - self::TIMEOUT_RESET > $this->reset_at) {
+                $this->reset_token = self::generateResetToken();
+            }
+            $this->reset_at = time();
+        }
+    }
+
+    public function generateVerifyToken()
+    {
+        do {
+            $rand = rand(10000, 99999);
+            $model = self::find()->where(['verify_token' => $rand])->one();
+        } while ($model != null);
+        return $rand;
+    }
+
+    public function generateResetToken()
+    {
+        do {
+            $rand = rand(10000, 99999);
+            $model = self::find()->where(['reset_token' => $rand])->one();
+        } while ($model != null);
+        return $rand;
+    }
+
+    public function validatePassword($password)
+    {
+        return Yii::$app->security->validatePassword($password, $this->password_hash);
+    }
+
+    public function getUser()
+    {
+        return $this->_user;
+    }
+
+    /////
+
+    public function updateCacheCategory()
+    {
+        $this->cache_category = Category::find()->where(['user_name' => $this->name])->indexBy('id')->all();
+        $this->save();
+    }
+
+    public function updateCacheOptions()
+    {
+        $categoryFields = ProductField::find()->select([
+                'category_id',
+                'field',
+                'value',
+                'cnt' => 'COUNT(`value`)',
+            ])->where(['user_name' => $this->name])->groupBy([
+                'category_id',
+                'field',
+                'value',
+            ])->orderBy(['cnt' => SORT_DESC])->all();
+        $this->cache_options = [];
+        foreach ($categoryFields as $categoryField) {
+            $this->cache_options[$categoryField['category_id']][$categoryField['field']][$categoryField['value']] = $categoryField['cnt'];
+        }
+        $this->save();
+    }
+}

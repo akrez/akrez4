@@ -1,0 +1,11 @@
+/web/robots.txt
+/vendor
+/gallery
+/config
+
+/runtime/*
+!/runtime/.gitkeep
+/web/assets/*
+!/web/assets/.gitkeep
+/web/image/logo
+/web/image/product

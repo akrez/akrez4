@@ -1,0 +1,205 @@
+html, body {
+    font-family: 'Sahel' !important;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+    height: 100%;
+    direction: rtl;
+}
+
+.p8 {
+    padding: 8px;
+}
+
+.pt20 {
+    padding-top: 20px;
+}
+
+.pb20 {
+    padding-bottom: 20px;
+}
+
+.pt15 {
+    padding-top: 15px;
+}
+
+.pb15 {
+    padding-bottom: 15px;
+}
+
+.pt10 {
+    padding-top: 10px;
+}
+
+.pb10 {
+    padding-bottom: 10px;
+}
+
+.m0 {
+    margin: 0;
+}
+
+.mt10 {
+    margin-top: 10px;
+}
+
+.mb10 {
+    margin-bottom: 10px;
+}
+
+.mb5 {
+    margin-bottom: 5px;
+}
+
+.mt20 {
+    margin-top: 20px;
+}
+
+.mb20 {
+    margin-bottom: 20px;
+}
+
+.mt4 {
+    margin-top: 4px;
+}
+
+.mb4 {
+    margin-bottom: 4px;
+}
+
+.mb0 {
+    margin-bottom: 0px;
+}
+
+.splash {
+    display: none; background-color: rgba(0, 0, 0, 0.3); 
+    inset: 0px; 
+    position: absolute;
+    z-index: 9998;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.form-control {
+    padding: 4px 12px;
+}
+
+.navbar>.container .navbar-brand, .navbar>.container-fluid .navbar-brand {
+    margin-left: 15px;
+}
+
+hr {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border: 0;
+    border-top: 2px solid #367fa9;
+}
+
+/* add sorting icons to gridview sort links */
+
+a.asc:before, a.desc:before {
+    position: relative;
+    top: 1px;
+    display: inline-block;
+    font-family: 'Glyphicons Halflings';
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1;
+    padding-left: 5px;
+}
+
+a.asc:before {
+    content: /*"\e113"*/
+        "\e151";
+}
+
+a.desc:before {
+    content: /*"\e114"*/
+        "\e152";
+}
+
+.sort-numerical a.asc:after {
+    content: "\e153";
+}
+
+.sort-numerical a.desc:after {
+    content: "\e154";
+}
+
+.sort-ordinal a.asc:after {
+    content: "\e155";
+}
+
+.sort-ordinal a.desc:after {
+    content: "\e156";
+}
+
+.grid-view th {
+    white-space: nowrap;
+}
+
+.hint-block {
+    display: block;
+    margin-top: 5px;
+    color: #999;
+}
+
+.error-summary {
+    color: #a94442;
+    background: #fdf7f7;
+    padding: 10px 20px;
+}
+
+/* */
+
+/* align the logout "link" (button in form) of the navbar */
+
+.nav > li > form {
+    padding: 8px;
+}
+
+.nav > li > form > button:hover {
+    text-decoration: none;
+}
+
+
+.spinner {
+    -moz-animation: spin 2s infinite linear;
+    -o-animation: spin 2s infinite linear;
+    -webkit-animation: spin 2s infinite linear;
+    animation: spin2 2s infinite linear;
+}
+
+@keyframes spin2{
+    0%{transform:rotate(0deg)}
+    100%{transform:rotate(359deg)}
+}
+@-moz-keyframes spin2{
+    0%{-moz-transform:rotate(0deg)}
+    100%{-moz-transform:rotate(359deg)}
+}
+@-webkit-keyframes spin2{
+    0%{-webkit-transform:rotate(0deg)}
+    100%{-webkit-transform:rotate(359deg)}
+}
+@-o-keyframes spin2{
+    0%{-o-transform:rotate(0deg)}
+    100%{-o-transform:rotate(359deg)}
+}
+@-ms-keyframes spin2{
+    0%{-ms-transform:rotate(0deg)}
+    100%{-ms-transform:rotate(359deg)}
+}
+
+h1 {
+    margin-top: 10px;
+}
+
+.splash-style {
+    display: none;
+    background-color: rgba(0, 0, 0, 0.67);
+    inset: 0px;
+    position: absolute;
+    z-index: 9998;
+    background-repeat: no-repeat;
+    background-position: center;
+}
