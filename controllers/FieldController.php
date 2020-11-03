@@ -50,16 +50,16 @@ class FieldController extends Controller
         $textAreaModel->setValues($autoCompleteSource);
         //
         if ($state == 'batchSave' && $textAreaModel->load($post)) {
-            $isSuccessful = (bool) Field::batchSave($textAreaModel, $parentModel);
+            $isSuccessfull = (bool) Field::batchSave($textAreaModel, $parentModel);
         } elseif ($state == 'update' && $model) {
-            $isSuccessful = Helper::store($model, $post, [
+            $isSuccessfull = Helper::store($model, $post, [
                         'category_id' => $parent_id,
                         'user_name' => $parentModel->user_name,
             ]);
         } elseif ($state == 'remove' && $model) {
-            $isSuccessful = Helper::delete($model);
+            $isSuccessfull = Helper::delete($model);
         }
-        if ($isSuccessful) {
+        if ($isSuccessfull) {
             ProductField::updateCache($parentModel->id);
         }
         //

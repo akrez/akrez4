@@ -63,7 +63,7 @@ class CategoryController extends Controller
         } else {
             $state = '';
         }
-        if ($isSuccessful) {
+        if ($isSuccessfull) {
             Yii::$app->user->getIdentity()->updateCacheCategory();
         }
         //
