@@ -11,6 +11,7 @@ use Yii;
 
 class CategoryController extends Controller
 {
+
     public function behaviors()
     {
         return $this->defaultBehaviors([
@@ -48,6 +49,7 @@ class CategoryController extends Controller
                 $textAreaModel->setValues($lines);
             } else {
                 $textAreaModel = new TextArea();
+                $isSuccessfull = true;
             }
         } elseif ($state == 'remove' && $id) {
             $model = Helper::findOrFail(Category::userValidQuery($id));
@@ -56,13 +58,17 @@ class CategoryController extends Controller
                 $msg = Yii::t('app', 'alertRemoveDanger', ['count' => count($products), 'child' => Yii::t('app', 'Product'), 'parent' => Yii::t('app', 'Category')]);
                 Yii::$app->session->setFlash('danger', $msg);
             } else {
-                Helper::delete($model);
+                $isSuccessfull = Helper::delete($model);
             }
         } else {
             $state = '';
+        }
+        if ($isSuccessful) {
+            Yii::$app->user->getIdentity()->updateCacheCategory();
         }
         //
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams, null);
         return $this->render('index', ['state' => $state, 'textAreaModel' => $textAreaModel,] + compact('newModel', 'searchModel', 'parentModel', 'parentSearchModel', 'model', 'dataProvider'));
     }
+
 }
