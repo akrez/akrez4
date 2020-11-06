@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 use yii\db\ActiveQuery;
+use yii\helpers\Json;
 
 /**
  * This is the model class for table "package".
@@ -47,6 +48,33 @@ class Package extends ActiveRecord
         ];
     }
 
+    public function afterFind()
+    {
+        parent::afterFind();
+        $arrayParams = (array) Json::decode($this->params) + [
+            'guaranty' => null,
+            'color' => null,
+            'des' => null,
+        ];
+        $this->guaranty = $arrayParams['guaranty'];
+        $this->color = $arrayParams['color'];
+        $this->des = $arrayParams['des'];
+    }
+
+    public function beforeSave($insert)
+    {
+        if (!parent::beforeSave($insert)) {
+            return false;
+        }
+        $this->params = [
+            'guaranty' => $this->guaranty,
+            'color' => $this->color,
+            'des' => $this->des,
+        ];
+        $this->params = Json::encode($this->params);
+        return true;
+    }
+
     public static function validStatuses()
     {
         return [
@@ -63,6 +91,7 @@ class Package extends ActiveRecord
         $query->andFilterWhere(['id' => $id]);
         return $query;
     }
+
 
     /**
      * Gets query for [[Product]].
