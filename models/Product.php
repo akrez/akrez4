@@ -11,7 +11,7 @@ use yii\db\ActiveQuery;
  * @property int $id
  * @property int|null $updated_at
  * @property int|null $created_at
- * @property string $status
+ * @property int $status
  * @property string $title
  * @property float|null $price_min
  * @property float|null $price_max
@@ -74,7 +74,7 @@ class Product extends ActiveRecord
             $product->title = $line;
             $product->category_id = $categoryModel->id;
             $product->user_name = Yii::$app->user->getIdentity()->name;
-            $product->status = Status::STATUS_DISABLE;
+            $product->status = Status::STATUS_ACTIVE;
             if ($product->save()) {
                 $correctLines[] = $line;
             } else {
@@ -87,6 +87,18 @@ class Product extends ActiveRecord
             $textAreaModel->setValues($errorLines);
         }
         return $correctLines;
+    }
+
+    public function updatePrice()
+    {
+        $priceRange = (array) Package::userValidQuery()
+                        ->select(['price_min' => 'MIN(price)', 'price_max' => 'MAX(price)'])
+                        ->where(['product_id' => $this->id])
+                        ->andWhere(['status' => Status::STATUS_ACTIVE])
+                        ->asArray()->one() + ['price_min' => null, 'price_max' => null];
+        $this->price_min = ($priceRange['price_min'] === null ? null : doubleval($priceRange['price_min']));
+        $this->price_max = ($priceRange['price_max'] === null ? null : doubleval($priceRange['price_max']));
+        $this->save();
     }
 
     public function getPackages()
