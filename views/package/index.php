@@ -39,9 +39,6 @@ $this->registerCss("
     border-radius: 12px;
     margin-left: 4px;
 }
-.select2-container--krajee .select2-selection {
-    border-radius: 4px 0 0 4px;
-}
 ");
 
 $this->registerJs("
