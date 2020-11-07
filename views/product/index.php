@@ -107,7 +107,7 @@ Pjax::begin([
                         <th><?= $modelClass->getAttributeLabel('image') ?></th>
                         <th><?= $sort->link('title', ['label' => $modelClass->getAttributeLabel('title')]) ?></th> 
                         <th><?= $modelClass->getAttributeLabel('des') ?></th>
-                        <th><?= $sort->link('title', ['label' => $modelClass->getAttributeLabel('status')]) ?></th> 
+                        <th><?= $sort->link('status', ['label' => $modelClass->getAttributeLabel('status')]) ?></th>
                         <th></th>
                         <th></th>
                         <th></th>
