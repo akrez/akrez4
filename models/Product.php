@@ -12,6 +12,7 @@ use yii\db\ActiveQuery;
  * @property int|null $updated_at
  * @property int|null $created_at
  * @property int $status
+ * @property int $cache_category_status
  * @property string $title
  * @property float|null $price_min
  * @property float|null $price_max
@@ -75,6 +76,7 @@ class Product extends ActiveRecord
             $product->category_id = $categoryModel->id;
             $product->user_name = Yii::$app->user->getIdentity()->name;
             $product->status = Status::STATUS_ACTIVE;
+            $product->cache_category_status = $categoryModel->status;
             if ($product->save()) {
                 $correctLines[] = $line;
             } else {
@@ -87,6 +89,11 @@ class Product extends ActiveRecord
             $textAreaModel->setValues($errorLines);
         }
         return $correctLines;
+    }
+
+    public static function updateCacheCategoryStatus($categoryId, $newStatus)
+    {
+        Product::updateAll(['cache_category_status' => $newStatus], ['category_id' => $categoryId]);
     }
 
     public function updatePrice()

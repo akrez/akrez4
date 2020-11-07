@@ -38,9 +38,13 @@ class CategoryController extends Controller
         //
         if ($state == 'update' && $id) {
             $model = Helper::findOrFail(Category::userValidQuery($id));
+            $oldStatus = $model->status;
             $isSuccessfull = Helper::store($model, $post, [
                         'user_name' => Yii::$app->user->getId(),
             ]);
+            if ($isSuccessfull && $oldStatus != $model->status) {
+                Product::updateCacheCategoryStatus($model->id, $model->status);
+            }
         } elseif ($state == 'batchSave' && $textAreaModel->load($post)) {
             $lines = $textAreaModel->explodeLines();
             $errors = Category::batchSave($lines, $id);
