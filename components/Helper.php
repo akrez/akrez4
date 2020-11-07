@@ -10,6 +10,7 @@ use yii\web\NotFoundHttpException;
 
 class Helper extends Component
 {
+
     public static function iexplode($delimiters, $string, $limit = PHP_INT_MAX)
     {
         if (!is_array($delimiters)) {
@@ -44,7 +45,7 @@ class Helper extends Component
             $arr = array_unique($arr);
         }
         if ($doFilter) {
-            $arr = array_filter($arr);
+            $arr = array_filter($arr, 'strlen');
         }
         return $arr;
     }
@@ -136,4 +137,5 @@ class Helper extends Component
         }
         throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
     }
+
 }
