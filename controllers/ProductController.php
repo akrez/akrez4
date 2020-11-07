@@ -34,7 +34,7 @@ class ProductController extends Controller
         $parent_id = intval($parent_id);
         $post = Yii::$app->request->post();
         $state = Yii::$app->request->get('state', '');
-        $isSuccessfull = null;
+        $updateCacheNeeded = false;
         $textAreaFields = new TextArea();
         $textAreaProducts = new TextArea();
         //
@@ -50,6 +50,30 @@ class ProductController extends Controller
         //
         if ($state == 'batchSave' && $textAreaProducts->load($post)) {
             Product::batchSave($textAreaProducts, $parentModel);
+        } elseif ($state == 'update' && $model) {
+            $updateCacheNeeded = Helper::store($model, $post, [
+                        'user_name' => Yii::$app->user->getId(),
+            ]);
+        } elseif ($state == 'saveFields' && $model && $textAreaFields->load($post)) {
+            $errors = ProductField::batchSave($textAreaFields->explodeLines(), $model);
+            if ($errors) {
+                $textAreaFields->addErrors(['values' => $errors]);
+            } else {
+                $textAreaFields = new TextArea();
+                ProductField::updateCache($model->category_id, $model->id);
+                $updateCacheNeeded = true;
+            }
+        } elseif ($state == 'status' && $model) {
+            $model->status = Yii::$app->request->get('status', '');
+            $updateCacheNeeded = $model->save();
+        } elseif ($state == 'remove' && $model) {
+            $packages = Package::userValidQuery()->andWhere(['product_id' => $id])->all();
+            if ($packages) {
+                $msg = Yii::t('app', 'alertRemoveDanger', ['count' => count($packages), 'child' => Yii::t('app', 'Package'), 'parent' => Yii::t('app', 'Product')]);
+                Yii::$app->session->setFlash('danger', $msg);
+            } else {
+                $updateCacheNeeded = Helper::delete($model);
+            }
         } elseif ($state == 'galleryUpload' && $model) {
             if ($model->picture = UploadedFile::getInstance($model, 'picture')) {
                 $gallery = Gallery::upload($model->picture->tempName, Gallery::TYPE_PRODUCT, $id);
@@ -84,35 +108,14 @@ class ProductController extends Controller
                 $model->image = $gallery->name;
                 $model->save();
             }
-        } elseif ($state == 'update' && $model) {
-            $isSuccessfull = Helper::store($model, $post, [
-                        'user_name' => Yii::$app->user->getId(),
-            ]);
-        } elseif ($state == 'saveFields' && $model && $textAreaFields->load($post)) {
-            $errors = ProductField::batchSave($textAreaFields->explodeLines(), $model);
-            if ($errors) {
-                $textAreaFields->addErrors(['values' => $errors]);
-            } else {
-                $textAreaFields = new TextArea();
-                Yii::$app->user->getIdentity()->updateCacheOptions();
-                ProductField::updateCache($model->category_id, $model->id);
-            }
-        } elseif ($state == 'status' && $model) {
-            $model->status = Yii::$app->request->get('status', '');
-            $model->save();
-        } elseif ($state == 'remove' && $model) {
-            $packages = Package::userValidQuery()->andWhere(['product_id' => $id])->all();
-            if ($packages) {
-                $msg = Yii::t('app', 'alertRemoveDanger', ['count' => count($packages), 'child' => Yii::t('app', 'Package'), 'parent' => Yii::t('app', 'Product')]);
-                Yii::$app->session->setFlash('danger', $msg);
-            } else {
-                Helper::delete($model);
-            }
         } else {
             $state = '';
         }
+        if ($updateCacheNeeded) {
+            $parentModel->updateCacheOptions();
+        }
         //
-        $autoCompleteSource = array_keys(isset(Yii::$app->user->getIdentity()->cache_options[$parent_id]) ? (array) Yii::$app->user->getIdentity()->cache_options[$parent_id] : []);
+        $autoCompleteSource = array_keys(isset($parentModel->cache_options) ? (array) $parentModel->cache_options : []);
         $autoCompleteSource = array_map('strval', $autoCompleteSource);
         $autoCompleteSource = array_fill_keys($autoCompleteSource, []);
         //
