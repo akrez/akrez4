@@ -19,7 +19,7 @@ class CategorySearch extends Category
     public function rules()
     {
         return [
-            [['id', 'updated_at'], 'integer'],
+            [['id', 'updated_at', 'status'], 'integer'],
             [['title'], 'safe'],
         ];
     }
@@ -67,6 +67,7 @@ class CategorySearch extends Category
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
+            'status' => $this->status,
             'updated_at' => $this->updated_at,
         ]);
 
@@ -74,4 +75,5 @@ class CategorySearch extends Category
 
         return $dataProvider;
     }
+
 }

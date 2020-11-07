@@ -98,6 +98,7 @@ $('#table').yiiGridView(" . json_encode([
                 <thead>
                     <tr class="info">
                         <th><?= $sort->link('title', ['label' => $modelClass->getAttributeLabel('title')]) ?></th> 
+                        <th><?= $sort->link('status', ['label' => $modelClass->getAttributeLabel('status')]) ?></th>
                         <th><?= $modelClass->getAttributeLabel('des') ?></th>
                         <th></th>     
                         <th></th>
@@ -105,6 +106,7 @@ $('#table').yiiGridView(" . json_encode([
                     </tr>
                     <tr id="table-filters" class="info">
                         <th><?= Html::activeInput('text', $searchModel, 'title', ['class' => 'form-control']) ?></th>
+                        <th><?= Html::activeDropDownList($searchModel, 'status', Category::validStatuses(), ['class' => 'form-control', 'prompt' => '']) ?></th>
                         <th></th>
                         <th></th>
                         <th></th>
@@ -115,16 +117,18 @@ $('#table').yiiGridView(" . json_encode([
                     <?php if ($dataProvider->getModels()) { ?>
                         <?php
                         foreach ($dataProvider->getModels() as $dataProviderModelKey => $dataProviderModel):
-                            $trCssClass = ($dataProviderModelKey % 2 == 0 ? 'active' : '');
                             $displayState = '';
                             if ($model && $model->id == $dataProviderModel->id) {
                                 $displayState = $state;
                                 $dataProviderModel = $model;
                             }
                             ?>
-                            <tr class="<?= $trCssClass ?>">
+                            <tr class="active">
                                 <td>
                                     <?= HtmlPurifier::process($dataProviderModel->title) ?>
+                                </td>
+                                <td>
+                                    <?= Yii::$app->formatter->asStatus($dataProviderModel->status) ?>
                                 </td>
                                 <td>
                                     <?= HtmlPurifier::process($dataProviderModel->des) ?>
@@ -156,21 +160,21 @@ $('#table').yiiGridView(" . json_encode([
                                 $displayStyle = 'display: table-row;';
                             }
                             ?>
-                            <tr class="<?= $trCssClass ?>" style="<?= $displayStyle ?>" id="<?= "row-update-" . $dataProviderModel->id ?>">
-                                <td colspan="5">
+                            <tr class="" style="<?= $displayStyle ?>" id="<?= "row-update-" . $dataProviderModel->id ?>">
+                                <td colspan="6">
                                     <?= $this->render('_form', ['model' => $dataProviderModel]) ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php } else { ?>
                         <tr class="danger">
-                            <td colspan="5">
+                            <td colspan="6">
                                 <?= Yii::t('yii', 'No results found.') ?>
                             </td>
                         </tr>
                     <?php } ?>
                     <tr class="success">
-                        <td colspan="5">
+                        <td colspan="6">
                             <?php
                             $form = ActiveForm::begin([
                                         'options' => ['data-pjax' => true],

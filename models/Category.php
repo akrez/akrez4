@@ -11,6 +11,7 @@ use yii\helpers\Json;
  * @property int $id
  * @property int|null $updated_at
  * @property string $title
+ * @property int $status
  * @property string|null $params
  * @property string|null $user_name
  *
@@ -22,6 +23,7 @@ class Category extends ActiveRecord
     public $price_min;
     public $price_max;
     public $des;
+    public $cache_options;
 
     public static function tableName()
     {
@@ -31,7 +33,8 @@ class Category extends ActiveRecord
     public function rules()
     {
         return [
-            [['title'], 'required'],
+            [['status'], 'in', 'range' => array_keys(self::validStatuses())],
+            [['title', 'status'], 'required'],
             [['title'], 'filter', 'filter' => 'trim'],
             [['des'], 'string', 'max' => 160],
             [['title'], 'string', 'max' => 64],
@@ -47,10 +50,12 @@ class Category extends ActiveRecord
             'price_min' => null,
             'price_max' => null,
             'des' => null,
+            'cache_options' => [],
         ];
         $this->price_min = $arrayParams['price_min'];
         $this->price_max = $arrayParams['price_max'];
         $this->des = $arrayParams['des'];
+        $this->cache_options = $arrayParams['cache_options'];
     }
 
     public function beforeSave($insert)
@@ -63,6 +68,7 @@ class Category extends ActiveRecord
                     'price_min' => $this->price_min,
                     'price_max' => $this->price_max,
                     'des' => $this->des,
+                    'cache_options' => $this->cache_options,
         ]);
 
         return true;
@@ -72,14 +78,40 @@ class Category extends ActiveRecord
     {
         $query = Category::find();
         $query->andWhere(['user_name' => Yii::$app->user->getId(),]);
+        $query->andWhere(['status' => array_keys(Category::validStatuses())]);
         $query->andFilterWhere(['id' => $id]);
         return $query;
     }
 
-    /**
-     *
-     * @return array errors
-     */
+    public function updatePrice()
+    {
+        $categoryProductQuery = Product::userValidQuery()->select('id')->where(['category_id' => $this->id]);
+        $categoryPriceRange = (array) PackageSearch::userValidQuery()
+                        ->select(['price_min' => 'MIN(price)', 'price_max' => 'MAX(price)'])
+                        ->where(['product_id' => $categoryProductQuery])
+                        ->andWhere(['status' => Status::STATUS_ACTIVE])
+                        ->asArray()->one() + ['price_min' => null, 'price_max' => null];
+        $this->price_min = ($categoryPriceRange['price_min'] === null ? null : doubleval($categoryPriceRange['price_min']));
+        $this->price_max = ($categoryPriceRange['price_max'] === null ? null : doubleval($categoryPriceRange['price_max']));
+        $this->save();
+    }
+
+    public function updateCacheOptions()
+    {
+        $product = Product::userValidQuery()->select('id')->where(['status' => Status::STATUS_ACTIVE])->andWhere(['category_id' => $this->id]);
+        $categoryFields = ProductField::find()
+                ->select(['field', 'value', 'cnt' => 'COUNT(`value`)',])
+                ->where(['product_id' => $product])
+                ->groupBy(['field', 'value',])
+                ->orderBy(['cnt' => SORT_DESC])
+                ->all();
+        $this->cache_options = [];
+        foreach ($categoryFields as $categoryField) {
+            $this->cache_options[$categoryField['field']][$categoryField['value']] = $categoryField['cnt'];
+        }
+        $this->save();
+    }
+
     public static function batchSave($lines)
     {
         $errors = [];
@@ -87,6 +119,7 @@ class Category extends ActiveRecord
         foreach ($lines as $line) {
             $category = new Category();
             $category->title = $line;
+            $category->status = Status::STATUS_DISABLE;
             $category->user_name = Yii::$app->user->getIdentity()->name;
             if (!$category->save()) {
                 $errors = array_merge($errors, $category->getErrorSummary(true));
@@ -115,6 +148,14 @@ class Category extends ActiveRecord
             'price_min' => $this->price_min,
             'price_max' => $this->price_max,
             'des' => $this->des,
+        ];
+    }
+
+    public static function validStatuses()
+    {
+        return [
+            Status::STATUS_ACTIVE => Yii::t('app', 'Active'),
+            Status::STATUS_DISABLE => Yii::t('app', 'Disable'),
         ];
     }
 

@@ -3,7 +3,7 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
-
+use app\models\Category;
 ?>
 <?php
 $form = ActiveForm::begin([
@@ -18,8 +18,11 @@ $form = ActiveForm::begin([
         ]);
 ?>
 <div class="row">
-    <div class="col-sm-12">
+    <div class="col-sm-9">
         <?= $form->field($model, 'title')->textInput(['maxlength' => true]) ?>
+    </div>
+    <div class="col-sm-3">
+        <?= $form->field($model, 'status')->dropDownList(Category::validStatuses()) ?>
     </div>
 </div>
 <div class="row">
