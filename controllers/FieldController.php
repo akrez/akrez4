@@ -45,7 +45,7 @@ class FieldController extends Controller
         $parentModel = Helper::findOrFail(Category::userValidQuery()->andWhere(['id' => $parent_id]));
         $parentSearchModel = new CategorySearch();
         //
-        $autoCompleteSource = array_keys(isset(Yii::$app->user->getIdentity()->cache_options[$parent_id]) ? (array) Yii::$app->user->getIdentity()->cache_options[$parent_id] : []);
+        $autoCompleteSource = array_keys(isset($parentModel->cache_options) ? (array) $parentModel->cache_options : []);
         $autoCompleteSource = array_map('strval', $autoCompleteSource);
         $textAreaModel->setValues($autoCompleteSource);
         //

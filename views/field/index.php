@@ -121,7 +121,7 @@ Pjax::begin([
                             }
                             ?>
 
-                            <tr class="">
+                            <tr class="active">
                                 <td><?= HtmlPurifier::process($dataProviderModel->title) ?></td>
                                 <td>
                                     <?php
@@ -139,7 +139,7 @@ Pjax::begin([
                                 <td><?= Html::button(Yii::t('app', 'Update'), ['class' => 'btn btn-block toggler' . ($displayState == 'update' ? ' btn-warning ' : ' btn-default '), 'toggle' => "#row-update-" . $dataProviderModel->id]) ?></td>
                             </tr>
 
-                            <tr class="active" style="<?= $displayState == 'update' ? '' : 'display: none;' ?>" id="<?= "row-update-" . $dataProviderModel->id ?>">
+                            <tr class="" style="<?= $displayState == 'update' ? '' : 'display: none;' ?>" id="<?= "row-update-" . $dataProviderModel->id ?>">
                                 <td colspan="<?= $colspan ?>" class="p-absolute">
                                     <?=
                                     $this->render('_form', [
