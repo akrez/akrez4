@@ -4,6 +4,7 @@ namespace app\models;
 
 use app\components\Helper;
 use Yii;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
 use yii\web\IdentityInterface;
 
@@ -27,6 +28,7 @@ use yii\web\IdentityInterface;
  */
 class User extends ActiveRecord implements IdentityInterface
 {
+
     const TIMEOUT_RESET = 120;
 
     public $image;
@@ -44,7 +46,6 @@ class User extends ActiveRecord implements IdentityInterface
     public $des;
     //
     public $cache_category;
-    public $cache_options;
 
     public static function tableName()
     {
@@ -217,7 +218,6 @@ class User extends ActiveRecord implements IdentityInterface
             'address' => null,
             //
             'cache_category' => [],
-            'cache_options' => [],
         ];
         $this->des = $arrayParams['des'];
         $this->slug = $arrayParams['slug'];
@@ -230,7 +230,6 @@ class User extends ActiveRecord implements IdentityInterface
         $this->address = $arrayParams['address'];
         //
         $this->cache_category = $arrayParams['cache_category'];
-        $this->cache_options = $arrayParams['cache_options'];
     }
 
     public function beforeSave($insert)
@@ -250,7 +249,6 @@ class User extends ActiveRecord implements IdentityInterface
             'address' => $this->address,
             //
             'cache_category' => (array) $this->cache_category,
-            'cache_options' => (array) $this->cache_options,
         ];
         $this->params = Json::encode($this->params);
         return true;
@@ -431,26 +429,9 @@ class User extends ActiveRecord implements IdentityInterface
 
     public function updateCacheCategory()
     {
-        $this->cache_category = Category::find()->where(['user_name' => $this->name])->indexBy('id')->all();
+        $this->cache_category = Category::userValidQuery()->select(['id', 'title'])->where(['status' => Status::STATUS_ACTIVE])->all();
+        $this->cache_category = ArrayHelper::map($this->cache_category, 'id', 'title');
         $this->save();
     }
 
-    public function updateCacheOptions()
-    {
-        $categoryFields = ProductField::find()->select([
-                'category_id',
-                'field',
-                'value',
-                'cnt' => 'COUNT(`value`)',
-            ])->where(['user_name' => $this->name])->groupBy([
-                'category_id',
-                'field',
-                'value',
-            ])->orderBy(['cnt' => SORT_DESC])->all();
-        $this->cache_options = [];
-        foreach ($categoryFields as $categoryField) {
-            $this->cache_options[$categoryField['category_id']][$categoryField['field']][$categoryField['value']] = $categoryField['cnt'];
-        }
-        $this->save();
-    }
 }
