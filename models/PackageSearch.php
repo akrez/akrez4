@@ -49,7 +49,7 @@ class PackageSearch extends Package
             'query' => $query,
             'sort' => [
                 'defaultOrder' => [
-                    'updated_at' => SORT_DESC,
+                    'id' => SORT_DESC,
                 ]
             ],
         ]);

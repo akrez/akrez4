@@ -6,7 +6,7 @@ use app\components\Helper;
 use app\models\Package;
 use app\models\PackageSearch;
 use app\models\Product;
-use app\models\ProductField;
+use app\models\Category;
 use app\models\ProductSearch;
 use Yii;
 
@@ -59,7 +59,9 @@ class PackageController extends Controller
         if ($isSuccessfull) {
             $parentModel->updatePrice();
             $category = Category::userValidQuery()->where(['id' => $parentModel->category_id])->one();
-            $category->updatePrice();
+            if ($category) {
+                $category->updatePrice();
+            }
         }
         //
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams, $parentModel);
