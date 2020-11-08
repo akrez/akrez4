@@ -9,8 +9,6 @@ use yii\web\ForbiddenHttpException;
 
 class Controller extends BaseController
 {
-    public $wizard;
-
     public function defaultBehaviors($rules)
     {
         $behaviors = parent::behaviors();
