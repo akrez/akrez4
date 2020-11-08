@@ -11,6 +11,7 @@ use yii\db\ActiveQuery;
  * @property int $id
  * @property int|null $updated_at
  * @property int|null $created_at
+ * @property int|null $view
  * @property int $status
  * @property int $cache_category_status
  * @property string $title
@@ -76,6 +77,7 @@ class Product extends ActiveRecord
             $product->category_id = $categoryModel->id;
             $product->user_name = Yii::$app->user->getIdentity()->name;
             $product->status = Status::STATUS_ACTIVE;
+            $product->view = 0;
             $product->cache_category_status = $categoryModel->status;
             if ($product->save()) {
                 $correctLines[] = $line;
