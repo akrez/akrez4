@@ -137,5 +137,4 @@ class Helper extends Component
         }
         throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
     }
-
 }

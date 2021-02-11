@@ -119,10 +119,10 @@ class Image extends Component
             if (file_exists($desFile)) {
                 $desSize = $image->getSize();
                 return $this->setError(null, [
-                            'desWidth' => $desSize->getWidth(),
-                            'desHeight' => $desSize->getHeight(),
-                            'desName' => $name,
-                            'desFile' => $desFile,
+                    'desWidth' => $desSize->getWidth(),
+                    'desHeight' => $desSize->getHeight(),
+                    'desName' => $name,
+                    'desFile' => $desFile,
                 ]);
             }
         } catch (Throwable $e) {
