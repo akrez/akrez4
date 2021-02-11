@@ -27,6 +27,11 @@ class Cache extends Component
         $category->save();
     }
 
+    public static function getCategoryCacheOptions($category)
+    {
+        return isset($category->cache_options) ? (array) $category->cache_options : [];
+    }
+
     public static function updateProductCacheCategoryStatus($categoryId, $newStatus)
     {
         Product::updateAll(['cache_category_status' => $newStatus], ['category_id' => $categoryId]);

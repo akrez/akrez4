@@ -46,7 +46,7 @@ class FieldController extends Controller
         $parentModel = Helper::findOrFail(Category::userValidQuery()->andWhere(['id' => $parent_id]));
         $parentSearchModel = new CategorySearch();
         //
-        $autoCompleteSource = array_keys(isset($parentModel->cache_options) ? (array) $parentModel->cache_options : []);
+        $autoCompleteSource = array_keys(Cache::getCategoryCacheOptions($parentModel));
         $autoCompleteSource = array_map('strval', $autoCompleteSource);
         $textAreaModel->setValues($autoCompleteSource);
         //

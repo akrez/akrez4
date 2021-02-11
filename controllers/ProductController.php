@@ -117,7 +117,7 @@ class ProductController extends Controller
             Cache::updateCategoryCacheOptions($parentModel);
         }
         //
-        $autoCompleteSource = array_keys(isset($parentModel->cache_options) ? (array) $parentModel->cache_options : []);
+        $autoCompleteSource = array_keys(Cache::getCategoryCacheOptions($parentModel));
         $autoCompleteSource = array_map('strval', $autoCompleteSource);
         $autoCompleteSource = array_fill_keys($autoCompleteSource, []);
         //
