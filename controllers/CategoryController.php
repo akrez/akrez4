@@ -15,12 +15,12 @@ class CategoryController extends Controller
     public function behaviors()
     {
         return $this->defaultBehaviors([
-                    [
-                        'actions' => ['index',],
-                        'allow' => true,
-                        'verbs' => ['POST', 'GET'],
-                        'roles' => ['@'],
-                    ],
+            [
+                'actions' => ['index',],
+                'allow' => true,
+                'verbs' => ['POST', 'GET'],
+                'roles' => ['@'],
+            ],
         ]);
     }
 
@@ -40,7 +40,7 @@ class CategoryController extends Controller
             $model = Helper::findOrFail(Category::userValidQuery($id));
             $oldStatus = $model->status;
             $isSuccessfull = Helper::store($model, $post, [
-                        'user_name' => Yii::$app->user->getId(),
+                'user_name' => Yii::$app->user->getId(),
             ]);
             if ($isSuccessfull && $oldStatus != $model->status) {
                 Product::updateCacheCategoryStatus($model->id, $model->status);
@@ -72,7 +72,6 @@ class CategoryController extends Controller
         }
         //
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams, null);
-        return $this->render('index', ['state' => $state, 'textAreaModel' => $textAreaModel,] + compact('newModel', 'searchModel', 'parentModel', 'parentSearchModel', 'model', 'dataProvider'));
+        return $this->render('index', ['state' => $state, 'textAreaModel' => $textAreaModel,] + compact('newModel', 'searchModel', 'model', 'dataProvider'));
     }
-
 }
