@@ -46,23 +46,6 @@ class ProductField extends ActiveRecord
         ];
     }
 
-    public static function updateCache($categoryId, $productId = null)
-    {
-        $command = \Yii::$app->db->createCommand('UPDATE
-                `product_field`
-            LEFT JOIN `field` ON `field`.`category_id` = `product_field`.`category_id` AND `field`.`title` = `product_field`.`field` AND `field`.`user_name` = `product_field`.`user_name`
-            SET
-                `cache_seq` = `field`.`seq`,
-                `cache_in_summary` = `field`.`in_summary`
-            WHERE
-                `product_field`.`category_id` = :category_id ' . ($productId ? ' AND `product_field`.`product_id` = :product_id ' : ''))
-            ->bindValue(':category_id', $categoryId);
-        if ($productId) {
-            $command->bindValue(':product_id', $productId);
-        }
-        $command->execute();
-    }
-
     public static function batchSave($lines, $product)
     {
         $datas = [];

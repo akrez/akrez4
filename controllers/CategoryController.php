@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\components\Cache;
 use app\components\Helper;
 use app\models\Category;
 use app\models\CategorySearch;
@@ -43,7 +44,7 @@ class CategoryController extends Controller
                 'user_name' => Yii::$app->user->getId(),
             ]);
             if ($isSuccessfull && $oldStatus != $model->status) {
-                Product::updateCacheCategoryStatus($model->id, $model->status);
+                Cache::updateProductCacheCategoryStatus($model->id, $model->status);
             }
         } elseif ($state == 'batchSave' && $textAreaModel->load($post)) {
             $lines = $textAreaModel->explodeLines();
@@ -68,7 +69,7 @@ class CategoryController extends Controller
             $state = '';
         }
         if ($isSuccessfull) {
-            Yii::$app->user->getIdentity()->updateCacheCategory();
+            Cache::updateUserCacheCategory(Yii::$app->user->getIdentity());
         }
         //
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams, null);

@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\components\Cache;
 use app\components\Helper;
 use app\models\Category;
 use app\models\CategorySearch;
@@ -60,7 +61,7 @@ class FieldController extends Controller
             $isSuccessfull = Helper::delete($model);
         }
         if ($isSuccessfull) {
-            ProductField::updateCache($parentModel->id);
+            Cache::updateProductFieldCache($parentModel->id);
         }
         //
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams, $parentModel);

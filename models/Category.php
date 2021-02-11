@@ -65,10 +65,10 @@ class Category extends ActiveRecord
         }
 
         $this->params = Json::encode([
-                    'price_min' => $this->price_min,
-                    'price_max' => $this->price_max,
-                    'des' => $this->des,
-                    'cache_options' => $this->cache_options,
+            'price_min' => $this->price_min,
+            'price_max' => $this->price_max,
+            'des' => $this->des,
+            'cache_options' => $this->cache_options,
         ]);
 
         return true;
@@ -87,28 +87,12 @@ class Category extends ActiveRecord
     {
         $categoryProductQuery = Product::userValidQuery()->select('id')->where(['category_id' => $this->id]);
         $categoryPriceRange = (array) PackageSearch::userValidQuery()
-                        ->select(['price_min' => 'MIN(price)', 'price_max' => 'MAX(price)'])
-                        ->where(['product_id' => $categoryProductQuery])
-                        ->andWhere(['status' => Status::STATUS_ACTIVE])
-                        ->asArray()->one() + ['price_min' => null, 'price_max' => null];
+            ->select(['price_min' => 'MIN(price)', 'price_max' => 'MAX(price)'])
+            ->where(['product_id' => $categoryProductQuery])
+            ->andWhere(['status' => Status::STATUS_ACTIVE])
+            ->asArray()->one() + ['price_min' => null, 'price_max' => null];
         $this->price_min = ($categoryPriceRange['price_min'] === null ? null : doubleval($categoryPriceRange['price_min']));
         $this->price_max = ($categoryPriceRange['price_max'] === null ? null : doubleval($categoryPriceRange['price_max']));
-        $this->save();
-    }
-
-    public function updateCacheOptions()
-    {
-        $product = Product::userValidQuery()->select('id')->where(['status' => Status::STATUS_ACTIVE])->andWhere(['category_id' => $this->id]);
-        $categoryFields = ProductField::find()
-                ->select(['field', 'value', 'cnt' => 'COUNT(`value`)',])
-                ->where(['product_id' => $product])
-                ->groupBy(['field', 'value',])
-                ->orderBy(['cnt' => SORT_DESC])
-                ->all();
-        $this->cache_options = [];
-        foreach ($categoryFields as $categoryField) {
-            $this->cache_options[$categoryField['field']][$categoryField['value']] = $categoryField['cnt'];
-        }
         $this->save();
     }
 
@@ -158,5 +142,4 @@ class Category extends ActiveRecord
             Status::STATUS_DISABLE => Yii::t('app', 'Disable'),
         ];
     }
-
 }

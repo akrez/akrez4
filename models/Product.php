@@ -93,10 +93,7 @@ class Product extends ActiveRecord
         return $correctLines;
     }
 
-    public static function updateCacheCategoryStatus($categoryId, $newStatus)
-    {
-        Product::updateAll(['cache_category_status' => $newStatus], ['category_id' => $categoryId]);
-    }
+
 
     public function updatePrice()
     {

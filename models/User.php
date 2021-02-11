@@ -424,14 +424,4 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return $this->_user;
     }
-
-    /////
-
-    public function updateCacheCategory()
-    {
-        $this->cache_category = Category::userValidQuery()->select(['id', 'title'])->where(['status' => Status::STATUS_ACTIVE])->all();
-        $this->cache_category = ArrayHelper::map($this->cache_category, 'id', 'title');
-        $this->save();
-    }
-
 }

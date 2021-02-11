@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\components\Cache;
 use app\components\Helper;
 use app\models\Category;
 use app\models\CategorySearch;
@@ -61,7 +62,7 @@ class ProductController extends Controller
                 $textAreaFields->addErrors(['values' => $errors]);
             } else {
                 $textAreaFields = new TextArea();
-                ProductField::updateCache($model->category_id, $model->id);
+                Cache::updateProductFieldCache($model->category_id, $model->id);
                 $updateCacheNeeded = true;
             }
         } elseif ($state == 'status' && $model) {
@@ -113,7 +114,7 @@ class ProductController extends Controller
             $state = '';
         }
         if ($updateCacheNeeded) {
-            $parentModel->updateCacheOptions();
+            Cache::updateCategoryCacheOptions($parentModel);
         }
         //
         $autoCompleteSource = array_keys(isset($parentModel->cache_options) ? (array) $parentModel->cache_options : []);
