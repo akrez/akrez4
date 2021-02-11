@@ -19,12 +19,12 @@ class ProductController extends Controller
     public function behaviors()
     {
         return $this->defaultBehaviors([
-                    [
-                        'actions' => ['index',],
-                        'allow' => true,
-                        'verbs' => ['POST', 'GET'],
-                        'roles' => ['@'],
-                    ]
+            [
+                'actions' => ['index',],
+                'allow' => true,
+                'verbs' => ['POST', 'GET'],
+                'roles' => ['@'],
+            ]
         ]);
     }
 
@@ -52,7 +52,7 @@ class ProductController extends Controller
             Product::batchSave($textAreaProducts, $parentModel);
         } elseif ($state == 'update' && $model) {
             $updateCacheNeeded = Helper::store($model, $post, [
-                        'user_name' => Yii::$app->user->getId(),
+                'user_name' => Yii::$app->user->getId(),
             ]);
         } elseif ($state == 'saveFields' && $model && $textAreaFields->load($post)) {
             $errors = ProductField::batchSave($textAreaFields->explodeLines(), $model);
@@ -89,21 +89,21 @@ class ProductController extends Controller
             }
         } elseif ($state == 'galleryDelete' && $model && ($name = Yii::$app->request->get('name'))) {
             $gallery = Gallery::find()->where([
-                        'AND',
-                        ['name' => $name],
-                        ['product_id' => $id],
-                        ['type' => Gallery::TYPE_PRODUCT],
-                    ])->one();
+                'AND',
+                ['name' => $name],
+                ['product_id' => $id],
+                ['type' => Gallery::TYPE_PRODUCT],
+            ])->one();
             if ($gallery) {
                 $gallery->delete();
             }
         } elseif ($state == 'galleryDefault' && $model && ($name = Yii::$app->request->get('name'))) {
             $gallery = Gallery::find()->where([
-                        'AND',
-                        ['name' => $name],
-                        ['product_id' => $id],
-                        ['type' => Gallery::TYPE_PRODUCT],
-                    ])->one();
+                'AND',
+                ['name' => $name],
+                ['product_id' => $id],
+                ['type' => Gallery::TYPE_PRODUCT],
+            ])->one();
             if ($gallery) {
                 $model->image = $gallery->name;
                 $model->save();
@@ -122,11 +122,10 @@ class ProductController extends Controller
 
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams, $parentModel);
         return $this->render('index', [
-                    'state' => $state,
-                    'textAreaFields' => $textAreaFields,
-                    'textAreaProducts' => $textAreaProducts,
-                    'autoCompleteSource' => $autoCompleteSource,
-                        ] + compact('newModel', 'searchModel', 'parentModel', 'parentSearchModel', 'model', 'dataProvider'));
+            'state' => $state,
+            'textAreaFields' => $textAreaFields,
+            'textAreaProducts' => $textAreaProducts,
+            'autoCompleteSource' => $autoCompleteSource,
+        ] + compact('newModel', 'searchModel', 'parentModel', 'parentSearchModel', 'model', 'dataProvider'));
     }
-
 }

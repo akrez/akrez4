@@ -17,12 +17,12 @@ class FieldController extends Controller
     public function behaviors()
     {
         return $this->defaultBehaviors([
-                    [
-                        'actions' => ['index'],
-                        'allow' => true,
-                        'verbs' => ['POST', 'GET'],
-                        'roles' => ['@'],
-                    ]
+            [
+                'actions' => ['index'],
+                'allow' => true,
+                'verbs' => ['POST', 'GET'],
+                'roles' => ['@'],
+            ]
         ]);
     }
 
@@ -53,8 +53,8 @@ class FieldController extends Controller
             $isSuccessfull = (bool) Field::batchSave($textAreaModel, $parentModel);
         } elseif ($state == 'update' && $model) {
             $isSuccessfull = Helper::store($model, $post, [
-                        'category_id' => $parent_id,
-                        'user_name' => $parentModel->user_name,
+                'category_id' => $parent_id,
+                'user_name' => $parentModel->user_name,
             ]);
         } elseif ($state == 'remove' && $model) {
             $isSuccessfull = Helper::delete($model);
@@ -65,10 +65,9 @@ class FieldController extends Controller
         //
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams, $parentModel);
         return $this->render('index', [
-                    'state' => $state,
-                    'textAreaModel' => $textAreaModel,
-                    'autoCompleteSource' => $autoCompleteSource,
-                        ] + compact('newModel', 'searchModel', 'parentModel', 'parentSearchModel', 'model', 'dataProvider'));
+            'state' => $state,
+            'textAreaModel' => $textAreaModel,
+            'autoCompleteSource' => $autoCompleteSource,
+        ] + compact('newModel', 'searchModel', 'parentModel', 'parentSearchModel', 'model', 'dataProvider'));
     }
-
 }

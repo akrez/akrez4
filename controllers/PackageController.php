@@ -16,12 +16,12 @@ class PackageController extends Controller
     public function behaviors()
     {
         return $this->defaultBehaviors([
-                    [
-                        'actions' => ['index'],
-                        'allow' => true,
-                        'verbs' => ['POST', 'GET'],
-                        'roles' => ['@'],
-                    ]
+            [
+                'actions' => ['index'],
+                'allow' => true,
+                'verbs' => ['POST', 'GET'],
+                'roles' => ['@'],
+            ]
         ]);
     }
 
@@ -45,13 +45,13 @@ class PackageController extends Controller
         //
         if ($state == 'create' && $newModel->load($post)) {
             $isSuccessfull = Helper::store($newModel, $post, [
-                        'product_id' => $parent_id,
-                        'user_name' => $parentModel->user_name,
+                'product_id' => $parent_id,
+                'user_name' => $parentModel->user_name,
             ]);
         } elseif ($state == 'update' && $model) {
             $isSuccessfull = Helper::store($model, $post, [
-                        'product_id' => $parent_id,
-                        'user_name' => $parentModel->user_name,
+                'product_id' => $parent_id,
+                'user_name' => $parentModel->user_name,
             ]);
         } elseif ($state == 'remove' && $model) {
             $isSuccessfull = Helper::delete($model);
@@ -66,8 +66,7 @@ class PackageController extends Controller
         //
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams, $parentModel);
         return $this->render('index', [
-                    'state' => $state,
-                        ] + compact('newModel', 'searchModel', 'parentModel', 'parentSearchModel', 'model', 'dataProvider'));
+            'state' => $state,
+        ] + compact('newModel', 'searchModel', 'parentModel', 'parentSearchModel', 'model', 'dataProvider'));
     }
-
 }
