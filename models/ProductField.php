@@ -38,11 +38,11 @@ class ProductField extends ActiveRecord
             [['field', 'value'], 'required'],
             [['field',], 'string', 'max' => 64],
             [['value'], 'string', 'max' => 64, 'when' => function ($model) {
-                    return !is_numeric($model->value);
-                }],
+                return !is_numeric($model->value);
+            }],
             [['value'], 'integer', 'when' => function ($model) {
-                    return is_numeric($model->value);
-                }],
+                return is_numeric($model->value);
+            }],
         ];
     }
 
@@ -56,7 +56,7 @@ class ProductField extends ActiveRecord
                 `cache_in_summary` = `field`.`in_summary`
             WHERE
                 `product_field`.`category_id` = :category_id ' . ($productId ? ' AND `product_field`.`product_id` = :product_id ' : ''))
-                ->bindValue(':category_id', $categoryId);
+            ->bindValue(':category_id', $categoryId);
         if ($productId) {
             $command->bindValue(':product_id', $productId);
         }
@@ -111,5 +111,4 @@ class ProductField extends ActiveRecord
     {
         return $this->hasOne(Product::className(), ['id' => 'product_id']);
     }
-
 }
