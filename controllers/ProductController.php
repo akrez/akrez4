@@ -6,6 +6,7 @@ use app\components\Helper;
 use app\models\Category;
 use app\models\CategorySearch;
 use app\models\Gallery;
+use app\models\Package;
 use app\models\Product;
 use app\models\ProductField;
 use app\models\ProductSearch;
