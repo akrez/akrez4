@@ -61,4 +61,11 @@ class Cache extends Component
         $user->cache_category = ArrayHelper::map($user->cache_category, 'id', 'title');
         $user->save();
     }
+
+    public static function updateProductsCacheField($category)
+    {
+    }
+    public static function updateProductCacheField($product)
+    {
+    }
 }

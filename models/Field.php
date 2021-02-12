@@ -23,9 +23,6 @@ class Field extends ActiveRecord
 {
 
     public $widgets;
-    public $unit;
-    public $label_no;
-    public $label_yes;
 
     public static function tableName()
     {
@@ -42,10 +39,9 @@ class Field extends ActiveRecord
             [['in_summary'], 'boolean'],
             [['params'], 'string'],
             [['seq'], 'integer'],
-            [['title'], 'string', 'max' => 64],
+            [['title', 'unit'], 'string', 'max' => 64],
             [['title'], 'unique', 'targetAttribute' => ['title', 'category_id', 'user_name'], 'message' => \Yii::t('yii', '{attribute} قبلا ثبت شده است.', ['attribute' => $this->getAttributeLabel('title')])],
             //
-            [['unit', 'label_no', 'label_yes'], 'string'],
             [['widgets'], 'each', 'rule' => ['in', 'skipOnError' => true, 'range' => array_keys(FieldList::widgetsList())]],
         ];
     }
@@ -63,15 +59,9 @@ class Field extends ActiveRecord
         parent::afterFind();
         $arrayParams = (array) Json::decode($this->params) + [
             'widgets' => [],
-            'unit' => null,
-            'label_no' => null,
-            'label_yes' => null,
         ];
 
         $this->widgets = $arrayParams['widgets'];
-        $this->unit = $arrayParams['unit'];
-        $this->label_no = $arrayParams['label_no'];
-        $this->label_yes = $arrayParams['label_yes'];
     }
 
     public function beforeSave($insert)
@@ -82,9 +72,6 @@ class Field extends ActiveRecord
 
         $this->params = [
             'widgets' => $this->widgets,
-            'unit' => $this->unit,
-            'label_no' => $this->label_no,
-            'label_yes' => $this->label_yes,
         ];
 
         $this->params = Json::encode($this->params);
@@ -101,8 +88,6 @@ class Field extends ActiveRecord
             'category_id' => $this->category_id,
             'widgets' => $this->widgets,
             'unit' => $this->unit,
-            'label_no' => $this->label_no,
-            'label_yes' => $this->label_yes,
         ];
     }
 
@@ -125,8 +110,8 @@ class Field extends ActiveRecord
         }
         if ($errors) {
             $textAreaModel->addErrors(['values' => $errors]);
-            $textAreaModel->setValues($errorLines);
         }
+        $textAreaModel->setValues($errorLines);
         return $correctLines;
     }
 
@@ -149,5 +134,4 @@ class Field extends ActiveRecord
     {
         return $this->hasOne(User::className(), ['name' => 'user_name']);
     }
-
 }

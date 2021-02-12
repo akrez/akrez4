@@ -33,7 +33,7 @@ class FieldController extends Controller
         $parent_id = intval($parent_id);
         $post = Yii::$app->request->post();
         $state = Yii::$app->request->get('state', '');
-        $isSuccessfull = null;
+        $updateCacheNeeded = null;
         $textAreaModel = new TextArea();
         //
         if ($id) {
@@ -51,17 +51,19 @@ class FieldController extends Controller
         $textAreaModel->setValues($autoCompleteSource);
         //
         if ($state == 'batchSave' && $textAreaModel->load($post)) {
-            $isSuccessfull = (bool) Field::batchSave($textAreaModel, $parentModel);
+            $updateCacheNeeded = (bool) Field::batchSave($textAreaModel, $parentModel);
+            if (empty($textAreaModel->explodeLines())) {
+                $textAreaModel->setValues($autoCompleteSource);
+            }
         } elseif ($state == 'update' && $model) {
-            $isSuccessfull = Helper::store($model, $post, [
-                'category_id' => $parent_id,
+            $updateCacheNeeded = Helper::store($model, $post, [
                 'user_name' => $parentModel->user_name,
             ]);
         } elseif ($state == 'remove' && $model) {
-            $isSuccessfull = Helper::delete($model);
+            $updateCacheNeeded = Helper::delete($model);
         }
-        if ($isSuccessfull) {
-            Cache::updateProductFieldCache($parentModel->id);
+        if ($updateCacheNeeded) {
+            Cache::updateProductsCacheField($parentModel);
         }
         //
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams, $parentModel);
