@@ -30,7 +30,7 @@ class CategoryController extends Controller
         $id = empty($id) ? null : intval($id);
         $post = Yii::$app->request->post();
         $state = Yii::$app->request->get('state', '');
-        $isSuccessfull = null;
+        $updateCacheNeeded = null;
         $textAreaModel = new TextArea();
         //
         $model = null;
@@ -43,9 +43,6 @@ class CategoryController extends Controller
             $isSuccessfull = Helper::store($model, $post, [
                 'user_name' => Yii::$app->user->getId(),
             ]);
-            if ($isSuccessfull && $oldStatus != $model->status) {
-                Cache::updateProductCacheCategoryStatus($model->id, $model->status);
-            }
         } elseif ($state == 'batchSave' && $textAreaModel->load($post)) {
             $lines = $textAreaModel->explodeLines();
             $errors = Category::batchSave($lines, $id);
@@ -54,7 +51,7 @@ class CategoryController extends Controller
                 $textAreaModel->setValues($lines);
             } else {
                 $textAreaModel = new TextArea();
-                $isSuccessfull = true;
+                $updateCacheNeeded = true;
             }
         } elseif ($state == 'remove' && $id) {
             $model = Helper::findOrFail(Category::userValidQuery($id));
@@ -63,12 +60,12 @@ class CategoryController extends Controller
                 $msg = Yii::t('app', 'alertRemoveDanger', ['count' => count($products), 'child' => Yii::t('app', 'Product'), 'parent' => Yii::t('app', 'Category')]);
                 Yii::$app->session->setFlash('danger', $msg);
             } else {
-                $isSuccessfull = Helper::delete($model);
+                $updateCacheNeeded = Helper::delete($model);
             }
         } else {
             $state = '';
         }
-        if ($isSuccessfull) {
+        if ($updateCacheNeeded) {
             Cache::updateUserCacheCategory(Yii::$app->user->getIdentity());
         }
         //
