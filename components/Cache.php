@@ -32,29 +32,6 @@ class Cache extends Component
         return isset($category->cache_options) ? (array) $category->cache_options : [];
     }
 
-    public static function updateProductCacheCategoryStatus($categoryId, $newStatus)
-    {
-        Product::updateAll(['cache_category_status' => $newStatus], ['category_id' => $categoryId]);
-    }
-
-    public static function updateProductFieldCache($categoryId, $productId = null)
-    {
-        $command = \Yii::$app->db->createCommand('UPDATE
-                `product_field`
-            LEFT JOIN `field` ON `field`.`category_id` = `product_field`.`category_id` AND `field`.`title` = `product_field`.`field` AND `field`.`user_name` = `product_field`.`user_name`
-            SET
-                `cache_seq` = `field`.`seq`,
-                `cache_in_summary` = `field`.`in_summary`
-            WHERE
-                `product_field`.`category_id` = :category_id ' . ($productId ? ' AND `product_field`.`product_id` = :product_id ' : ''))
-            ->bindValue(':category_id', $categoryId);
-        if ($productId) {
-            $command->bindValue(':product_id', $productId);
-        }
-        $command->execute();
-    }
-
-
     public static function updateUserCacheCategory($user)
     {
         $user->cache_category = Category::userValidQuery()->select(['id', 'title'])->where(['status' => Status::STATUS_ACTIVE])->all();
@@ -64,8 +41,28 @@ class Cache extends Component
 
     public static function updateProductsCacheField($category)
     {
+        foreach (Product::userValidQuery()->where(['category_id' => $category->id])->all() as  $product) {
+            self::updateProductCacheField($product);
+        }
     }
+
     public static function updateProductCacheField($product)
     {
+        $query = 'SELECT `field`, `value`, `seq`, `in_summary`, `unit`
+        FROM `product_field`
+        LEFT JOIN `field` 
+        ON `field`.`category_id` = `product_field`.`category_id` AND `field`.`title` = `product_field`.`field` AND `field`.`user_name` = `product_field`.`user_name`
+        WHERE `product_field`.`category_id` = :category_id AND `product_field`.`product_id` = :product_id 
+        ORDER BY `seq` DESC';
+        $product->cache_fields  = \Yii::$app->db->createCommand($query)
+            ->bindValue(':product_id', $product->id)
+            ->bindValue(':category_id', $product->category_id)
+            ->queryAll();
+        $product->save();
+    }
+
+    public static function getProductCacheField($product)
+    {
+        return isset($product->cache_fields) ? (array) $product->cache_fields : [];
     }
 }

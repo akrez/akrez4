@@ -51,7 +51,10 @@ class ProductController extends Controller
         $parentSearchModel = new CategorySearch();
         //
         if ($state == 'batchSave' && $textAreaProducts->load($post)) {
-            Product::batchSave($textAreaProducts, $parentModel);
+            $updateCacheNeeded = (bool) Product::batchSave($textAreaProducts, $parentModel);
+            if (empty($textAreaProducts->explodeLines())) {
+                $textAreaProducts = new TextArea();
+            }
         } elseif ($state == 'update' && $model) {
             $updateCacheNeeded = Helper::store($model, $post, [
                 'user_name' => Yii::$app->user->getId(),
@@ -62,7 +65,7 @@ class ProductController extends Controller
                 $textAreaFields->addErrors(['values' => $errors]);
             } else {
                 $textAreaFields = new TextArea();
-                Cache::updateProductFieldCache($model->category_id, $model->id);
+                Cache::updateProductCacheField($model);
                 $updateCacheNeeded = true;
             }
         } elseif ($state == 'status' && $model) {

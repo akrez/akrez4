@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 use yii\db\ActiveQuery;
+use yii\helpers\Json;
 
 /**
  * This is the model class for table "product".
@@ -13,7 +14,6 @@ use yii\db\ActiveQuery;
  * @property int|null $created_at
  * @property int|null $view
  * @property int $status
- * @property int $cache_category_status
  * @property string $title
  * @property float|null $price_min
  * @property float|null $price_max
@@ -30,6 +30,7 @@ class Product extends ActiveRecord
 {
 
     public $picture;
+    public $cache_fields;
 
     public static function validStatuses()
     {
@@ -57,6 +58,30 @@ class Product extends ActiveRecord
         ];
     }
 
+    public function afterFind()
+    {
+        parent::afterFind();
+        $arrayParams = (array) Json::decode($this->params) + [
+            'cache_fields' => [],
+        ];
+
+        $this->cache_fields = $arrayParams['cache_fields'];
+    }
+
+    public function beforeSave($insert)
+    {
+        if (!parent::beforeSave($insert)) {
+            return false;
+        }
+
+        $this->params = [
+            'cache_fields' => $this->cache_fields,
+        ];
+
+        $this->params = Json::encode($this->params);
+        return true;
+    }
+
     public static function userValidQuery($id = null)
     {
         $query = Product::find();
@@ -78,7 +103,6 @@ class Product extends ActiveRecord
             $product->user_name = Yii::$app->user->getIdentity()->name;
             $product->status = Status::STATUS_ACTIVE;
             $product->view = 0;
-            $product->cache_category_status = $categoryModel->status;
             if ($product->save()) {
                 $correctLines[] = $line;
             } else {
@@ -88,23 +112,9 @@ class Product extends ActiveRecord
         }
         if ($errors) {
             $textAreaModel->addErrors(['values' => $errors]);
-            $textAreaModel->setValues($errorLines);
         }
+        $textAreaModel->setValues($errorLines);
         return $correctLines;
-    }
-
-
-
-    public function updatePrice()
-    {
-        $priceRange = (array) Package::userValidQuery()
-                        ->select(['price_min' => 'MIN(price)', 'price_max' => 'MAX(price)'])
-                        ->where(['product_id' => $this->id])
-                        ->andWhere(['status' => Status::STATUS_ACTIVE])
-                        ->asArray()->one() + ['price_min' => null, 'price_max' => null];
-        $this->price_min = ($priceRange['price_min'] === null ? null : doubleval($priceRange['price_min']));
-        $this->price_max = ($priceRange['price_max'] === null ? null : doubleval($priceRange['price_max']));
-        $this->save();
     }
 
     public function getPackages()
@@ -151,5 +161,4 @@ class Product extends ActiveRecord
     {
         return $this->hasMany(ProductField::className(), ['product_id' => 'id']);
     }
-
 }
