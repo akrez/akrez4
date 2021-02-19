@@ -117,6 +117,18 @@ class Product extends ActiveRecord
         return $correctLines;
     }
 
+    public function updatePrice()
+    {
+        $priceRange = (array) Package::userValidQuery()
+            ->select(['price_min' => 'MIN(price)', 'price_max' => 'MAX(price)'])
+            ->where(['product_id' => $this->id])
+            ->andWhere(['status' => Status::STATUS_ACTIVE])
+            ->asArray()->one() + ['price_min' => null, 'price_max' => null];
+        $this->price_min = ($priceRange['price_min'] === null ? null : doubleval($priceRange['price_min']));
+        $this->price_max = ($priceRange['price_max'] === null ? null : doubleval($priceRange['price_max']));
+        $this->save();
+    }
+
     public function getPackages()
     {
         return $this->hasMany(Package::className(), ['product_id' => 'id']);

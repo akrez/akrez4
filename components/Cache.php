@@ -65,4 +65,13 @@ class Cache extends Component
     {
         return isset($product->cache_fields) ? (array) $product->cache_fields : [];
     }
+
+    public static function updateProductPrice($product)
+    {
+        $product->updatePrice();
+    }
+    public static function updateCategoryPrice($category)
+    {
+        $category->updatePrice();
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\components\Cache;
 use app\components\Helper;
 use app\models\Package;
 use app\models\PackageSearch;
@@ -31,7 +32,7 @@ class PackageController extends Controller
         $parent_id = intval($parent_id);
         $post = Yii::$app->request->post();
         $state = Yii::$app->request->get('state', '');
-        $isSuccessfull = null;
+        $updateCacheNeeded = null;
         //
         if ($id) {
             $model = Helper::findOrFail(Package::userValidQuery($id)->andWhere(['id' => $id])->andWhere(['product_id' => $parent_id]));
@@ -44,23 +45,23 @@ class PackageController extends Controller
         $parentSearchModel = new ProductSearch();
         //
         if ($state == 'create' && $newModel->load($post)) {
-            $isSuccessfull = Helper::store($newModel, $post, [
+            $updateCacheNeeded = Helper::store($newModel, $post, [
                 'product_id' => $parent_id,
                 'user_name' => $parentModel->user_name,
             ]);
         } elseif ($state == 'update' && $model) {
-            $isSuccessfull = Helper::store($model, $post, [
+            $updateCacheNeeded = Helper::store($model, $post, [
                 'product_id' => $parent_id,
                 'user_name' => $parentModel->user_name,
             ]);
         } elseif ($state == 'remove' && $model) {
-            $isSuccessfull = Helper::delete($model);
+            $updateCacheNeeded = Helper::delete($model);
         }
-        if ($isSuccessfull) {
-            $parentModel->updatePrice();
+        if ($updateCacheNeeded) {
+            Cache::updateProductPrice($parentModel);
             $category = Category::userValidQuery()->where(['id' => $parentModel->category_id])->one();
             if ($category) {
-                $category->updatePrice();
+                Cache::updateCategoryPrice($category);
             }
         }
         //
