@@ -2,10 +2,12 @@
 
 namespace app\controllers;
 
+use app\components\Cache;
 use app\components\Helper;
 use app\models\Category;
 use app\models\CategorySearch;
 use app\models\Gallery;
+use app\models\Package;
 use app\models\Product;
 use app\models\ProductField;
 use app\models\ProductSearch;
@@ -19,12 +21,12 @@ class ProductController extends Controller
     public function behaviors()
     {
         return $this->defaultBehaviors([
-                    [
-                        'actions' => ['index',],
-                        'allow' => true,
-                        'verbs' => ['POST', 'GET'],
-                        'roles' => ['@'],
-                    ]
+            [
+                'actions' => ['index',],
+                'allow' => true,
+                'verbs' => ['POST', 'GET'],
+                'roles' => ['@'],
+            ]
         ]);
     }
 
@@ -49,10 +51,13 @@ class ProductController extends Controller
         $parentSearchModel = new CategorySearch();
         //
         if ($state == 'batchSave' && $textAreaProducts->load($post)) {
-            Product::batchSave($textAreaProducts, $parentModel);
+            $updateCacheNeeded = (bool) Product::batchSave($textAreaProducts, $parentModel);
+            if (empty($textAreaProducts->explodeLines())) {
+                $textAreaProducts = new TextArea();
+            }
         } elseif ($state == 'update' && $model) {
             $updateCacheNeeded = Helper::store($model, $post, [
-                        'user_name' => Yii::$app->user->getId(),
+                'user_name' => Yii::$app->user->getId(),
             ]);
         } elseif ($state == 'saveFields' && $model && $textAreaFields->load($post)) {
             $errors = ProductField::batchSave($textAreaFields->explodeLines(), $model);
@@ -60,7 +65,7 @@ class ProductController extends Controller
                 $textAreaFields->addErrors(['values' => $errors]);
             } else {
                 $textAreaFields = new TextArea();
-                ProductField::updateCache($model->category_id, $model->id);
+                Cache::updateProductCacheField($model);
                 $updateCacheNeeded = true;
             }
         } elseif ($state == 'status' && $model) {
@@ -89,21 +94,21 @@ class ProductController extends Controller
             }
         } elseif ($state == 'galleryDelete' && $model && ($name = Yii::$app->request->get('name'))) {
             $gallery = Gallery::find()->where([
-                        'AND',
-                        ['name' => $name],
-                        ['product_id' => $id],
-                        ['type' => Gallery::TYPE_PRODUCT],
-                    ])->one();
+                'AND',
+                ['name' => $name],
+                ['product_id' => $id],
+                ['type' => Gallery::TYPE_PRODUCT],
+            ])->one();
             if ($gallery) {
                 $gallery->delete();
             }
         } elseif ($state == 'galleryDefault' && $model && ($name = Yii::$app->request->get('name'))) {
             $gallery = Gallery::find()->where([
-                        'AND',
-                        ['name' => $name],
-                        ['product_id' => $id],
-                        ['type' => Gallery::TYPE_PRODUCT],
-                    ])->one();
+                'AND',
+                ['name' => $name],
+                ['product_id' => $id],
+                ['type' => Gallery::TYPE_PRODUCT],
+            ])->one();
             if ($gallery) {
                 $model->image = $gallery->name;
                 $model->save();
@@ -112,21 +117,20 @@ class ProductController extends Controller
             $state = '';
         }
         if ($updateCacheNeeded) {
-            $parentModel->updateCacheOptions();
+            Cache::updateCategoryCacheOptions($parentModel);
         }
         //
-        $autoCompleteSource = array_keys(isset($parentModel->cache_options) ? (array) $parentModel->cache_options : []);
+        $autoCompleteSource = array_keys(Cache::getCategoryCacheOptions($parentModel));
         $autoCompleteSource = array_map('strval', $autoCompleteSource);
         $autoCompleteSource = array_fill_keys($autoCompleteSource, []);
         //
 
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams, $parentModel);
         return $this->render('index', [
-                    'state' => $state,
-                    'textAreaFields' => $textAreaFields,
-                    'textAreaProducts' => $textAreaProducts,
-                    'autoCompleteSource' => $autoCompleteSource,
-                        ] + compact('newModel', 'searchModel', 'parentModel', 'parentSearchModel', 'model', 'dataProvider'));
+            'state' => $state,
+            'textAreaFields' => $textAreaFields,
+            'textAreaProducts' => $textAreaProducts,
+            'autoCompleteSource' => $autoCompleteSource,
+        ] + compact('newModel', 'searchModel', 'parentModel', 'parentSearchModel', 'model', 'dataProvider'));
     }
-
 }

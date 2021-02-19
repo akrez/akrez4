@@ -83,17 +83,8 @@ $this->registerCss("
         <div class="col-sm-3">
             <?= $form->field($model, 'seq')->textInput(['type' => 'number']) ?>
         </div>
-    </div>
-
-    <div class="row">
         <div class="col-sm-3">
             <?= $form->field($model, 'unit')->textInput() ?>
-        </div>
-        <div class="col-sm-3">
-            <?= $form->field($model, 'label_yes')->textInput() ?>
-        </div>
-        <div class="col-sm-3">
-            <?= $form->field($model, 'label_no')->textInput() ?>
         </div>
     </div>
 

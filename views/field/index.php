@@ -93,18 +93,14 @@ Pjax::begin([
                         <th><?= $sort->link('title', ['label' => $modelClass->getAttributeLabel('title')]) ?></th> 
                         <th><?= $sort->link('in_summary', ['label' => $modelClass->getAttributeLabel('in_summary')]) ?></th> 
                         <th><?= $sort->link('seq', ['label' => $modelClass->getAttributeLabel('seq')]) ?></th> 
-                        <th><?= $modelClass->getAttributeLabel('unit') ?></th>
-                        <th><?= $modelClass->getAttributeLabel('label_yes') ?></th>
-                        <th><?= $modelClass->getAttributeLabel('label_no') ?></th>
+                        <th><?= $sort->link('unit', ['label' => $modelClass->getAttributeLabel('unit')]) ?></th> 
                         <th></th>
                     </tr>
                     <tr id="table-filters" class="info filters">
                         <th><?= Html::activeInput('text', $searchModel, 'title', ['class' => 'form-control']) ?></th>
                         <th><?= Html::activeInput('text', $searchModel, 'in_summary', ['class' => 'form-control']) ?></th>
                         <th><?= Html::activeInput('text', $searchModel, 'seq', ['class' => 'form-control']) ?></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
+                        <th><?= Html::activeInput('text', $searchModel, 'unit', ['class' => 'form-control']) ?></th>
                         <th></th>
                     </tr> 
                 </thead>
@@ -134,8 +130,6 @@ Pjax::begin([
                                 </td>
                                 <td><?= HtmlPurifier::process($dataProviderModel->seq) ?></td>
                                 <td><?= HtmlPurifier::process($dataProviderModel->unit) ?></td>
-                                <td><?= HtmlPurifier::process($dataProviderModel->label_yes) ?></td>
-                                <td><?= HtmlPurifier::process($dataProviderModel->label_no) ?></td>
                                 <td><?= Html::button(Yii::t('app', 'Update'), ['class' => 'btn btn-block toggler' . ($displayState == 'update' ? ' btn-warning ' : ' btn-default '), 'toggle' => "#row-update-" . $dataProviderModel->id]) ?></td>
                             </tr>
 

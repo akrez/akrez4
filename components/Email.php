@@ -18,11 +18,11 @@ class Email extends Component
 
         try {
             return Yii::$app->mailer
-                            ->compose($view, $params)
-                            ->setFrom($from)
-                            ->setTo($to)
-                            ->setSubject($subject)
-                            ->send();
+                ->compose($view, $params)
+                ->setFrom($from)
+                ->setTo($to)
+                ->setSubject($subject)
+                ->send();
         } catch (Exception $e) {
         }
         return false;
@@ -32,8 +32,8 @@ class Email extends Component
     {
         $title = Yii::t('app', 'VerifyRequest');
         return self::send(null, $user->email, $title, 'verifyRequest', [
-                    '_title' => $title,
-                    'user' => $user,
+            '_title' => $title,
+            'user' => $user,
         ]);
     }
 
@@ -41,8 +41,8 @@ class Email extends Component
     {
         $title = Yii::t('app', 'ResetPasswordRequest');
         return self::send(null, $user->email, $title, 'resetPasswordRequest', [
-                    '_title' => $title,
-                    'user' => $user,
+            '_title' => $title,
+            'user' => $user,
         ]);
     }
 
@@ -50,9 +50,9 @@ class Email extends Component
     {
         $title = Yii::t('app', 'ResetPasswordRequest');
         return self::send([self::EMAIL_SUPPORT => $blog->title], $customer->email, $title, 'customerResetPasswordRequest', [
-                    '_title' => $title,
-                    'customer' => $customer,
-                    'blog' => $blog,
+            '_title' => $title,
+            'customer' => $customer,
+            'blog' => $blog,
         ]);
     }
 }

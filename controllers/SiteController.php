@@ -15,24 +15,24 @@ class SiteController extends Controller
     public function behaviors()
     {
         return $this->defaultBehaviors([
-                    [
-                        'actions' => ['error', 'index'],
-                        'allow' => true,
-                        'verbs' => ['POST', 'GET'],
-                        'roles' => ['?', '@'],
-                    ],
-                    [
-                        'actions' => ['signin', 'signup', 'reset-password-request', 'reset-password'],
-                        'allow' => true,
-                        'verbs' => ['POST', 'GET'],
-                        'roles' => ['?'],
-                    ],
-                    [
-                        'actions' => ['profile', 'signout'],
-                        'allow' => true,
-                        'verbs' => ['POST', 'GET'],
-                        'roles' => ['@'],
-                    ],
+            [
+                'actions' => ['error', 'index'],
+                'allow' => true,
+                'verbs' => ['POST', 'GET'],
+                'roles' => ['?', '@'],
+            ],
+            [
+                'actions' => ['signin', 'signup', 'reset-password-request', 'reset-password'],
+                'allow' => true,
+                'verbs' => ['POST', 'GET'],
+                'roles' => ['?'],
+            ],
+            [
+                'actions' => ['profile', 'signout'],
+                'allow' => true,
+                'verbs' => ['POST', 'GET'],
+                'roles' => ['@'],
+            ],
         ]);
     }
 

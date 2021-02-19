@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\components\Cache;
 use app\components\Helper;
 use app\models\Category;
 use app\models\CategorySearch;
@@ -15,12 +16,12 @@ class CategoryController extends Controller
     public function behaviors()
     {
         return $this->defaultBehaviors([
-                    [
-                        'actions' => ['index',],
-                        'allow' => true,
-                        'verbs' => ['POST', 'GET'],
-                        'roles' => ['@'],
-                    ],
+            [
+                'actions' => ['index',],
+                'allow' => true,
+                'verbs' => ['POST', 'GET'],
+                'roles' => ['@'],
+            ],
         ]);
     }
 
@@ -29,7 +30,7 @@ class CategoryController extends Controller
         $id = empty($id) ? null : intval($id);
         $post = Yii::$app->request->post();
         $state = Yii::$app->request->get('state', '');
-        $isSuccessfull = null;
+        $updateCacheNeeded = null;
         $textAreaModel = new TextArea();
         //
         $model = null;
@@ -40,11 +41,8 @@ class CategoryController extends Controller
             $model = Helper::findOrFail(Category::userValidQuery($id));
             $oldStatus = $model->status;
             $isSuccessfull = Helper::store($model, $post, [
-                        'user_name' => Yii::$app->user->getId(),
+                'user_name' => Yii::$app->user->getId(),
             ]);
-            if ($isSuccessfull && $oldStatus != $model->status) {
-                Product::updateCacheCategoryStatus($model->id, $model->status);
-            }
         } elseif ($state == 'batchSave' && $textAreaModel->load($post)) {
             $lines = $textAreaModel->explodeLines();
             $errors = Category::batchSave($lines, $id);
@@ -53,7 +51,7 @@ class CategoryController extends Controller
                 $textAreaModel->setValues($lines);
             } else {
                 $textAreaModel = new TextArea();
-                $isSuccessfull = true;
+                $updateCacheNeeded = true;
             }
         } elseif ($state == 'remove' && $id) {
             $model = Helper::findOrFail(Category::userValidQuery($id));
@@ -62,17 +60,16 @@ class CategoryController extends Controller
                 $msg = Yii::t('app', 'alertRemoveDanger', ['count' => count($products), 'child' => Yii::t('app', 'Product'), 'parent' => Yii::t('app', 'Category')]);
                 Yii::$app->session->setFlash('danger', $msg);
             } else {
-                $isSuccessfull = Helper::delete($model);
+                $updateCacheNeeded = Helper::delete($model);
             }
         } else {
             $state = '';
         }
-        if ($isSuccessfull) {
-            Yii::$app->user->getIdentity()->updateCacheCategory();
+        if ($updateCacheNeeded) {
+            Cache::updateUserCacheCategory(Yii::$app->user->getIdentity());
         }
         //
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams, null);
-        return $this->render('index', ['state' => $state, 'textAreaModel' => $textAreaModel,] + compact('newModel', 'searchModel', 'parentModel', 'parentSearchModel', 'model', 'dataProvider'));
+        return $this->render('index', ['state' => $state, 'textAreaModel' => $textAreaModel,] + compact('newModel', 'searchModel', 'model', 'dataProvider'));
     }
-
 }

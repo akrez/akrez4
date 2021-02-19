@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\components\Cache;
 use app\components\Helper;
 use app\models\Category;
 use app\models\CategorySearch;
@@ -17,12 +18,12 @@ class FieldController extends Controller
     public function behaviors()
     {
         return $this->defaultBehaviors([
-                    [
-                        'actions' => ['index'],
-                        'allow' => true,
-                        'verbs' => ['POST', 'GET'],
-                        'roles' => ['@'],
-                    ]
+            [
+                'actions' => ['index'],
+                'allow' => true,
+                'verbs' => ['POST', 'GET'],
+                'roles' => ['@'],
+            ]
         ]);
     }
 
@@ -32,7 +33,7 @@ class FieldController extends Controller
         $parent_id = intval($parent_id);
         $post = Yii::$app->request->post();
         $state = Yii::$app->request->get('state', '');
-        $isSuccessfull = null;
+        $updateCacheNeeded = null;
         $textAreaModel = new TextArea();
         //
         if ($id) {
@@ -45,30 +46,31 @@ class FieldController extends Controller
         $parentModel = Helper::findOrFail(Category::userValidQuery()->andWhere(['id' => $parent_id]));
         $parentSearchModel = new CategorySearch();
         //
-        $autoCompleteSource = array_keys(isset($parentModel->cache_options) ? (array) $parentModel->cache_options : []);
+        $autoCompleteSource = array_keys(Cache::getCategoryCacheOptions($parentModel));
         $autoCompleteSource = array_map('strval', $autoCompleteSource);
         $textAreaModel->setValues($autoCompleteSource);
         //
         if ($state == 'batchSave' && $textAreaModel->load($post)) {
-            $isSuccessfull = (bool) Field::batchSave($textAreaModel, $parentModel);
+            $updateCacheNeeded = (bool) Field::batchSave($textAreaModel, $parentModel);
+            if (empty($textAreaModel->explodeLines())) {
+                $textAreaModel->setValues($autoCompleteSource);
+            }
         } elseif ($state == 'update' && $model) {
-            $isSuccessfull = Helper::store($model, $post, [
-                        'category_id' => $parent_id,
-                        'user_name' => $parentModel->user_name,
+            $updateCacheNeeded = Helper::store($model, $post, [
+                'user_name' => $parentModel->user_name,
             ]);
         } elseif ($state == 'remove' && $model) {
-            $isSuccessfull = Helper::delete($model);
+            $updateCacheNeeded = Helper::delete($model);
         }
-        if ($isSuccessfull) {
-            ProductField::updateCache($parentModel->id);
+        if ($updateCacheNeeded) {
+            Cache::updateProductsCacheField($parentModel);
         }
         //
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams, $parentModel);
         return $this->render('index', [
-                    'state' => $state,
-                    'textAreaModel' => $textAreaModel,
-                    'autoCompleteSource' => $autoCompleteSource,
-                        ] + compact('newModel', 'searchModel', 'parentModel', 'parentSearchModel', 'model', 'dataProvider'));
+            'state' => $state,
+            'textAreaModel' => $textAreaModel,
+            'autoCompleteSource' => $autoCompleteSource,
+        ] + compact('newModel', 'searchModel', 'parentModel', 'parentSearchModel', 'model', 'dataProvider'));
     }
-
 }
