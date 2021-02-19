@@ -93,14 +93,14 @@ Pjax::begin([
                         <th><?= $sort->link('title', ['label' => $modelClass->getAttributeLabel('title')]) ?></th> 
                         <th><?= $sort->link('in_summary', ['label' => $modelClass->getAttributeLabel('in_summary')]) ?></th> 
                         <th><?= $sort->link('seq', ['label' => $modelClass->getAttributeLabel('seq')]) ?></th> 
-                        <th><?= $modelClass->getAttributeLabel('unit') ?></th>
+                        <th><?= $sort->link('unit', ['label' => $modelClass->getAttributeLabel('unit')]) ?></th> 
                         <th></th>
                     </tr>
                     <tr id="table-filters" class="info filters">
                         <th><?= Html::activeInput('text', $searchModel, 'title', ['class' => 'form-control']) ?></th>
                         <th><?= Html::activeInput('text', $searchModel, 'in_summary', ['class' => 'form-control']) ?></th>
                         <th><?= Html::activeInput('text', $searchModel, 'seq', ['class' => 'form-control']) ?></th>
-                        <th></th>
+                        <th><?= Html::activeInput('text', $searchModel, 'unit', ['class' => 'form-control']) ?></th>
                         <th></th>
                     </tr> 
                 </thead>
