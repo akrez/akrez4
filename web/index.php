@@ -19,11 +19,10 @@ function ed($input)
     die;
 }
 
+$params = require(__DIR__ . '/../config/params.php');
 
 require VENDOR_PATH . '/autoload.php';
 require VENDOR_PATH . '/yiisoft/yii2/Yii.php';
-
-$params = require(__DIR__ . '/../config/params.php');
 
 $config = [
     'id' => 'basic',
