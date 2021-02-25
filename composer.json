@@ -12,7 +12,8 @@
     "require-dev": {
         "yiisoft/yii2-debug": "*",
         "yiisoft/yii2-gii": "*",
-        "symfony/browser-kit": "*"
+        "symfony/browser-kit": "*",
+        "bizley/migration": "*"
     },
     "config": {
         "disable-tls": true,
