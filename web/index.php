@@ -19,11 +19,6 @@ function ed($input)
     die;
 }
 
-defined('YII_DEBUG') or define('YII_DEBUG', true);
-defined('YII_ENV') or define('YII_ENV', 'dev');
-defined('BASE_PATH') or define('BASE_PATH', dirname(__DIR__));
-defined('VENDOR_PATH') or define('VENDOR_PATH', BASE_PATH . '/vendor');
-defined('APP_NAME') or define('APP_NAME', 'وبـلاگ فروشـگاهـی اکــرز');
 
 require VENDOR_PATH . '/autoload.php';
 require VENDOR_PATH . '/yiisoft/yii2/Yii.php';
