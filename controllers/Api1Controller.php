@@ -4,6 +4,9 @@ namespace app\controllers;
 
 use app\components\Cache;
 use app\models\Blog;
+use app\models\Color;
+use app\models\FieldList;
+use app\models\Province;
 use Yii;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
@@ -76,13 +79,13 @@ class Api1Controller extends Api
         return [
             'authenticator' => [
                 'class' => 'yii\filters\auth\QueryParamAuth',
-                'user' => 'customerApi',
+                'user' => Yii::$app->customerApi,
                 'optional' => ['*'],
-                'tokenParam' => '_token',
+                'tokenParam' => self::TOKEN_PARAM,
             ],
             'access' => [
                 'class' => 'yii\filters\AccessControl',
-                'user' => 'customerApi',
+                'user' => Yii::$app->customerApi,
                 'denyCallback' => function ($rule, $action) {
                     throw new ForbiddenHttpException(Yii::t('yii', 'You are not allowed to perform this action.'));
                 },
@@ -102,5 +105,15 @@ class Api1Controller extends Api
     public function actionInfo()
     {
         return [];
+    }
+
+    public static function actionConstant()
+    {
+        return [
+            'widget' => FieldList::widgetsList(),
+            'opertaion' => FieldList::opertaionsList(),
+            'color' => Color::getList(),
+            'province' => Province::getList(),
+        ];
     }
 }
