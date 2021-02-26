@@ -39,6 +39,11 @@ class Cache extends Component
         $user->save();
     }
 
+    public static function getUserCacheCategory($user)
+    {
+        return isset($user->cache_category) ? (array) $user->cache_category : [];
+    }
+
     public static function updateProductsCacheField($category)
     {
         foreach (Product::userValidQuery()->where(['category_id' => $category->id])->all() as  $product) {
