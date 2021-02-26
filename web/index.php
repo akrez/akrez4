@@ -125,11 +125,6 @@ $config = [
         ],
         'mailer' => $params['mailer'],
     ],
-    'modules' => [
-        'api' => [
-            'class' => 'app\modules\api\Module',
-        ],
-    ],
     'params' => $params['params'],
 ];
 
