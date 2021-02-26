@@ -424,4 +424,29 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return $this->_user;
     }
+
+    public static function findUserForApi($name)
+    {
+        return static::find()->where(['name' => $name, 'status' => Status::STATUS_ACTIVE])->one();
+    }
+
+    public function info()
+    {
+        return [
+            'created_at' => $this->created_at,
+            'name' => $this->name,
+            'title' => $this->title,
+            'slug' => $this->slug,
+            'des' => $this->des,
+            'logo' => $this->logo,
+            'email' => $this->email,
+            'facebook' => $this->facebook,
+            'phone' => $this->phone,
+            'mobile' => $this->mobile,
+            'instagram' => $this->instagram,
+            'telegram' => $this->telegram,
+            'address' => $this->address,
+            'twitter' => $this->twitter,
+        ];
+    }
 }
