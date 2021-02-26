@@ -15,7 +15,7 @@ use yii\db\ActiveQuery;
  * @property string $value
  * @property int $product_id
  * @property int $category_id
- * @property string $user_name
+ * @property string $blog_name
  *
  * @property Product $product
  */
@@ -65,9 +65,9 @@ class ProductField extends ActiveRecord
                 $productField->value = $value;
                 $productField->product_id = $product->id;
                 $productField->category_id = $product->category_id;
-                $productField->user_name = $product->user_name;
+                $productField->blog_name = $product->blog_name;
                 if ($productField->validate()) {
-                    $datas[$key . $value] = [$key, $value, $product->id, $product->category_id, $product->user_name];
+                    $datas[$key . $value] = [$key, $value, $product->id, $product->category_id, $product->blog_name];
                 } else {
                     $errors = array_merge($errors, $productField->getErrorSummary(true));
                 }
@@ -78,7 +78,7 @@ class ProductField extends ActiveRecord
             $connection = Yii::$app->db;
             $transaction = $connection->beginTransaction();
             ProductField::deleteAll(['product_id' => $product->id]);
-            $connection->createCommand()->batchInsert('product_field', ['field', 'value', 'product_id', 'category_id', 'user_name'], $datas)->execute();
+            $connection->createCommand()->batchInsert('product_field', ['field', 'value', 'product_id', 'category_id', 'blog_name'], $datas)->execute();
             $transaction->commit();
         }
         //

@@ -13,9 +13,9 @@ use yii\helpers\Json;
  * @property string $title
  * @property int $status
  * @property string|null $params
- * @property string|null $user_name
+ * @property string|null $blog_name
  *
- * @property User $userName
+ * @property Blog $blogName
  */
 class Category extends ActiveRecord
 {
@@ -38,7 +38,7 @@ class Category extends ActiveRecord
             [['title'], 'filter', 'filter' => 'trim'],
             [['des'], 'string', 'max' => 160],
             [['title'], 'string', 'max' => 64],
-            [['title'], 'unique', 'targetAttribute' => ['title', 'user_name']],
+            [['title'], 'unique', 'targetAttribute' => ['title', 'blog_name']],
         ];
     }
 
@@ -74,10 +74,10 @@ class Category extends ActiveRecord
         return true;
     }
 
-    public static function userValidQuery($id = null)
+    public static function blogValidQuery($id = null)
     {
         $query = Category::find();
-        $query->andWhere(['user_name' => Yii::$app->user->getId(),]);
+        $query->andWhere(['blog_name' => Yii::$app->user->getId(),]);
         $query->andWhere(['status' => array_keys(Category::validStatuses())]);
         $query->andFilterWhere(['id' => $id]);
         return $query;
@@ -85,8 +85,8 @@ class Category extends ActiveRecord
 
     public function updatePrice()
     {
-        $categoryProductQuery = Product::userValidQuery()->select('id')->where(['category_id' => $this->id]);
-        $categoryPriceRange = (array) PackageSearch::userValidQuery()
+        $categoryProductQuery = Product::blogValidQuery()->select('id')->where(['category_id' => $this->id]);
+        $categoryPriceRange = (array) PackageSearch::blogValidQuery()
             ->select(['price_min' => 'MIN(price)', 'price_max' => 'MAX(price)'])
             ->where(['product_id' => $categoryProductQuery])
             ->andWhere(['status' => Status::STATUS_ACTIVE])
@@ -104,7 +104,7 @@ class Category extends ActiveRecord
             $category = new Category();
             $category->title = $line;
             $category->status = Status::STATUS_DISABLE;
-            $category->user_name = Yii::$app->user->getIdentity()->name;
+            $category->blog_name = Yii::$app->user->getIdentity()->name;
             if (!$category->save()) {
                 $errors = array_merge($errors, $category->getErrorSummary(true));
             }
@@ -119,7 +119,7 @@ class Category extends ActiveRecord
 
     public function getCategoriesList()
     {
-        return CategorySearch::userValidQuery()->select(['title', 'id'])->indexBy('id')->column();
+        return CategorySearch::blogValidQuery()->select(['title', 'id'])->indexBy('id')->column();
     }
 
     public function toArray(array $fields = [], array $expand = [], $recursive = true)
@@ -128,7 +128,7 @@ class Category extends ActiveRecord
             'id' => $this->id,
             'updated_at' => $this->updated_at,
             'title' => $this->title,
-            'user_name' => $this->user_name,
+            'blog_name' => $this->blog_name,
             'price_min' => $this->price_min,
             'price_max' => $this->price_max,
             'des' => $this->des,

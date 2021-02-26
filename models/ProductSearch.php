@@ -42,7 +42,7 @@ class ProductSearch extends Product
      */
     public function search($params, $parentModel)
     {
-        $query = Product::userValidQuery()->where(['category_id' => $parentModel->id])
+        $query = Product::blogValidQuery()->where(['category_id' => $parentModel->id])
                 ->with('category')
                 ->with('galleries')
                 ->with('productFields');

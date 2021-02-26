@@ -17,10 +17,10 @@ use yii\helpers\Json;
  * @property string $color
  * @property string $des
  * @property int $product_id
- * @property string|null $user_name
+ * @property string|null $blog_name
  *
  * @property Product $product
- * @property User $userName
+ * @property Blog $blogName
  */
 class Package extends ActiveRecord
 {
@@ -83,11 +83,11 @@ class Package extends ActiveRecord
         ];
     }
 
-    public static function userValidQuery($id = null)
+    public static function blogValidQuery($id = null)
     {
         $query = Package::find();
         $query->andWhere(['status' => array_keys(Package::validStatuses())]);
-        $query->andWhere(['user_name' => Yii::$app->user->getId(),]);
+        $query->andWhere(['blog_name' => Yii::$app->user->getId(),]);
         $query->andFilterWhere(['id' => $id]);
         return $query;
     }
@@ -104,13 +104,13 @@ class Package extends ActiveRecord
     }
 
     /**
-     * Gets query for [[UserName]].
+     * Gets query for [[BlogName]].
      *
      * @return ActiveQuery
      */
-    public function getUserName()
+    public function getBlogName()
     {
-        return $this->hasOne(User::className(), ['name' => 'user_name']);
+        return $this->hasOne(Blog::className(), ['name' => 'blog_name']);
     }
 
 }

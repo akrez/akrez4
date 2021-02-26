@@ -37,13 +37,13 @@ class FieldController extends Controller
         $textAreaModel = new TextArea();
         //
         if ($id) {
-            $model = Helper::findOrFail(Field::userValidQuery($id)->andWhere(['id' => $id])->andWhere(['category_id' => $parent_id]));
+            $model = Helper::findOrFail(Field::blogValidQuery($id)->andWhere(['id' => $id])->andWhere(['category_id' => $parent_id]));
         } else {
             $model = null;
         }
         $newModel = new Field();
         $searchModel = new FieldSearch();
-        $parentModel = Helper::findOrFail(Category::userValidQuery()->andWhere(['id' => $parent_id]));
+        $parentModel = Helper::findOrFail(Category::blogValidQuery()->andWhere(['id' => $parent_id]));
         $parentSearchModel = new CategorySearch();
         //
         $autoCompleteSource = array_keys(Cache::getCategoryCacheOptions($parentModel));
@@ -57,7 +57,7 @@ class FieldController extends Controller
             }
         } elseif ($state == 'update' && $model) {
             $updateCacheNeeded = Helper::store($model, $post, [
-                'user_name' => $parentModel->user_name,
+                'blog_name' => $parentModel->blog_name,
             ]);
         } elseif ($state == 'remove' && $model) {
             $updateCacheNeeded = Helper::delete($model);

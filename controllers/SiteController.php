@@ -5,7 +5,7 @@ namespace app\controllers;
 use app\components\Email;
 use app\models\Gallery;
 use app\models\Status;
-use app\models\User;
+use app\models\Blog;
 use Yii;
 use yii\web\BadRequestHttpException;
 use yii\web\UploadedFile;
@@ -53,9 +53,9 @@ class SiteController extends Controller
     public function actionSignin()
     {
         try {
-            $signin = new User(['scenario' => 'signin']);
+            $signin = new Blog(['scenario' => 'signin']);
             if ($signin->load(Yii::$app->request->post()) && $signin->validate()) {
-                Yii::$app->user->login($signin->getUser(), 86400);
+                Yii::$app->user->login($signin->getBlog(), 86400);
                 return $this->goBack();
             }
             return $this->render('signin', ['model' => $signin]);
@@ -81,7 +81,7 @@ class SiteController extends Controller
     public function actionSignup()
     {
         try {
-            $signup = new User(['scenario' => 'signup']);
+            $signup = new Blog(['scenario' => 'signup']);
             if ($signup->load(\Yii::$app->request->post())) {
                 $signup->status = Status::STATUS_UNVERIFIED;
                 $signup->setAuthKey();
@@ -137,11 +137,11 @@ class SiteController extends Controller
     public function actionResetPasswordRequest()
     {
         try {
-            $resetPasswordRequest = new User(['scenario' => 'resetPasswordRequest']);
+            $resetPasswordRequest = new Blog(['scenario' => 'resetPasswordRequest']);
             if ($resetPasswordRequest->load(\Yii::$app->request->post()) && $resetPasswordRequest->validate()) {
-                $user = $resetPasswordRequest->getUser();
-                $user->setResetToken();
-                if ($user->save(false) && Email::resetPasswordRequest($user)) {
+                $blog = $resetPasswordRequest->getBlog();
+                $blog->setResetToken();
+                if ($blog->save(false) && Email::resetPasswordRequest($blog)) {
                     Yii::$app->session->setFlash('success', Yii::t('app', 'alertResetPasswordRequestSuccessfull'));
                     return $this->redirect(['site/index']);
                 }
@@ -155,13 +155,13 @@ class SiteController extends Controller
     public function actionResetPassword()
     {
         try {
-            $resetPassword = new User(['scenario' => 'resetPassword']);
+            $resetPassword = new Blog(['scenario' => 'resetPassword']);
             if ($resetPassword->load(\Yii::$app->request->post()) && $resetPassword->validate()) {
-                $user = $resetPassword->getUser();
-                $user->setResetToken(true);
-                $user->status = Status::STATUS_ACTIVE;
-                $user->setPasswordHash($resetPassword->password);
-                if ($user->save(false)) {
+                $blog = $resetPassword->getBlog();
+                $blog->setResetToken(true);
+                $blog->status = Status::STATUS_ACTIVE;
+                $blog->setPasswordHash($resetPassword->password);
+                if ($blog->save(false)) {
                     Yii::$app->session->setFlash('success', Yii::t('app', 'alertResetPasswordSuccessfull'));
                     return $this->redirect(['site/index']);
                 }

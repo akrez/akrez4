@@ -3,7 +3,7 @@
 namespace app\controllers;
 
 use app\components\Cache;
-use app\models\User;
+use app\models\Blog;
 use Yii;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
@@ -14,9 +14,9 @@ class Api1Controller extends Api
 
     public const CONSTANT_HASH = '20210226174900';
     public const TOKEN_PARAM = '_token';
-    public const USER_PARAM = '_user';
+    public const BLOG_PARAM = '_blog';
 
-    private static $_user = false;
+    private static $_blog = false;
 
     public function init()
     {
@@ -33,8 +33,8 @@ class Api1Controller extends Api
             //
             $event->sender->data = [
                 '_constant_hash' => self::CONSTANT_HASH,
-                '_user'          => (self::user() ? self::user()->info() : []),
-                '_categories'    => (self::user() ? Cache::getUserCacheCategory(self::user()) : []),
+                '_blog'          => (self::blog() ? self::blog()->info() : []),
+                '_categories'    => (self::blog() ? Cache::getBlogCacheCategory(self::blog()) : []),
                 '_customer'      => (Yii::$app->customerApi->getIdentity() ? Yii::$app->customerApi->getIdentity()->info() : []),
             ];
             //
@@ -44,28 +44,28 @@ class Api1Controller extends Api
                 $event->sender->data['_code'] = $statusCode;
             }
         });
-        if (empty(self::user())) {
+        if (empty(self::blog())) {
             throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
         }
     }
 
-    public static function user()
+    public static function blog()
     {
-        if (self::$_user !== false) {
-            return self::$_user;
+        if (self::$_blog !== false) {
+            return self::$_blog;
         }
 
-        self::$_user = null;
+        self::$_blog = null;
 
-        $userName = Yii::$app->request->get(self::USER_PARAM, null);
-        if ($userName) {
-            $user = User::findUserForApi($userName);
-            if ($user) {
-                self::$_user = $user;
+        $blogName = Yii::$app->request->get(self::BLOG_PARAM, null);
+        if ($blogName) {
+            $blog = Blog::findBlogForApi($blogName);
+            if ($blog) {
+                self::$_blog = $blog;
             }
         }
 
-        return self::$_user;
+        return self::$_blog;
     }
 
     public function behaviors()
@@ -73,13 +73,13 @@ class Api1Controller extends Api
         return [
             'authenticator' => [
                 'class' => 'yii\filters\auth\QueryParamAuth',
-                'user' => 'customerApi',
+                'blog' => 'customerApi',
                 'optional' => ['*'],
                 'tokenParam' => '_token',
             ],
             'access' => [
                 'class' => 'yii\filters\AccessControl',
-                'user' => 'customerApi',
+                'blog' => 'customerApi',
                 'denyCallback' => function ($rule, $action) {
                     throw new ForbiddenHttpException(Yii::t('yii', 'You are not allowed to perform this action.'));
                 },

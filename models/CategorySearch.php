@@ -42,7 +42,7 @@ class CategorySearch extends Category
      */
     public function search($params, $parentModel)
     {
-        $query = Category::userValidQuery();
+        $query = Category::blogValidQuery();
 
         // add conditions that should always apply here
 

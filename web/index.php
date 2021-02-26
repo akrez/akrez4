@@ -90,7 +90,7 @@ $config = [
         ],
         'user' => [
             'class' => 'yii\web\User',
-            'identityClass' => 'app\models\User',
+            'identityClass' => 'app\models\Blog',
             'enableAutoLogin' => true,
             'identityCookie' => ['name' => '_identity-akrez4', 'httpOnly' => true],
         ],

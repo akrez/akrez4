@@ -20,11 +20,11 @@ use yii\helpers\Json;
  * @property string|null $des
  * @property string|null $image
  * @property int|null $category_id
- * @property string|null $user_name
+ * @property string|null $blog_name
  *
  * @property Category $category
  * @property Gallery $gallery
- * @property User $user
+ * @property Blog $blog
  */
 class Product extends ActiveRecord
 {
@@ -82,11 +82,11 @@ class Product extends ActiveRecord
         return true;
     }
 
-    public static function userValidQuery($id = null)
+    public static function blogValidQuery($id = null)
     {
         $query = Product::find();
         $query->andWhere(['status' => array_keys(Product::validStatuses())]);
-        $query->andWhere(['user_name' => Yii::$app->user->getId()]);
+        $query->andWhere(['blog_name' => Yii::$app->user->getId()]);
         $query->andFilterWhere(['id' => $id]);
         return $query;
     }
@@ -100,7 +100,7 @@ class Product extends ActiveRecord
             $product = new Product();
             $product->title = $line;
             $product->category_id = $categoryModel->id;
-            $product->user_name = Yii::$app->user->getIdentity()->name;
+            $product->blog_name = Yii::$app->user->getIdentity()->name;
             $product->status = Status::STATUS_ACTIVE;
             $product->view = 0;
             if ($product->save()) {
@@ -119,7 +119,7 @@ class Product extends ActiveRecord
 
     public function updatePrice()
     {
-        $priceRange = (array) Package::userValidQuery()
+        $priceRange = (array) Package::blogValidQuery()
             ->select(['price_min' => 'MIN(price)', 'price_max' => 'MAX(price)'])
             ->where(['product_id' => $this->id])
             ->andWhere(['status' => Status::STATUS_ACTIVE])
@@ -155,13 +155,13 @@ class Product extends ActiveRecord
     }
 
     /**
-     * Gets query for [[UserName]].
+     * Gets query for [[BlogName]].
      *
      * @return ActiveQuery
      */
-    public function getUser()
+    public function getBlog()
     {
-        return $this->hasOne(User::className(), ['name' => 'user_name']);
+        return $this->hasOne(Blog::className(), ['name' => 'blog_name']);
     }
 
     /**

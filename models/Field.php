@@ -15,9 +15,9 @@ use yii\helpers\Json;
  * @property int|null $in_summary
  * @property string|null $params
  * @property int|null $category_id
- * @property string|null $user_name
+ * @property string|null $blog_name
  *
- * @property User $userName
+ * @property Blog $blogName
  */
 class Field extends ActiveRecord
 {
@@ -40,16 +40,16 @@ class Field extends ActiveRecord
             [['params'], 'string'],
             [['seq'], 'integer'],
             [['title', 'unit'], 'string', 'max' => 64],
-            [['title'], 'unique', 'targetAttribute' => ['title', 'category_id', 'user_name'], 'message' => \Yii::t('yii', '{attribute} قبلا ثبت شده است.', ['attribute' => $this->getAttributeLabel('title')])],
+            [['title'], 'unique', 'targetAttribute' => ['title', 'category_id', 'blog_name'], 'message' => \Yii::t('yii', '{attribute} قبلا ثبت شده است.', ['attribute' => $this->getAttributeLabel('title')])],
             //
             [['widgets'], 'each', 'rule' => ['in', 'skipOnError' => true, 'range' => array_keys(FieldList::widgetsList())]],
         ];
     }
 
-    public static function userValidQuery($id = null)
+    public static function blogValidQuery($id = null)
     {
         $query = Field::find();
-        $query->andWhere(['user_name' => Yii::$app->user->getId(),]);
+        $query->andWhere(['blog_name' => Yii::$app->user->getId(),]);
         $query->andFilterWhere(['id' => $id]);
         return $query;
     }
@@ -100,7 +100,7 @@ class Field extends ActiveRecord
             $field = new Field();
             $field->title = $line;
             $field->category_id = $categoryModel->id;
-            $field->user_name = Yii::$app->user->getIdentity()->name;
+            $field->blog_name = Yii::$app->user->getIdentity()->name;
             if ($field->save()) {
                 $correctLines[] = $line;
             } else {
@@ -126,12 +126,12 @@ class Field extends ActiveRecord
     }
 
     /**
-     * Gets query for [[UserName]].
+     * Gets query for [[BlogName]].
      *
      * @return ActiveQuery
      */
-    public function getUserName()
+    public function getBlogName()
     {
-        return $this->hasOne(User::className(), ['name' => 'user_name']);
+        return $this->hasOne(Blog::className(), ['name' => 'blog_name']);
     }
 }

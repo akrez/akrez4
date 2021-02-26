@@ -14,9 +14,9 @@ use Yii;
  * @property int $height
  * @property string $type
  * @property int|null $product_id
- * @property string|null $user_name
+ * @property string|null $blog_name
  *
- * @property User[] $users
+ * @property Blog[] $blogs
  */
 class Gallery extends ActiveRecord
 {
@@ -47,14 +47,14 @@ class Gallery extends ActiveRecord
             [['updated_at', 'width', 'height', 'product_id'], 'integer'],
             [['name'], 'string', 'max' => 16],
             [['type'], 'string', 'max' => 12],
-            [['user_name'], 'string', 'max' => 31],
+            [['blog_name'], 'string', 'max' => 31],
             [['name'], 'unique'],
         ];
     }
 
-    public function getUsers()
+    public function getBlogs()
     {
-        return $this->hasMany(User::className(), ['logo' => 'name']);
+        return $this->hasMany(Blog::className(), ['logo' => 'name']);
     }
 
     public static function getImageUrl($type, $name)
@@ -94,7 +94,7 @@ class Gallery extends ActiveRecord
             $gallery->name = $info['desName'];
             $gallery->type = $type;
             $gallery->product_id = $productId;
-            $gallery->user_name = \Yii::$app->user->getId();
+            $gallery->blog_name = \Yii::$app->user->getId();
             $gallery->save();
         }
         return $gallery;

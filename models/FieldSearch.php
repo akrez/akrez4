@@ -42,7 +42,7 @@ class FieldSearch extends Field
      */
     public function search($params, $parentModel)
     {
-        $query = Field::userValidQuery()->andWhere(['category_id' => $parentModel->id]);
+        $query = Field::blogValidQuery()->andWhere(['category_id' => $parentModel->id]);
 
         // add conditions that should always apply here
 
