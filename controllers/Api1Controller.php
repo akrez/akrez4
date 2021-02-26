@@ -43,6 +43,9 @@ class Api1Controller extends Api
             } else {
                 $event->sender->data['_code'] = $statusCode;
             }
+            if (YII_DEBUG) {
+                $event->sender->data += $data;
+            }
         });
         if (empty(self::blog())) {
             throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
@@ -73,13 +76,13 @@ class Api1Controller extends Api
         return [
             'authenticator' => [
                 'class' => 'yii\filters\auth\QueryParamAuth',
-                'blog' => 'customerApi',
+                'user' => 'customerApi',
                 'optional' => ['*'],
                 'tokenParam' => '_token',
             ],
             'access' => [
                 'class' => 'yii\filters\AccessControl',
-                'blog' => 'customerApi',
+                'user' => 'customerApi',
                 'denyCallback' => function ($rule, $action) {
                     throw new ForbiddenHttpException(Yii::t('yii', 'You are not allowed to perform this action.'));
                 },
