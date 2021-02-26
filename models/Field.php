@@ -49,7 +49,7 @@ class Field extends ActiveRecord
     public static function blogValidQuery($id = null)
     {
         $query = Field::find();
-        $query->andWhere(['blog_name' => Yii::$app->blog->getId(),]);
+        $query->andWhere(['blog_name' => Yii::$app->user->getId(),]);
         $query->andFilterWhere(['id' => $id]);
         return $query;
     }
@@ -100,7 +100,7 @@ class Field extends ActiveRecord
             $field = new Field();
             $field->title = $line;
             $field->category_id = $categoryModel->id;
-            $field->blog_name = Yii::$app->blog->getIdentity()->name;
+            $field->blog_name = Yii::$app->user->getIdentity()->name;
             if ($field->save()) {
                 $correctLines[] = $line;
             } else {

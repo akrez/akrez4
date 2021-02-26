@@ -94,7 +94,7 @@ class Gallery extends ActiveRecord
             $gallery->name = $info['desName'];
             $gallery->type = $type;
             $gallery->product_id = $productId;
-            $gallery->blog_name = \Yii::$app->blog->getId();
+            $gallery->blog_name = \Yii::$app->user->getId();
             $gallery->save();
         }
         return $gallery;

@@ -77,7 +77,7 @@ class Category extends ActiveRecord
     public static function blogValidQuery($id = null)
     {
         $query = Category::find();
-        $query->andWhere(['blog_name' => Yii::$app->blog->getId(),]);
+        $query->andWhere(['blog_name' => Yii::$app->user->getId(),]);
         $query->andWhere(['status' => array_keys(Category::validStatuses())]);
         $query->andFilterWhere(['id' => $id]);
         return $query;
@@ -104,7 +104,7 @@ class Category extends ActiveRecord
             $category = new Category();
             $category->title = $line;
             $category->status = Status::STATUS_DISABLE;
-            $category->blog_name = Yii::$app->blog->getIdentity()->name;
+            $category->blog_name = Yii::$app->user->getIdentity()->name;
             if (!$category->save()) {
                 $errors = array_merge($errors, $category->getErrorSummary(true));
             }

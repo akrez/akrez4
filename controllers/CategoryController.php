@@ -41,7 +41,7 @@ class CategoryController extends Controller
             $model = Helper::findOrFail(Category::blogValidQuery($id));
             $oldStatus = $model->status;
             $updateCacheNeeded = Helper::store($model, $post, [
-                'blog_name' => Yii::$app->blog->getId(),
+                'blog_name' => Yii::$app->user->getId(),
             ]);
         } elseif ($state == 'batchSave' && $textAreaModel->load($post)) {
             $lines = $textAreaModel->explodeLines();
@@ -66,7 +66,7 @@ class CategoryController extends Controller
             $state = '';
         }
         if ($updateCacheNeeded) {
-            Cache::updateBlogCacheCategory(Yii::$app->blog->getIdentity());
+            Cache::updateBlogCacheCategory(Yii::$app->user->getIdentity());
         }
         //
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams, null);

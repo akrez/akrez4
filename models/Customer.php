@@ -170,7 +170,7 @@ class Customer extends ActiveRecord implements IdentityInterface
 
     public static function findValidCustomerByEmail($email)
     {
-        return self::find()->where(['status' => [Status::STATUS_UNVERIFIED, Status::STATUS_ACTIVE, Status::STATUS_DISABLE]])->andWhere(['blog_name' => Yii::$app->blog->name()])->andWhere(['email' => $email])->one();
+        return self::find()->where(['status' => [Status::STATUS_UNVERIFIED, Status::STATUS_ACTIVE, Status::STATUS_DISABLE]])->andWhere(['blog_name' => Yii::$app->user->name()])->andWhere(['email' => $email])->one();
     }
 
     public static function findValidCustomerByEmailResetToken($email, $resetToken)
@@ -226,7 +226,7 @@ class Customer extends ActiveRecord implements IdentityInterface
             $signup = new Customer(['scenario' => 'signup']);
             $signup->load($input, '');
             $signup->status = Status::STATUS_UNVERIFIED;
-            $signup->blog_name = Yii::$app->blog->getIdentity()->name;
+            $signup->blog_name = Yii::$app->user->getIdentity()->name;
             $signup->setAuthKey();
             $signup->setPasswordHash($signup->password);
             $signup->save();
@@ -268,7 +268,7 @@ class Customer extends ActiveRecord implements IdentityInterface
                 $blog = $resetPasswordRequest->getCustomer();
                 $blog->setResetToken();
                 if ($blog->save(false)) {
-                    Email::customerResetPasswordRequest($blog, Yii::$app->blog->getIdentity());
+                    Email::customerResetPasswordRequest($blog, Yii::$app->user->getIdentity());
                 } else {
                     return null;
                 }

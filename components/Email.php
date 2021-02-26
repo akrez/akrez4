@@ -28,21 +28,21 @@ class Email extends Component
         return false;
     }
 
-    public static function verifyRequest($user)
+    public static function verifyRequest($blog)
     {
         $title = Yii::t('app', 'VerifyRequest');
-        return self::send(null, $user->email, $title, 'verifyRequest', [
+        return self::send(null, $blog->email, $title, 'verifyRequest', [
             '_title' => $title,
-            'user' => $user,
+            'blog' => $blog,
         ]);
     }
 
-    public static function resetPasswordRequest($user)
+    public static function resetPasswordRequest($blog)
     {
         $title = Yii::t('app', 'ResetPasswordRequest');
-        return self::send(null, $user->email, $title, 'resetPasswordRequest', [
+        return self::send(null, $blog->email, $title, 'resetPasswordRequest', [
             '_title' => $title,
-            'user' => $user,
+            'blog' => $blog,
         ]);
     }
 

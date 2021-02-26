@@ -87,7 +87,7 @@ class Package extends ActiveRecord
     {
         $query = Package::find();
         $query->andWhere(['status' => array_keys(Package::validStatuses())]);
-        $query->andWhere(['blog_name' => Yii::$app->blog->getId(),]);
+        $query->andWhere(['blog_name' => Yii::$app->user->getId(),]);
         $query->andFilterWhere(['id' => $id]);
         return $query;
     }

@@ -57,7 +57,7 @@ class ProductController extends Controller
             }
         } elseif ($state == 'update' && $model) {
             $updateCacheNeeded = Helper::store($model, $post, [
-                'blog_name' => Yii::$app->blog->getId(),
+                'blog_name' => Yii::$app->user->getId(),
             ]);
         } elseif ($state == 'saveFields' && $model && $textAreaFields->load($post)) {
             $errors = ProductField::batchSave($textAreaFields->explodeLines(), $model);

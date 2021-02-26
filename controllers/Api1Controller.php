@@ -21,9 +21,9 @@ class Api1Controller extends Api
     public function init()
     {
         parent::init();
-        Yii::$app->blog->loginUrl = null;
-        Yii::$app->blog->enableSession = false;
-        Yii::$app->blog->enableAutoLogin = false;
+        Yii::$app->user->loginUrl = null;
+        Yii::$app->user->enableSession = false;
+        Yii::$app->user->enableAutoLogin = false;
         Yii::$app->request->enableCsrfValidation = false;
         Yii::$app->response->format = Response::FORMAT_JSON;
         Yii::$app->response->charset = 'UTF-8';

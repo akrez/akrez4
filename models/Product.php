@@ -86,7 +86,7 @@ class Product extends ActiveRecord
     {
         $query = Product::find();
         $query->andWhere(['status' => array_keys(Product::validStatuses())]);
-        $query->andWhere(['blog_name' => Yii::$app->blog->getId()]);
+        $query->andWhere(['blog_name' => Yii::$app->user->getId()]);
         $query->andFilterWhere(['id' => $id]);
         return $query;
     }
@@ -100,7 +100,7 @@ class Product extends ActiveRecord
             $product = new Product();
             $product->title = $line;
             $product->category_id = $categoryModel->id;
-            $product->blog_name = Yii::$app->blog->getIdentity()->name;
+            $product->blog_name = Yii::$app->user->getIdentity()->name;
             $product->status = Status::STATUS_ACTIVE;
             $product->view = 0;
             if ($product->save()) {

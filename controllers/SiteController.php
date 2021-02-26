@@ -55,7 +55,7 @@ class SiteController extends Controller
         try {
             $signin = new Blog(['scenario' => 'signin']);
             if ($signin->load(Yii::$app->request->post()) && $signin->validate()) {
-                Yii::$app->blog->login($signin->getBlog(), 86400);
+                Yii::$app->user->login($signin->getBlog(), 86400);
                 return $this->goBack();
             }
             return $this->render('signin', ['model' => $signin]);
@@ -67,10 +67,10 @@ class SiteController extends Controller
     public function actionSignout()
     {
         try {
-            $signout = Yii::$app->blog->getIdentity();
+            $signout = Yii::$app->user->getIdentity();
             $signout->setAuthKey();
             if ($signout->save(false)) {
-                Yii::$app->blog->logout();
+                Yii::$app->user->logout();
             }
             return $this->goHome();
         } catch (Exception $e) {
@@ -102,7 +102,7 @@ class SiteController extends Controller
     public function actionProfile()
     {
         try {
-            $profile = \Yii::$app->blog->getIdentity();
+            $profile = \Yii::$app->user->getIdentity();
             $profile->scenario = 'profile';
             if ($profile->image = UploadedFile::getInstance($profile, 'image')) {
                 $logo = $profile->logo;
