@@ -41,13 +41,13 @@ class ProductController extends Controller
         $textAreaProducts = new TextArea();
         //
         if ($id) {
-            $model = Helper::findOrFail(Product::userValidQuery($id)->andWhere(['category_id' => $parent_id]));
+            $model = Helper::findOrFail(Product::blogValidQuery($id)->andWhere(['category_id' => $parent_id]));
         } else {
             $model = null;
         }
         $newModel = new Product();
         $searchModel = new ProductSearch();
-        $parentModel = Helper::findOrFail(Category::userValidQuery()->andWhere(['id' => $parent_id]));
+        $parentModel = Helper::findOrFail(Category::blogValidQuery()->andWhere(['id' => $parent_id]));
         $parentSearchModel = new CategorySearch();
         //
         if ($state == 'batchSave' && $textAreaProducts->load($post)) {
@@ -57,7 +57,7 @@ class ProductController extends Controller
             }
         } elseif ($state == 'update' && $model) {
             $updateCacheNeeded = Helper::store($model, $post, [
-                'user_name' => Yii::$app->user->getId(),
+                'blog_name' => Yii::$app->blog->getId(),
             ]);
         } elseif ($state == 'saveFields' && $model && $textAreaFields->load($post)) {
             $errors = ProductField::batchSave($textAreaFields->explodeLines(), $model);
@@ -72,7 +72,7 @@ class ProductController extends Controller
             $model->status = Yii::$app->request->get('status', '');
             $updateCacheNeeded = $model->save();
         } elseif ($state == 'remove' && $model) {
-            $packages = Package::userValidQuery()->andWhere(['product_id' => $id])->all();
+            $packages = Package::blogValidQuery()->andWhere(['product_id' => $id])->all();
             if ($packages) {
                 $msg = Yii::t('app', 'alertRemoveDanger', ['count' => count($packages), 'child' => Yii::t('app', 'Package'), 'parent' => Yii::t('app', 'Product')]);
                 Yii::$app->session->setFlash('danger', $msg);

@@ -35,31 +35,31 @@ class PackageController extends Controller
         $updateCacheNeeded = null;
         //
         if ($id) {
-            $model = Helper::findOrFail(Package::userValidQuery($id)->andWhere(['id' => $id])->andWhere(['product_id' => $parent_id]));
+            $model = Helper::findOrFail(Package::blogValidQuery($id)->andWhere(['id' => $id])->andWhere(['product_id' => $parent_id]));
         } else {
             $model = null;
         }
         $newModel = new Package();
         $searchModel = new PackageSearch();
-        $parentModel = Helper::findOrFail(Product::userValidQuery()->andWhere(['id' => $parent_id]));
+        $parentModel = Helper::findOrFail(Product::blogValidQuery()->andWhere(['id' => $parent_id]));
         $parentSearchModel = new ProductSearch();
         //
         if ($state == 'create' && $newModel->load($post)) {
             $updateCacheNeeded = Helper::store($newModel, $post, [
                 'product_id' => $parent_id,
-                'user_name' => $parentModel->user_name,
+                'blog_name' => $parentModel->blog_name,
             ]);
         } elseif ($state == 'update' && $model) {
             $updateCacheNeeded = Helper::store($model, $post, [
                 'product_id' => $parent_id,
-                'user_name' => $parentModel->user_name,
+                'blog_name' => $parentModel->blog_name,
             ]);
         } elseif ($state == 'remove' && $model) {
             $updateCacheNeeded = Helper::delete($model);
         }
         if ($updateCacheNeeded) {
             Cache::updateProductPrice($parentModel);
-            $category = Category::userValidQuery()->where(['id' => $parentModel->category_id])->one();
+            $category = Category::blogValidQuery()->where(['id' => $parentModel->category_id])->one();
             if ($category) {
                 Cache::updateCategoryPrice($category);
             }

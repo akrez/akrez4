@@ -38,10 +38,10 @@ class CategoryController extends Controller
         $searchModel = new CategorySearch();
         //
         if ($state == 'update' && $id) {
-            $model = Helper::findOrFail(Category::userValidQuery($id));
+            $model = Helper::findOrFail(Category::blogValidQuery($id));
             $oldStatus = $model->status;
             $updateCacheNeeded = Helper::store($model, $post, [
-                'user_name' => Yii::$app->user->getId(),
+                'blog_name' => Yii::$app->blog->getId(),
             ]);
         } elseif ($state == 'batchSave' && $textAreaModel->load($post)) {
             $lines = $textAreaModel->explodeLines();
@@ -54,8 +54,8 @@ class CategoryController extends Controller
                 $updateCacheNeeded = true;
             }
         } elseif ($state == 'remove' && $id) {
-            $model = Helper::findOrFail(Category::userValidQuery($id));
-            $products = Product::userValidQuery()->where(['category_id' => $id])->all();
+            $model = Helper::findOrFail(Category::blogValidQuery($id));
+            $products = Product::blogValidQuery()->where(['category_id' => $id])->all();
             if ($products) {
                 $msg = Yii::t('app', 'alertRemoveDanger', ['count' => count($products), 'child' => Yii::t('app', 'Product'), 'parent' => Yii::t('app', 'Category')]);
                 Yii::$app->session->setFlash('danger', $msg);
@@ -66,7 +66,7 @@ class CategoryController extends Controller
             $state = '';
         }
         if ($updateCacheNeeded) {
-            Cache::updateUserCacheCategory(Yii::$app->user->getIdentity());
+            Cache::updateBlogCacheCategory(Yii::$app->blog->getIdentity());
         }
         //
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams, null);
