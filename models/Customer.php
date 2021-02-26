@@ -45,7 +45,7 @@ class Customer extends ActiveRecord implements IdentityInterface
         return [
             //signup
             [['email',], 'required', 'on' => 'signup',],
-            [['email',], 'unique', 'targetAttribute' => ['email', 'user_name'], 'message' => Yii::t('yii', '{attribute} "{value}" has already been taken.'), 'on' => 'signup',],
+            [['email',], 'unique', 'targetAttribute' => ['email', 'blog_name'], 'message' => Yii::t('yii', '{attribute} "{value}" has already been taken.'), 'on' => 'signup',],
             [['email',], 'email', 'on' => 'signup',],
             [['password',], 'required', 'on' => 'signup',],
             [['password',], 'minLenValidation', 'params' => ['min' => 6,], 'on' => 'signup',],
@@ -170,7 +170,7 @@ class Customer extends ActiveRecord implements IdentityInterface
 
     public static function findValidCustomerByEmail($email)
     {
-        return self::find()->where(['status' => [Status::STATUS_UNVERIFIED, Status::STATUS_ACTIVE, Status::STATUS_DISABLE]])->andWhere(['user_name' => Yii::$app->user->name()])->andWhere(['email' => $email])->one();
+        return self::find()->where(['status' => [Status::STATUS_UNVERIFIED, Status::STATUS_ACTIVE, Status::STATUS_DISABLE]])->andWhere(['blog_name' => Yii::$app->blog->name()])->andWhere(['email' => $email])->one();
     }
 
     public static function findValidCustomerByEmailResetToken($email, $resetToken)
@@ -205,7 +205,7 @@ class Customer extends ActiveRecord implements IdentityInterface
             'created_at' => $this->created_at,
             'email' => $this->email,
             'status' => $this->status,
-            'user_name' => $this->user_name,
+            'blog_name' => $this->blog_name,
             'token' => ($includeToken ? $this->token : null),
         ];
     }
@@ -226,7 +226,7 @@ class Customer extends ActiveRecord implements IdentityInterface
             $signup = new Customer(['scenario' => 'signup']);
             $signup->load($input, '');
             $signup->status = Status::STATUS_UNVERIFIED;
-            $signup->user_name = Yii::$app->user->getIdentity()->name;
+            $signup->blog_name = Yii::$app->blog->getIdentity()->name;
             $signup->setAuthKey();
             $signup->setPasswordHash($signup->password);
             $signup->save();
@@ -265,10 +265,10 @@ class Customer extends ActiveRecord implements IdentityInterface
             $resetPasswordRequest = new Customer(['scenario' => 'resetPasswordRequest']);
             $resetPasswordRequest->load($input, '');
             if ($resetPasswordRequest->validate()) {
-                $user = $resetPasswordRequest->getCustomer();
-                $user->setResetToken();
-                if ($user->save(false)) {
-                    Email::customerResetPasswordRequest($user, Yii::$app->user->getIdentity());
+                $blog = $resetPasswordRequest->getCustomer();
+                $blog->setResetToken();
+                if ($blog->save(false)) {
+                    Email::customerResetPasswordRequest($blog, Yii::$app->blog->getIdentity());
                 } else {
                     return null;
                 }
@@ -285,12 +285,12 @@ class Customer extends ActiveRecord implements IdentityInterface
             $resetPassword = new Customer(['scenario' => 'resetPassword']);
             $resetPassword->load($input, '');
             if ($resetPassword->validate()) {
-                $user = $resetPassword->getCustomer();
-                $user->reset_token = null;
-                $user->reset_at = null;
-                $user->status = Status::STATUS_ACTIVE;
-                $user->setPasswordHash($resetPassword->password);
-                if ($user->save(false)) {
+                $blog = $resetPassword->getCustomer();
+                $blog->reset_token = null;
+                $blog->reset_at = null;
+                $blog->status = Status::STATUS_ACTIVE;
+                $blog->setPasswordHash($resetPassword->password);
+                if ($blog->save(false)) {
                     return $resetPassword;
                 }
                 return null;

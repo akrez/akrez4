@@ -41,7 +41,7 @@ class PackageSearch extends Package
      */
     public function search($params, $parentModel)
     {
-        $query = Package::userValidQuery()->andWhere(['product_id' => $parentModel->id]);
+        $query = Package::blogValidQuery()->andWhere(['product_id' => $parentModel->id]);
 
         // add conditions that should always apply here
 

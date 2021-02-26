@@ -9,7 +9,7 @@ use yii\helpers\Json;
 use yii\web\IdentityInterface;
 
 /**
- * This is the model class for table "user".
+ * This is the model class for table "blog".
  *
  * @property string $name
  * @property int|null $updated_at
@@ -26,14 +26,14 @@ use yii\web\IdentityInterface;
  * @property string|null $email
  * @property string|null $params { "address":"", "phone":"", "mobile":"", "instagram":"", "telegram":"", "facebook":"", "twitter":"", "slug":"", "des":"" }
  */
-class User extends ActiveRecord implements IdentityInterface
+class Blog extends ActiveRecord implements IdentityInterface
 {
 
     const TIMEOUT_RESET = 120;
 
     public $image;
     public $password;
-    public $_user;
+    public $_blog;
     //
     public $address;
     public $phone;
@@ -49,7 +49,7 @@ class User extends ActiveRecord implements IdentityInterface
 
     public static function tableName()
     {
-        return 'user';
+        return 'blog';
     }
 
     public function rules()
@@ -259,61 +259,61 @@ class User extends ActiveRecord implements IdentityInterface
     public function signinValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $user = self::find()->where(['status' => [Status::STATUS_ACTIVE, Status::STATUS_DISABLE]])->andWhere(['name' => $this->name])->one();
-            if ($user && $user->validatePassword($this->password)) {
-                return $this->_user = $user;
+            $blog = self::find()->where(['status' => [Status::STATUS_ACTIVE, Status::STATUS_DISABLE]])->andWhere(['name' => $this->name])->one();
+            if ($blog && $blog->validatePassword($this->password)) {
+                return $this->_blog = $blog;
             }
             $this->addError($attribute, Yii::t('yii', '{attribute} is invalid.', ['attribute' => $this->getAttributeLabel($attribute)]));
         }
-        return $this->_user = null;
+        return $this->_blog = null;
     }
 
     public function resetPasswordRequestValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $user = self::find()->where(['status' => [Status::STATUS_ACTIVE, Status::STATUS_DISABLE]])->andWhere(['email' => $this->email])->one();
-            if ($user) {
-                return $this->_user = $user;
+            $blog = self::find()->where(['status' => [Status::STATUS_ACTIVE, Status::STATUS_DISABLE]])->andWhere(['email' => $this->email])->one();
+            if ($blog) {
+                return $this->_blog = $blog;
             }
             $this->addError($attribute, Yii::t('yii', '{attribute} is invalid.', ['attribute' => $this->getAttributeLabel($attribute)]));
         }
-        return $this->_user = null;
+        return $this->_blog = null;
     }
 
     public function verifyRequestValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $user = self::find()->where(['status' => [Status::STATUS_UNVERIFIED]])->andWhere(['email' => $this->email])->one();
-            if ($user) {
-                return $this->_user = $user;
+            $blog = self::find()->where(['status' => [Status::STATUS_UNVERIFIED]])->andWhere(['email' => $this->email])->one();
+            if ($blog) {
+                return $this->_blog = $blog;
             }
             $this->addError($attribute, Yii::t('yii', '{attribute} is invalid.', ['attribute' => $this->getAttributeLabel($attribute)]));
         }
-        return $this->_user = null;
+        return $this->_blog = null;
     }
 
     public function resetPasswordValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $user = self::find()->where(['status' => [Status::STATUS_ACTIVE, Status::STATUS_DISABLE]])->andWhere(['email' => $this->email])->andWhere(['reset_token' => $this->reset_token])->andWhere(['>', 'reset_at', time() - self::TIMEOUT_RESET])->one();
-            if ($user) {
-                return $this->_user = $user;
+            $blog = self::find()->where(['status' => [Status::STATUS_ACTIVE, Status::STATUS_DISABLE]])->andWhere(['email' => $this->email])->andWhere(['reset_token' => $this->reset_token])->andWhere(['>', 'reset_at', time() - self::TIMEOUT_RESET])->one();
+            if ($blog) {
+                return $this->_blog = $blog;
             }
             $this->addError($attribute, Yii::t('yii', '{attribute} is invalid.', ['attribute' => $this->getAttributeLabel($attribute)]));
         }
-        return $this->_user = null;
+        return $this->_blog = null;
     }
 
     public function verifyValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $user = self::find()->where(['status' => [Status::STATUS_UNVERIFIED]])->andWhere(['email' => $this->email])->andWhere(['verify_token' => $this->verify_token])->andWhere(['>', 'verify_at', time() - self::TIMEOUT_RESET])->one();
-            if ($user) {
-                return $this->_user = $user;
+            $blog = self::find()->where(['status' => [Status::STATUS_UNVERIFIED]])->andWhere(['email' => $this->email])->andWhere(['verify_token' => $this->verify_token])->andWhere(['>', 'verify_at', time() - self::TIMEOUT_RESET])->one();
+            if ($blog) {
+                return $this->_blog = $blog;
             }
             $this->addError($attribute, Yii::t('yii', '{attribute} is invalid.', ['attribute' => $this->getAttributeLabel($attribute)]));
         }
-        return $this->_user = null;
+        return $this->_blog = null;
     }
 
     ////
@@ -420,12 +420,12 @@ class User extends ActiveRecord implements IdentityInterface
         return Yii::$app->security->validatePassword($password, $this->password_hash);
     }
 
-    public function getUser()
+    public function getBlog()
     {
-        return $this->_user;
+        return $this->_blog;
     }
 
-    public static function findUserForApi($name)
+    public static function findBlogForApi($name)
     {
         return static::find()->where(['name' => $name, 'status' => Status::STATUS_ACTIVE])->one();
     }
