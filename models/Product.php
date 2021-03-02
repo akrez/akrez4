@@ -134,6 +134,11 @@ class Product extends ActiveRecord
         return $this->hasMany(Package::className(), ['product_id' => 'id']);
     }
 
+    public static function findProductQueryForApi($blogName)
+    {
+        return Product::find()->where(['AND', ['blog_name' => $blogName, 'status' => Status::STATUS_ACTIVE,]]);
+    }
+
     /**
      * Gets query for [[Category]].
      *
