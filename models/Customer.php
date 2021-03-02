@@ -197,7 +197,7 @@ class Customer extends ActiveRecord implements IdentityInterface
         return $this->_customer;
     }
 
-    public function info($includeToken = false)
+    public function toArray(array $fields = [], array $expand = [], $recursive = true)
     {
         return [
             'id' => $this->id,
@@ -206,8 +206,15 @@ class Customer extends ActiveRecord implements IdentityInterface
             'email' => $this->email,
             'status' => $this->status,
             'blog_name' => $this->blog_name,
-            'token' => ($includeToken ? $this->token : null),
+            'token' => null,
         ];
+    }
+
+    public function toArrayWithToken(array $fields = [], array $expand = [], $recursive = true)
+    {
+        $array = $this->toArray($fields, $expand, $recursive);
+        $array['token'] = $this->token;
+        return $array;
     }
 
     public function response($includeToken = false)
