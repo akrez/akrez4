@@ -430,7 +430,7 @@ class Blog extends ActiveRecord implements IdentityInterface
         return static::find()->where(['name' => $name, 'status' => Status::STATUS_ACTIVE])->one();
     }
 
-    public function info()
+    public function toArray(array $fields = [], array $expand = [], $recursive = true)
     {
         return [
             'created_at' => $this->created_at,
