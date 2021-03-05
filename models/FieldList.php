@@ -21,8 +21,6 @@ class FieldList extends Model
         ];
     }
 
-    ////////////////////////////////////////////////////////
-
     public static function widgetsList()
     {
         return [
