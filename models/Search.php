@@ -17,12 +17,6 @@ class Search extends Model
     public $value_min;
     public $value_max;
 
-
-    public static $allowedSearchFieldsForApi = [
-        'SearchPackage' => ['price'],
-        'SearchProduct' => ['title'],
-    ];
-
     public function rules()
     {
         return [
@@ -37,11 +31,6 @@ class Search extends Model
             return false;
         }
         //
-        $this->_value = null;
-        $this->value = null;
-        $this->value_min = null;
-        $this->value_max = null;
-        $this->values = null;
         if (in_array($this->operation, FieldList::getPluralOperations())) {
             $this->values = (array)$this->values;
             array_map('strval', $this->values);
