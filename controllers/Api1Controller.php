@@ -4,10 +4,13 @@ namespace app\controllers;
 
 use app\components\Cache;
 use app\models\Blog;
+use app\models\Category;
 use app\models\Color;
 use app\models\FieldList;
+use app\models\Package;
 use app\models\Product;
 use app\models\Province;
+use app\models\Search;
 use app\models\Status;
 use Yii;
 use yii\web\ForbiddenHttpException;
@@ -38,7 +41,7 @@ class Api1Controller extends Api
             //
             $event->sender->data = [
                 '_constant_hash' => self::CONSTANT_HASH,
-                '_blog'          => (self::blog() ? self::blog()->info() : []),
+                '_blog'          => (self::blog() ? self::blog()->toArray() : []),
                 '_categories'    => self::categories(),
                 '_customer'      => (Yii::$app->customerApi->getIdentity() ? Yii::$app->customerApi->getIdentity()->info() : []),
             ];
@@ -130,9 +133,12 @@ class Api1Controller extends Api
 
     public function actionSearch($category_id = null, $page = null, $page_size = null, $sort = null)
     {
-        $searchParams = Yii::$app->request->post('Search', []);
-        //
         $blog = self::blog();
+        $search = [
+            'SearchProduct' => [],
+            'SearchPackage' => [],
+            'SearchProductField' => [],
+        ];
         //
         $sortAttributes = [
             '-created_at' => Yii::t('app', 'Newest'),
@@ -141,40 +147,84 @@ class Api1Controller extends Api
             'title' => Yii::t('app', 'Title (Asc)'),
         ];
         ////
-        $query = Product::find()->where(['AND', ['blog_name' => $blog->name, 'status' => Status::STATUS_ACTIVE,]]);
+        $query = Product::findProductQueryForApi($blog->name);
         //
         $categories = self::categories();
         //
-        if ($category_id) {
-            $category = self::category($category_id);
-            if (!$category) {
-                throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
-            }
-            $category = $category->export();
-            $query->andWhere(['category_id' => $category_id,]);
-        } else {
+        if (empty($category_id)) {
             $category = null;
             $query->andWhere(['category_id' => array_keys($categories),]);
             $category_id = null;
+        } else {
+            if (!isset($categories[$category_id])) {
+                throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
+            }
+            $category = Category::findCategoryForApi($blog->name, $category_id);
+            if (!$category) {
+                throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
+            }
+            $query->andWhere(['category_id' => $category_id,]);
         }
         //
-        $fields = self::getFieldsList($category_id);
+        if ($category_id) {
+            $searchProductFields = (array)Yii::$app->request->post('SearchProductField', []);
+            foreach ($searchProductFields as $searchProductFieldKey => $searchProductFieldValues) {
+                $searchProductFieldValues = (array)$searchProductFieldValues;
+                foreach ($searchProductFieldValues as $searchProductField) {
+                    $searchModel = new Search();
+                    $searchModel->load($searchProductField, '');
+                    $searchModel->field = $searchProductFieldKey;
+                    if ($searchModel->validate()) {
+                        $search['SearchProductField'][$searchProductFieldKey][] = $searchModel->toArray();
+                    }
+                }
+            }
+        }
         //
-        $search = [];
-        foreach ($fields as $fieldId => $field) {
-            $search[$fieldId] = [];
-            if (!isset($searchParams[$fieldId]) || !is_array($searchParams[$fieldId])) {
+        $searchProducts = (array)Yii::$app->request->post('SearchProduct', []);
+        foreach ($searchProducts as $searchProductKey => $searchProductValues) {
+            if (!in_array($searchProductKey, Search::$allowedSearchFieldsForApi['SearchProduct'])) {
                 continue;
             }
-            foreach ($searchParams[$fieldId] as $filter) {
-                $model = new Search();
-                $model->load($filter, '');
-                $model->field = $fieldId;
-                $model->type = $field['type'];
-                $model->category_id = $field['category_id'];
-                if ($model->validate()) {
-                    $search[$fieldId][] = $model->toArray();
+            $searchProductValues = (array)$searchProductValues;
+            foreach ($searchProductValues as $searchProduct) {
+                $searchModel = new Search();
+                $searchModel->load($searchProduct, '');
+                $searchModel->field = $searchProductKey;
+                if ($searchModel->validate()) {
+                    $search['SearchProduct'][$searchProductKey][] = $searchModel->toArray();
                 }
+            }
+        }
+        //
+        $searchPackages = (array)Yii::$app->request->post('SearchPackage', []);
+        foreach ($searchPackages as $searchPackageKey => $searchPackageValues) {
+            if (!in_array($searchPackageKey, Search::$allowedSearchFieldsForApi['SearchPackage'])) {
+                continue;
+            }
+            $searchPackageValues = (array)$searchPackageValues;
+            foreach ($searchPackageValues as $searchPackage) {
+                $searchModel = new Search();
+                $searchModel->load($searchPackage, '');
+                $searchModel->field = $searchPackageKey;
+                if ($searchModel->validate()) {
+                    $search['SearchPackage'][$searchPackageKey][] = $searchModel->toArray();
+                }
+            }
+        }
+
+        $search[$fieldId] = [];
+        if (!isset($searchParams[$fieldId]) || !is_array($searchParams[$fieldId])) {
+            continue;
+        }
+        foreach ($searchParams[$fieldId] as $filter) {
+            $model = new Search();
+            $model->load($filter, '');
+            $model->field = $fieldId;
+            $model->type = $field['type'];
+            $model->category_id = $field['category_id'];
+            if ($model->validate()) {
+                $search[$fieldId][] = $model->toArray();
             }
         }
         //
