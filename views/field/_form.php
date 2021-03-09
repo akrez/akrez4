@@ -16,9 +16,9 @@ use yii\widgets\ActiveForm;
 JuiAsset::register($this);
 $this->registerJs("
     $('.autocomplete').autocomplete(" . json_encode([
-            'source' => $autoCompleteSource,
-            'minLength' => 0,
-        ]) . ").on('focus', function() { $(this).keydown(); });
+    'source' => $autoCompleteSource,
+    'minLength' => 0,
+]) . ").on('focus', function() { $(this).keydown(); });
 ", View::POS_READY);
 $this->registerCss("
     .checkbox-list {
@@ -43,17 +43,17 @@ $this->registerCss("
 
     <?php
     $form = ActiveForm::begin([
-                'options' => ['data-pjax' => true],
-                'action' => Url::current(['field/index', 'id' => $model->id, 'state' => ($model->isNewRecord ? 'save' : 'update'),]),
-                'fieldConfig' => [
-                    'template' => '<div class="input-group">{label}{input}</div>{hint}{error}',
-                    'labelOptions' => [
-                        'class' => 'input-group-addon',
-                    ],
-                ],
-                'options' => [
-                    'data-pjax' => true,
-                ],
+        'options' => ['data-pjax' => true],
+        'action' => Url::current(['field/index', 'id' => $model->id, 'state' => ($model->isNewRecord ? 'save' : 'update'),]),
+        'fieldConfig' => [
+            'template' => '<div class="input-group">{label}{input}</div>{hint}{error}',
+            'labelOptions' => [
+                'class' => 'input-group-addon',
+            ],
+        ],
+        'options' => [
+            'data-pjax' => true,
+        ],
     ]);
     ?>
 
@@ -89,10 +89,18 @@ $this->registerCss("
     </div>
 
     <div class="row">
+        <div class="col-sm-3">
+            <?= $form->field($model, 'label_yes')->textInput() ?>
+        </div>
+        <div class="col-sm-3">
+            <?= $form->field($model, 'label_no')->textInput() ?>
+        </div>
+    </div>
+
+    <div class="row">
         <div class="col-sm-12">
             <?php
-            echo $form->field($model, 'widgets', [
-            ])->checkboxList(FieldList::widgetsList(), [
+            echo $form->field($model, 'widgets', [])->checkboxList(FieldList::widgetsList(), [
                 'class' => 'checkbox-list',
                 'itemOptions' => [
                     'labelOptions' => [

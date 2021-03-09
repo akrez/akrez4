@@ -49,8 +49,10 @@ class Model extends BaseModel
             'taxonomy' => 'دسته‌بندی',
             'guaranty' => 'گارانتی',
 
+            'label_no' => 'جایگزین عبارت "خیر"',
             'password' => 'رمز عبور',
             'garanties' => 'گارانتی‌ها',
+            'label_yes' => 'جایگزین عبارت "بله"',
             'parent_id' => 'مرتبط با',
             'price_min' => 'کمترین قیمت',
             'price_max' => 'بیشترین قیمت',
