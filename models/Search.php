@@ -7,6 +7,7 @@ use app\components\Helper;
 class Search extends Model
 {
 
+    public $widget;
     public $field;
     public $operation;
     //
@@ -20,8 +21,22 @@ class Search extends Model
     public function rules()
     {
         return [
-            [['operation', '!_value', '!field',], 'required'],
+            [['operation', '!_value', '!field', 'widget'], 'required'],
             [['value', 'values', 'value_min', 'value_max'], 'safe'],
+            [['widget'], 'in', 'range' => array_keys(FieldList::widgetsList())],
+        ];
+    }
+
+    public function toArray(array $fields = [], array $expand = [], $recursive = true)
+    {
+        return [
+            'widget' => $this->widget,
+            'field' => $this->field,
+            'operation' => $this->operation,
+            'value' => $this->value,
+            'values' => $this->values,
+            'value_min' => $this->value_min,
+            'value_max' => $this->value_max,
         ];
     }
 
