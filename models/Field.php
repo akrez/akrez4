@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 use yii\db\ActiveQuery;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
 
 /**
@@ -113,6 +114,15 @@ class Field extends ActiveRecord
         }
         $textAreaModel->setValues($errorLines);
         return $correctLines;
+    }
+
+    public static function getFieldsList($categoryId = null)
+    {
+        $list = [];
+        if ($categoryId) {
+            $list = Field::find()->where(['category_id' => $categoryId])->orderBy(['seq' => 'DESC'])->indexBy('title')->all();
+        }
+        return ArrayHelper::toArray($list);
     }
 
     /**

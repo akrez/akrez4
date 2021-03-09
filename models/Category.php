@@ -122,6 +122,11 @@ class Category extends ActiveRecord
         return CategorySearch::blogValidQuery()->select(['title', 'id'])->indexBy('id')->column();
     }
 
+    public static function findCategoryForApi($blogName, $id)
+    {
+        return Category::find()->where(['AND', ['id' => $id, 'blog_name' => $blogName, 'status' => Status::STATUS_ACTIVE,]])->one();
+    }
+
     public function toArray(array $fields = [], array $expand = [], $recursive = true)
     {
         return [

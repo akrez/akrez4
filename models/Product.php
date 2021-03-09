@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\components\Cache;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\helpers\Json;
@@ -132,6 +133,28 @@ class Product extends ActiveRecord
     public function getPackages()
     {
         return $this->hasMany(Package::className(), ['product_id' => 'id']);
+    }
+
+    public static function findProductQueryForApi($blogName)
+    {
+        return Product::find()->where(['AND', ['blog_name' => $blogName, 'status' => Status::STATUS_ACTIVE,]]);
+    }
+
+    public function toArray(array $fields = [], array $expand = [], $recursive = true)
+    {
+        return [
+            'id' => $this->id,
+            'updated_at' => $this->updated_at,
+            'created_at' => $this->created_at,
+            'title' => $this->title,
+            'price_min' => $this->price_min,
+            'price_max' => $this->price_max,
+            'des' => $this->des,
+            'view' => $this->view,
+            'image' => $this->image,
+            'category_id' => $this->category_id,
+            '_fields' => Cache::getProductCacheField($this),
+        ];
     }
 
     /**
