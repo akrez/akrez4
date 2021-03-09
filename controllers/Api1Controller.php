@@ -214,7 +214,9 @@ class Api1Controller extends Api
             $query->where($conditionsOfSections['Product']);
         } elseif ($conditionsOfSections['Package']) {
             array_unshift($conditionsOfSections['Package'], 'AND');
-            $query->where($conditionsOfSections['Package']);
+            $query->andWhere([
+                'id' => Package::find()->select('product_id')->where(['status' => Status::STATUS_ACTIVE])->where($conditionsOfSections['ProductField']),
+            ]);
         } elseif ($conditionsOfSections['ProductField']) {
             array_unshift($conditionsOfSections['ProductField'], 'AND');
             $query->andWhere([
@@ -249,7 +251,7 @@ class Api1Controller extends Api
 
         if ($countOfResults > 0) {
             $products = $query->orderBy([$singleSort->attribute => $singleSort->order])->offset($pagination->offset)->limit($pagination->limit)->all();
-            $products =ArrayHelper::toArray($products);
+            $products = ArrayHelper::toArray($products);
         }
 
         return [
