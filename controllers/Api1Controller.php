@@ -2,10 +2,15 @@
 
 namespace app\controllers;
 
+use yii\data\Pagination;
+use app\models\ProductField;
+use app\components\SingleSort;
+use yii\web\BadRequestHttpException;
 use app\components\Cache;
 use app\models\Blog;
 use app\models\Category;
 use app\models\Color;
+use app\models\Field;
 use app\models\FieldList;
 use app\models\Package;
 use app\models\Product;
@@ -13,6 +18,7 @@ use app\models\Province;
 use app\models\Search;
 use app\models\Status;
 use Yii;
+use yii\helpers\ArrayHelper;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
@@ -43,7 +49,7 @@ class Api1Controller extends Api
                 '_constant_hash' => self::CONSTANT_HASH,
                 '_blog'          => (self::blog() ? self::blog()->toArray() : []),
                 '_categories'    => self::categories(),
-                '_customer'      => (Yii::$app->customerApi->getIdentity() ? Yii::$app->customerApi->getIdentity()->info() : []),
+                '_customer'      => (Yii::$app->customerApi->getIdentity() ? Yii::$app->customerApi->getIdentity()->toArray() : []),
             ];
             //
             if ($statusCode == 200 && isset($data['code'])) {
@@ -134,11 +140,6 @@ class Api1Controller extends Api
     public function actionSearch($category_id = null, $page = null, $page_size = null, $sort = null)
     {
         $blog = self::blog();
-        $search = [
-            'SearchProduct' => [],
-            'SearchPackage' => [],
-            'SearchProductField' => [],
-        ];
         //
         $sortAttributes = [
             '-created_at' => Yii::t('app', 'Newest'),
@@ -166,124 +167,62 @@ class Api1Controller extends Api
             $query->andWhere(['category_id' => $category_id,]);
         }
         //
-        if ($category_id) {
-            $searchProductFields = (array)Yii::$app->request->post('SearchProductField', []);
-            foreach ($searchProductFields as $searchProductFieldKey => $searchProductFieldValues) {
-                $searchProductFieldValues = (array)$searchProductFieldValues;
-                foreach ($searchProductFieldValues as $searchProductField) {
+        $allowedFieldsOfSections = [
+            'Product' => ['title'],
+            'Package' => ['price'],
+            'ProductField' => boolval($category_id),
+        ];
+        //
+        $search = [];
+        $conditionsOfSections = [];
+        foreach ($allowedFieldsOfSections as $section => $allowedFields) {
+            $search[$section] = [];
+            $conditionsOfSections[$section] = [];
+            $postedDatas = (array)Yii::$app->request->post($section, []);
+            foreach ($postedDatas as $postedField => $postedValues) {
+                if ($allowedFields === true) {
+                } elseif ($allowedFields === false) {
+                    continue;
+                } elseif (!in_array($postedField, $allowedFields)) {
+                    continue;
+                }
+                $postedValues = (array)$postedValues;
+                foreach ($postedValues as $postedValue) {
                     $searchModel = new Search();
-                    $searchModel->load($searchProductField, '');
-                    $searchModel->field = $searchProductFieldKey;
+                    $searchModel->load($postedValue, '');
+                    $searchModel->field = $postedField;
                     if ($searchModel->validate()) {
-                        $search['SearchProductField'][$searchProductFieldKey][] = $searchModel->toArray();
-                    }
-                }
-            }
-        }
-        //
-        $searchProducts = (array)Yii::$app->request->post('SearchProduct', []);
-        foreach ($searchProducts as $searchProductKey => $searchProductValues) {
-            if (!in_array($searchProductKey, Search::$allowedSearchFieldsForApi['SearchProduct'])) {
-                continue;
-            }
-            $searchProductValues = (array)$searchProductValues;
-            foreach ($searchProductValues as $searchProduct) {
-                $searchModel = new Search();
-                $searchModel->load($searchProduct, '');
-                $searchModel->field = $searchProductKey;
-                if ($searchModel->validate()) {
-                    $search['SearchProduct'][$searchProductKey][] = $searchModel->toArray();
-                }
-            }
-        }
-        //
-        $searchPackages = (array)Yii::$app->request->post('SearchPackage', []);
-        foreach ($searchPackages as $searchPackageKey => $searchPackageValues) {
-            if (!in_array($searchPackageKey, Search::$allowedSearchFieldsForApi['SearchPackage'])) {
-                continue;
-            }
-            $searchPackageValues = (array)$searchPackageValues;
-            foreach ($searchPackageValues as $searchPackage) {
-                $searchModel = new Search();
-                $searchModel->load($searchPackage, '');
-                $searchModel->field = $searchPackageKey;
-                if ($searchModel->validate()) {
-                    $search['SearchPackage'][$searchPackageKey][] = $searchModel->toArray();
-                }
-            }
-        }
-
-        $search[$fieldId] = [];
-        if (!isset($searchParams[$fieldId]) || !is_array($searchParams[$fieldId])) {
-            continue;
-        }
-        foreach ($searchParams[$fieldId] as $filter) {
-            $model = new Search();
-            $model->load($filter, '');
-            $model->field = $fieldId;
-            $model->type = $field['type'];
-            $model->category_id = $field['category_id'];
-            if ($model->validate()) {
-                $search[$fieldId][] = $model->toArray();
-            }
-        }
-        //
-
-        $fieldStringHasFilter = false;
-        $fieldStringQuery = FieldString::find()->select('product_id');
-
-        $fieldNumberHasFilter = false;
-        $FieldNumberQuery = FieldNumber::find()->select('product_id');
-
-        foreach ($search as $field) {
-            foreach ($field as $filter) {
-                if ($filter['category_id']) {
-                    if ($filter['type'] == FieldList::TYPE_STRING) {
-                        $fieldStringHasFilter = true;
-                        $fieldStringQuery->andFilterWhere(['AND', [$filter['operation'], 'value', $filter['_value']], ['=', 'field_id', $filter['field']]]);
-                    } elseif ($filter['type'] == FieldList::TYPE_NUMBER) {
-                        $fieldNumberHasFilter = true;
-                        if ($filter['operation'] == FieldList::OPERATION_BETWEEN) {
-                            $FieldNumberQuery->andFilterWhere(['AND', [$filter['operation'], 'value', $filter['_value'][0], $filter['_value'][1],], ['=', 'field_id', $filter['field']]]);
+                        $search[$section][$postedField][] = $searchModel->toArray();
+                        $condition = [
+                            0 => $searchModel->operation,
+                            1 => $searchModel->field,
+                        ];
+                        if (in_array($searchModel->operation, FieldList::getMinMaxOperations())) {
+                            $condition[2] = $searchModel->_value[0];
+                            $condition[3] = $searchModel->_value[1];
                         } else {
-                            $FieldNumberQuery->andFilterWhere(['AND', [$filter['operation'], 'value', $filter['_value']], ['=', 'field_id', $filter['field']]]);
+                            $condition[2] = $searchModel->_value;
                         }
-                    } elseif ($filter['type'] == FieldList::TYPE_BOOLEAN) {
-                        $fieldNumberHasFilter = true;
-                        $FieldNumberQuery->andFilterWhere(['AND', [$filter['operation'], 'value', $filter['_value']], ['=', 'field_id', $filter['field']]]);
-                    }
-                } elseif ($filter['field'] == 'title') {
-                    $query->andFilterWhere([$filter['operation'], $filter['field'], $filter['_value']]);
-                } elseif ($filter['field'] == 'price') {
-                    if ($filter['operation'] == '<') {
-                        $query->andFilterWhere([$filter['operation'], 'price_min', $filter['_value']]);
-                    } elseif ($filter['operation'] == '>') {
-                        $query->andFilterWhere([$filter['operation'], 'price_max', $filter['_value']]);
-                    } elseif ($filter['operation'] == '=') {
-                        $query->andFilterWhere(['OR', [$filter['operation'], 'price_min', $filter['_value']], [$filter['operation'], 'price_min', $filter['_value']]]);
-                    } elseif ($filter['operation'] == '<>') {
-                        $query->andFilterWhere(['AND', [$filter['operation'], 'price_min', $filter['_value']], [$filter['operation'], 'price_min', $filter['_value']]]);
-                    } elseif ($filter['operation'] == 'IN') {
-                        $query->andFilterWhere(['OR', [$filter['operation'], 'price_min', $filter['_value']], [$filter['operation'], 'price_min', $filter['_value']]]);
-                    } elseif ($filter['operation'] == 'NOT IN') {
-                        $query->andFilterWhere(['AND', [$filter['operation'], 'price_min', $filter['_value']], [$filter['operation'], 'price_min', $filter['_value']]]);
-                    } elseif ($filter['operation'] == FieldList::OPERATION_BETWEEN) {
-                        $query->andFilterWhere(['AND', ['>=', 'price_min', $filter['_value'][0]], ['<=', 'price_min', $filter['_value'][1]]]);
+                        $conditionsOfSections[$section][] = $condition;
                     }
                 }
             }
         }
 
-        if ($fieldStringHasFilter) {
-            $query->andWhere(['id' => $fieldStringQuery]);
-        }
-
-        if ($fieldNumberHasFilter) {
-            $query->andWhere(['id' => $FieldNumberQuery]);
+        if ($conditionsOfSections['Product']) {
+            array_unshift($conditionsOfSections['Product'], 'AND');
+            $query->where($conditionsOfSections['Product']);
+        } elseif ($conditionsOfSections['Package']) {
+            array_unshift($conditionsOfSections['Package'], 'AND');
+            $query->where($conditionsOfSections['Package']);
+        } elseif ($conditionsOfSections['ProductField']) {
+            array_unshift($conditionsOfSections['ProductField'], 'AND');
+            $query->andWhere([
+                'id' => ProductField::find()->select('product_id')->where($conditionsOfSections['ProductField']),
+            ]);
         }
 
         $products = [];
-        $productsFields = [];
         $countOfResults = $query->count('id');
 
         $singleSort = new SingleSort([
@@ -309,47 +248,16 @@ class Api1Controller extends Api
         ]);
 
         if ($countOfResults > 0) {
-            $products = $query->orderBy([$singleSort->attribute => $singleSort->order])->offset($pagination->offset)->limit($pagination->limit)->asArray()->all();
-        }
-
-        if ($countOfResults > 0 && $category_id) {
-            $productsId = ArrayHelper::getColumn($products, 'id');
-            if ($productsId) {
-                $productFieldResults = array_merge(
-                    FieldString::find()->where(['product_id' => $productsId])->all(),
-                    FieldNumber::find()->where(['product_id' => $productsId])->all()
-                );
-                foreach ($productFieldResults as $productFieldResultKey => $productFieldResult) {
-                    if (isset($productFields[$productFieldResult->field_id]['values']) == false) {
-                        $productsFields[$productFieldResult->product_id][$productFieldResult->field_id] = ['values' => []] + $fields[$productFieldResult->field_id];
-                    }
-                    $productsFields[$productFieldResult->product_id][$productFieldResult->field_id]['values'][] = $productFieldResult->value;
-                }
-                foreach ($productsFields as $productFieldsKey => $productFields) {
-                    usort($productsFields[$productFieldsKey], function ($a, $b) {
-                        if ($a['seq'] === $b['seq']) {
-                            return 1;
-                        }
-                        if ($b['seq'] === null) {
-                            return 1;
-                        }
-                        if ($a['seq'] === null) {
-                            return -1;
-                        }
-                        return ($a['seq'] > $b['seq']) ? 1 : -1;
-                    });
-                }
-            }
+            $products = $query->orderBy([$singleSort->attribute => $singleSort->order])->offset($pagination->offset)->limit($pagination->limit)->all();
+            $products =ArrayHelper::toArray($products);
         }
 
         return [
-            '_categories' => $categories,
             'categoryId' => $category_id,
             'category' => $category,
             'products' => $products,
-            'productsFields' => $productsFields,
             'search' => $search,
-            'fields' => $fields,
+            'fields' => Field::getFieldsList($category_id),
             'sort' => [
                 'attribute' => $singleSort->sort,
                 'attributes' => $singleSort->sortAttributes,
