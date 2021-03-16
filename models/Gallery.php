@@ -52,6 +52,11 @@ class Gallery extends ActiveRecord
         ];
     }
 
+    public static function findProductGalleryQueryForApi($blogName, $productId)
+    {
+        return Gallery::find()->where(['blog_name' => $blogName, 'type' => Gallery::TYPE_PRODUCT, 'product_id' => $productId]);
+    }
+
     public function getBlogs()
     {
         return $this->hasMany(Blog::className(), ['logo' => 'name']);
