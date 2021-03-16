@@ -12,6 +12,7 @@ use app\models\Category;
 use app\models\Color;
 use app\models\Field;
 use app\models\FieldList;
+use app\models\Gallery;
 use app\models\Package;
 use app\models\Product;
 use app\models\Province;
@@ -269,6 +270,38 @@ class Api1Controller extends Api
                 'page' => $pagination->getPage(),
                 'total_count' => $countOfResults,
             ],
+        ];
+    }
+
+    public function actionProduct($id)
+    {
+        $blog = self::blog();
+        $categories = self::categories();
+
+        $product = Product::findProductQueryForApi($blog->name)->andWhere([
+            'AND', [
+                'id' => $id,
+                'category_id' => array_keys($categories)
+            ]
+        ])->one();
+        if ($product) {
+            $product = $product->toArray();
+        } else {
+            throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
+        }
+
+        $fields = Field::getFieldsList($product['category_id']);
+
+        $images = Gallery::findProductGalleryQueryForApi($blog->name, $product['id'])->indexBy('name')->all();
+
+        $packages = Package::findProductPackageQueryForApi($blog->name, $product['id'])->all();
+
+        return [
+            'categoryId' => $product['category_id'],
+            'product' => $product,
+            'fields' => $fields,
+            'images' => ArrayHelper::toArray($images, ['name', 'updated_at', 'width', 'height']),
+            'packages' => ArrayHelper::toArray($packages, ['price', 'guaranty', 'des']),
         ];
     }
 }
