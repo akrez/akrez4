@@ -180,8 +180,7 @@ class Api1Controller extends Api
             $conditionsOfSections[$section] = [];
             $postedDatas = (array)Yii::$app->request->post($section, []);
             foreach ($postedDatas as $postedField => $postedValues) {
-                if ($allowedFields === true) {
-                } elseif ($allowedFields === false) {
+                if ($allowedFields === false) {
                     continue;
                 } elseif (!in_array($postedField, $allowedFields)) {
                     continue;
