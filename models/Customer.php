@@ -206,21 +206,13 @@ class Customer extends ActiveRecord implements IdentityInterface
             'email' => $this->email,
             'status' => $this->status,
             'blog_name' => $this->blog_name,
-            'token' => null,
+            'token' => ($this->getScenario() == 'signin' ? $this->token : null),
         ];
     }
 
-    public function toArrayWithToken(array $fields = [], array $expand = [], $recursive = true)
-    {
-        $array = $this->toArray($fields, $expand, $recursive);
-        $array['token'] = $this->token;
-        return $array;
-    }
-
-    public function response($includeToken = false)
+    public function response()
     {
         return [
-            'customer' => $this->info($includeToken),
             'errors' => $this->errors,
         ];
     }

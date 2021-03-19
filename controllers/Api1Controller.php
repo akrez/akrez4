@@ -117,6 +117,12 @@ class Api1Controller extends Api
                         'verbs' => ['POST'],
                         'roles' => ['?', '@'],
                     ],
+                    [
+                        'actions' => ['signout',],
+                        'allow' => true,
+                        'verbs' => ['POST'],
+                        'roles' => ['@'],
+                    ],
                 ],
             ],
         ];
@@ -303,5 +309,18 @@ class Api1Controller extends Api
             'images' => ArrayHelper::toArray($images, ['name', 'updated_at', 'width', 'height']),
             'packages' => ArrayHelper::toArray($packages, ['price', 'guaranty', 'des']),
         ];
+    }
+
+    public function actionSignout()
+    {
+        $signout = Yii::$app->customerApi->getIdentity();
+        if (!$signout) {
+            throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
+        }
+        $signout = $signout->signout();
+        if ($signout == null) {
+            throw new BadRequestHttpException();
+        }
+        return $signout->response();
     }
 }
