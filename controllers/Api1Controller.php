@@ -10,6 +10,7 @@ use app\components\Cache;
 use app\models\Blog;
 use app\models\Category;
 use app\models\Color;
+use app\models\Customer;
 use app\models\Field;
 use app\models\FieldList;
 use app\models\Gallery;
@@ -27,7 +28,7 @@ use yii\web\Response;
 class Api1Controller extends Api
 {
 
-    public const CONSTANT_HASH = '20210226174900';
+    public const CONSTANT_HASH = '20210324172300';
     public const TOKEN_PARAM = '_token';
     public const BLOG_PARAM = '_blog';
 
@@ -118,10 +119,16 @@ class Api1Controller extends Api
                         'roles' => ['?', '@'],
                     ],
                     [
-                        'actions' => ['signout',],
+                        'actions' => ['signout', 'profile',  'basket', 'basket-add', 'basket-remove', 'invoice', 'invoice-add', 'invoice-view', 'invoice-remove',],
                         'allow' => true,
                         'verbs' => ['POST'],
                         'roles' => ['@'],
+                    ],
+                    [
+                        'actions' => ['signin', 'signup', 'reset-password-request', 'reset-password',],
+                        'allow' => true,
+                        'verbs' => ['POST'],
+                        'roles' => ['?'],
                     ],
                 ],
             ],
@@ -144,9 +151,13 @@ class Api1Controller extends Api
         ];
     }
 
-    public function actionSearch($category_id = null, $page = null, $page_size = null, $sort = null)
+    public function actionSearch($category_id = null)
     {
         $blog = self::blog();
+        //
+        $page = Yii::$app->request->post('page');
+        $page_size = Yii::$app->request->post('page_size');
+        $sort = Yii::$app->request->post('sort');
         //
         $sortAttributes = [
             '-created_at' => Yii::t('app', 'Newest'),
@@ -187,7 +198,8 @@ class Api1Controller extends Api
             $conditionsOfSections[$section] = [];
             $postedDatas = (array)Yii::$app->request->post($section, []);
             foreach ($postedDatas as $postedField => $postedValues) {
-                if ($allowedFields === false) {
+                if ($allowedFields === true) {
+                } elseif ($allowedFields === false) {
                     continue;
                 } elseif (!in_array($postedField, $allowedFields)) {
                     continue;
@@ -199,17 +211,33 @@ class Api1Controller extends Api
                     $searchModel->field = $postedField;
                     if ($searchModel->validate()) {
                         $search[$section][$postedField][] = $searchModel->toArray();
-                        $condition = [
-                            0 => $searchModel->operation,
-                            1 => $searchModel->field,
-                        ];
-                        if (in_array($searchModel->operation, FieldList::getMinMaxOperations())) {
-                            $condition[2] = $searchModel->_value[0];
-                            $condition[3] = $searchModel->_value[1];
+                        //
+                        $condition = [];
+                        $condition[0] = $searchModel->operation;
+                        $condition[1] = $searchModel->field;
+                        if (in_array($searchModel->operation, FieldList::getPluralOperations())) {
+                            $condition[2] = $searchModel->values;
+                        } elseif (in_array($searchModel->operation, FieldList::getMinMaxOperations())) {
+                            $condition[2] = $searchModel->value_min;
+                            $condition[3] = $searchModel->value_max;
                         } else {
-                            $condition[2] = $searchModel->_value;
+                            $condition[2] = $searchModel->value;
                         }
-                        $conditionsOfSections[$section][] = $condition;
+                        //
+                        if ($section == 'ProductField') {
+                            $condition[1] = 'value';
+                            $condition = [
+                                'AND',
+                                ['blog_name' => $blog->name],
+                                ['field' => $searchModel->field],
+                                $condition,
+                            ];
+                            $conditionsOfSections[$section][] = [
+                                'id' => ProductField::find()->select('product_id')->where($condition),
+                            ];
+                        } else {
+                            $conditionsOfSections[$section][] = $condition;
+                        }
                     }
                 }
             }
@@ -217,7 +245,7 @@ class Api1Controller extends Api
 
         if ($conditionsOfSections['Product']) {
             array_unshift($conditionsOfSections['Product'], 'AND');
-            $query->where($conditionsOfSections['Product']);
+            $query->andWhere($conditionsOfSections['Product']);
         } elseif ($conditionsOfSections['Package']) {
             array_unshift($conditionsOfSections['Package'], 'AND');
             $query->andWhere([
@@ -225,9 +253,7 @@ class Api1Controller extends Api
             ]);
         } elseif ($conditionsOfSections['ProductField']) {
             array_unshift($conditionsOfSections['ProductField'], 'AND');
-            $query->andWhere([
-                'id' => ProductField::find()->select('product_id')->where($conditionsOfSections['ProductField']),
-            ]);
+            $query->andWhere($conditionsOfSections['ProductField']);
         }
 
         $products = [];
@@ -264,7 +290,6 @@ class Api1Controller extends Api
             'categoryId' => $category_id,
             'category' => $category,
             'products' => $products,
-            'search' => $search,
             'fields' => Field::getFieldsList($category_id),
             'sort' => [
                 'attribute' => $singleSort->sort,
@@ -276,7 +301,8 @@ class Api1Controller extends Api
                 'page' => $pagination->getPage(),
                 'total_count' => $countOfResults,
             ],
-        ];
+            'options' => ($category ? Cache::getCategoryCacheOptions($category) : []),
+        ] + $search;
     }
 
     public function actionProduct($id)
@@ -306,9 +332,23 @@ class Api1Controller extends Api
             'categoryId' => $product['category_id'],
             'product' => $product,
             'fields' => $fields,
-            'images' => ArrayHelper::toArray($images, ['name', 'updated_at', 'width', 'height']),
-            'packages' => ArrayHelper::toArray($packages, ['price', 'guaranty', 'des']),
+            'images' => ArrayHelper::toArray($images),
+            'packages' => ArrayHelper::toArray($packages),
         ];
+    }
+
+    public function actionSignup()
+    {
+        $blog = self::blog();
+        //
+        $signup = Customer::signup(Yii::$app->request->post(), $blog->name);
+        if ($signup == null) {
+            throw new BadRequestHttpException();
+        }
+        if ($signup->hasErrors()) {
+            return $signup->response();
+        }
+        return $signup->response(true);
     }
 
     public function actionSignout()
@@ -322,5 +362,41 @@ class Api1Controller extends Api
             throw new BadRequestHttpException();
         }
         return $signout->response();
+    }
+
+    public function actionSignin()
+    {
+        $blog = self::blog();
+        //
+        $signin = Customer::signin(Yii::$app->request->post(), $blog->name);
+        if ($signin == null) {
+            throw new BadRequestHttpException();
+        }
+        if ($user = $signin->getCustomer()) {
+            return $user->response(true);
+        }
+        return $signin->response();
+    }
+
+    public function actionResetPasswordRequest()
+    {
+        $blog = self::blog();
+        //
+        $resetPasswordRequest = Customer::resetPasswordRequest(Yii::$app->request->post(), $blog->name);
+        if ($resetPasswordRequest == null) {
+            throw new BadRequestHttpException();
+        }
+        return $resetPasswordRequest->response();
+    }
+
+    public function actionResetPassword()
+    {
+        $blog = self::blog();
+        //
+        $resetPassword = Customer::resetPassword(Yii::$app->request->post(), $blog->name);
+        if ($resetPassword == null) {
+            throw new BadRequestHttpException();
+        }
+        return $resetPassword->response();
     }
 }
