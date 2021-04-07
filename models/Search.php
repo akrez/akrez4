@@ -21,9 +21,9 @@ class Search extends Model
     public function rules()
     {
         return [
-            [['operation', '!_value', '!field', 'widget'], 'required'],
-            [['value', 'values', 'value_min', 'value_max'], 'safe'],
-            [['widget'], 'in', 'range' => array_keys(FieldList::widgetsList())],
+            [['operation', '!_value', '!field'], 'required'],
+            [['operation'], 'in', 'range'=> array_keys(FieldList::opertaionsList())],
+            [['value', 'values', 'value_min', 'value_max', 'widget'], 'safe'],
         ];
     }
 
@@ -61,7 +61,7 @@ class Search extends Model
                 $this->value_max = intval($this->value_max);
                 $this->_value = [0 => $this->value_min, 1 => $this->value_max,];
                 $this->value = null;
-                $this->values = null;
+                $this->values = [];
             }
         } else {
             $this->value = strval($this->value);
@@ -69,7 +69,7 @@ class Search extends Model
                 $this->_value = $this->value;
                 $this->value_min = null;
                 $this->value_max = null;
-                $this->values = null;
+                $this->values = [];
             }
         }
         //
