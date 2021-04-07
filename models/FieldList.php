@@ -25,15 +25,20 @@ class FieldList extends Model
     {
         return [
             'LIKE' => Yii::t('app', 'widget_like'),
-            'COMBO' => Yii::t('app', 'widget_combo'),
             'NOT LIKE' => Yii::t('app', 'widget_not_like'),
             '=' => Yii::t('app', 'widget_equal'),
-            '<>' => Yii::t('app', 'widget_not_equal'),
-            'SINGLE' => Yii::t('app', 'widget_single'),
-            'MULTI' => Yii::t('app', 'widget_multi'),
-            'BETWEEN' => Yii::t('app', 'widget_between'),
             '>=' => Yii::t('app', 'widget_bigger'),
             '<=' => Yii::t('app', 'widget_smaller'),
+            '<>' => Yii::t('app', 'widget_not_equal'),
+            //
+            'COMBO STRING' => Yii::t('app', 'widget_combo_string'),
+            'COMBO NUMBER' => Yii::t('app', 'widget_combo_number'),
+            //
+            'SINGLE' => Yii::t('app', 'widget_single'),
+            'MULTI' => Yii::t('app', 'widget_multi'),
+            //
+            'BETWEEN' => Yii::t('app', 'widget_between'),
+            //
             '2STATE' => Yii::t('app', 'widget_2state'),
             '3STATE' => Yii::t('app', 'widget_3state'),
         ];
