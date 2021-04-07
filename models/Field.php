@@ -68,7 +68,7 @@ class Field extends ActiveRecord
             'label_yes' => null,
         ];
 
-        $this->widgets = $arrayParams['widgets'];
+        $this->widgets =  $arrayParams['widgets'] ? $arrayParams['widgets'] : [];
         $this->label_no = $arrayParams['label_no'];
         $this->label_yes = $arrayParams['label_yes'];
     }
@@ -97,10 +97,10 @@ class Field extends ActiveRecord
             'seq' => $this->seq,
             'in_summary' => $this->in_summary,
             'category_id' => $this->category_id,
-            'widgets' => $this->widgets,
             'unit' => $this->unit,
             'label_no' => $this->label_no,
             'label_yes' => $this->label_yes,
+            'widgets' => $this->widgets,
         ];
     }
 
