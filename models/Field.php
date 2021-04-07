@@ -144,7 +144,7 @@ class Field extends ActiveRecord
      */
     public function getCategory()
     {
-        return $this->hasOne(Category::className(), ['id' => 'category_id']);
+        return $this->hasOne(Category::class, ['id' => 'category_id']);
     }
 
     /**
@@ -154,6 +154,6 @@ class Field extends ActiveRecord
      */
     public function getBlogName()
     {
-        return $this->hasOne(Blog::className(), ['name' => 'blog_name']);
+        return $this->hasOne(Blog::class, ['name' => 'blog_name']);
     }
 }

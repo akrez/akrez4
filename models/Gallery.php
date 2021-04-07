@@ -59,7 +59,7 @@ class Gallery extends ActiveRecord
 
     public function getBlogs()
     {
-        return $this->hasMany(Blog::className(), ['logo' => 'name']);
+        return $this->hasMany(Blog::class, ['logo' => 'name']);
     }
 
     public static function getImageUrl($type, $name)

@@ -39,7 +39,7 @@ $form = ActiveForm::begin([
 <div class="row">
     <div class="col-xs-12 col-sm-4">
         <?=
-        $form->field($model, 'color')->widget(Select2::classname(), [
+        $form->field($model, 'color')->widget(Select2::class, [
             'data' => Color::getList(),
             'options' => [
                 'placeholder' => '',

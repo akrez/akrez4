@@ -63,7 +63,7 @@ $this->registerCss("
         </div>
         <div class="col-sm-3">
             <?=
-            $form->field($model, 'in_summary')->widget(Select2::classname(), [
+            $form->field($model, 'in_summary')->widget(Select2::class, [
                 'data' => [
                     1 => Yii::$app->formatter->booleanFormat[1],
                     0 => Yii::$app->formatter->booleanFormat[0],

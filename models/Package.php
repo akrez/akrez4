@@ -119,7 +119,7 @@ class Package extends ActiveRecord
      */
     public function getProduct()
     {
-        return $this->hasOne(Product::className(), ['id' => 'product_id']);
+        return $this->hasOne(Product::class, ['id' => 'product_id']);
     }
 
     /**
@@ -129,6 +129,6 @@ class Package extends ActiveRecord
      */
     public function getBlogName()
     {
-        return $this->hasOne(Blog::className(), ['name' => 'blog_name']);
+        return $this->hasOne(Blog::class, ['name' => 'blog_name']);
     }
 }

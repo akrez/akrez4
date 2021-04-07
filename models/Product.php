@@ -53,7 +53,7 @@ class Product extends ActiveRecord
             [['category_id'], 'integer'],
             [['status'], 'in', 'range' => array_keys(self::validStatuses())],
             [['title'], 'string', 'max' => 64],
-            [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::className(), 'targetAttribute' => ['category_id' => 'id']],
+            [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::class, 'targetAttribute' => ['category_id' => 'id']],
             [['des'], 'string', 'max' => 160],
             [['picture',], 'file'],
         ];
@@ -132,7 +132,7 @@ class Product extends ActiveRecord
 
     public function getPackages()
     {
-        return $this->hasMany(Package::className(), ['product_id' => 'id']);
+        return $this->hasMany(Package::class, ['product_id' => 'id']);
     }
 
     public static function findProductQueryForApi($blogName)
@@ -164,7 +164,7 @@ class Product extends ActiveRecord
      */
     public function getCategory()
     {
-        return $this->hasOne(Category::className(), ['id' => 'category_id']);
+        return $this->hasOne(Category::class, ['id' => 'category_id']);
     }
 
     /**
@@ -174,7 +174,7 @@ class Product extends ActiveRecord
      */
     public function getGalleries()
     {
-        return $this->hasMany(Gallery::className(), ['product_id' => 'id']);
+        return $this->hasMany(Gallery::class, ['product_id' => 'id']);
     }
 
     /**
@@ -184,7 +184,7 @@ class Product extends ActiveRecord
      */
     public function getBlog()
     {
-        return $this->hasOne(Blog::className(), ['name' => 'blog_name']);
+        return $this->hasOne(Blog::class, ['name' => 'blog_name']);
     }
 
     /**
@@ -194,6 +194,6 @@ class Product extends ActiveRecord
      */
     public function getProductFields()
     {
-        return $this->hasMany(ProductField::className(), ['product_id' => 'id']);
+        return $this->hasMany(ProductField::class, ['product_id' => 'id']);
     }
 }
