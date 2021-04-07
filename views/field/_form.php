@@ -89,15 +89,6 @@ $this->registerCss("
     </div>
 
     <div class="row">
-        <div class="col-sm-3">
-            <?= $form->field($model, 'label_yes')->textInput() ?>
-        </div>
-        <div class="col-sm-3">
-            <?= $form->field($model, 'label_no')->textInput() ?>
-        </div>
-    </div>
-
-    <div class="row">
         <div class="col-sm-12">
             <?php
             echo $form->field($model, 'widgets', [])->checkboxList(FieldList::widgetsList(), [

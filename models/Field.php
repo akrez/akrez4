@@ -25,8 +25,8 @@ class Field extends ActiveRecord
 {
 
     public $widgets;
-    public $label_no;
-    public $label_yes;
+    //public $label_no;
+    //public $label_yes;
 
     public static function tableName()
     {
@@ -46,7 +46,7 @@ class Field extends ActiveRecord
             [['title', 'unit'], 'string', 'max' => 64],
             [['title'], 'unique', 'targetAttribute' => ['title', 'category_id', 'blog_name'], 'message' => \Yii::t('yii', '{attribute} قبلا ثبت شده است.', ['attribute' => $this->getAttributeLabel('title')])],
             //
-            [['label_no', 'label_yes'], 'string'],
+            //[['label_no', 'label_yes'], 'string'],
             [['widgets'], 'each', 'rule' => ['in', 'skipOnError' => true, 'range' => array_keys(FieldList::widgetsList())]],
         ];
     }
@@ -64,13 +64,13 @@ class Field extends ActiveRecord
         parent::afterFind();
         $arrayParams = (array) Json::decode($this->params) + [
             'widgets' => [],
-            'label_no' => null,
-            'label_yes' => null,
+            //'label_no' => null,
+            //'label_yes' => null,
         ];
 
         $this->widgets =  $arrayParams['widgets'] ? $arrayParams['widgets'] : [];
-        $this->label_no = $arrayParams['label_no'];
-        $this->label_yes = $arrayParams['label_yes'];
+        //$this->label_no = $arrayParams['label_no'];
+        //$this->label_yes = $arrayParams['label_yes'];
     }
 
     public function beforeSave($insert)
@@ -81,8 +81,8 @@ class Field extends ActiveRecord
 
         $this->params = [
             'widgets' => $this->widgets,
-            'label_no' => $this->label_no,
-            'label_yes' => $this->label_yes,
+            //'label_no' => $this->label_no,
+            //'label_yes' => $this->label_yes,
         ];
 
         $this->params = Json::encode($this->params);
@@ -98,8 +98,8 @@ class Field extends ActiveRecord
             'in_summary' => $this->in_summary,
             'category_id' => $this->category_id,
             'unit' => $this->unit,
-            'label_no' => $this->label_no,
-            'label_yes' => $this->label_yes,
+            //'label_no' => $this->label_no,
+            //'label_yes' => $this->label_yes,
             'widgets' => $this->widgets,
         ];
     }
