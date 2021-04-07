@@ -97,6 +97,20 @@ class Package extends ActiveRecord
         return $query;
     }
 
+    public function toArray(array $fields = [], array $expand = [], $recursive = true)
+    {
+        return [
+            'id' => $this->id,
+            'updated_at' => $this->updated_at,
+            'status' => $this->status,
+            'price' => $this->price,
+            'product_id' => $this->product_id,
+            'blog_name' => $this->blog_name,
+            "guaranty" => $this->guaranty,
+            "color" => $this->color,
+            "des" => $this->des,
+        ];
+    }
 
     /**
      * Gets query for [[Product]].
