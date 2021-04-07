@@ -58,11 +58,28 @@ class Cache extends Component
         LEFT JOIN `field` 
         ON `field`.`category_id` = `product_field`.`category_id` AND `field`.`title` = `product_field`.`field` AND `field`.`blog_name` = `product_field`.`blog_name`
         WHERE `product_field`.`category_id` = :category_id AND `product_field`.`product_id` = :product_id 
-        ORDER BY `seq` DESC';
-        $product->cache_fields  = \Yii::$app->db->createCommand($query)
+        ORDER BY `seq` DESC, `value` ASC, `field` ASC';
+
+        $fields  = \Yii::$app->db->createCommand($query)
             ->bindValue(':product_id', $product->id)
             ->bindValue(':category_id', $product->category_id)
             ->queryAll();
+
+        $cacheFields = [];
+        foreach ($fields as $field) {
+            if (!isset($cacheFields[$field['field']])) {
+                $cacheFields[$field['field']] = [
+                    'field' => $field['field'],
+                    'values' => [],
+                    'seq' => strval($field['seq']),
+                    'in_summary' => (mb_strlen($field['in_summary']) && $field['in_summary'] == 0 ? "0" : "1"),
+                    'unit' => strval($field['unit']),
+                ];
+            }
+            $cacheFields[$field['field']]['values'][] = $field['value'];
+        }
+
+        $product->cache_fields = $cacheFields;
         $product->save();
     }
 
