@@ -3,6 +3,8 @@
 namespace app\models;
 
 use app\components\Helper;
+use app\components\Jdf;
+use Yii;
 
 /**
  * This is the model class for table "log_admin".
@@ -13,8 +15,6 @@ use app\components\Helper;
  * @property string|null $method
  * @property int|null $is_ajax
  * @property string|null $url
- * @property int|null $duration
- * @property int|null $memory
  * @property int|null $response_http_code
  * @property string|null $created_date
  * @property string|null $created_time
@@ -54,21 +54,21 @@ class LogAdmin extends Log
      */
     public static function log($params = [])
     {
-        $template = [
-            'blog_name' => null,
-            'ip' => null,
-            'method' => null,
-            'is_ajax' => null,
-            'url' => null,
-            'response_http_code' => null,
-            'created_date' => null,
-            'created_time' => null,
-            'data_post' => null,
-            'user_agent' => null,
-            'controller' => null,
-            'action' => null,
-            'model_id' => null,
-            'model_parent_id' => null,
+        $template = $params + [
+            'ip' => Yii::$app->request->getUserIP(),
+            'created_date' => Jdf::jdate('Y-m-d'),
+            'created_time' => date('H:i:s'),
+            'blog_name' => Yii::$app->user->getId(),
+            'user_agent' => Yii::$app->request->getUserAgent(),
+            'data_post' => json_encode(Yii::$app->request->post()),
+            'method' => Yii::$app->request->method,
+            'is_ajax' => Yii::$app->request->isAjax,
+            'url' => $_SERVER['REQUEST_URI'],
+            'response_http_code' => Yii::$app->response->statusCode,
+            'controller' => Yii::$app->controller->id,
+            'action' => Yii::$app->controller->action->id,
+            'model_id' => Yii::$app->request->get('id'),
+            'model_parent_id' => Yii::$app->request->get('parent_id'),
         ];
         $data = Helper::templatedArray($template, $params);
         return static::getDb()->createCommand()->insert(self::tableName(), $data)->execute();
