@@ -1,6 +1,6 @@
 <?php
 
-function dd(...$input)
+function v(...$input)
 {
     foreach ($input as $i) {
         var_dump($i);
