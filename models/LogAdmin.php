@@ -2,7 +2,7 @@
 
 namespace app\models;
 
-use Yii;
+use app\components\Helper;
 
 /**
  * This is the model class for table "log_admin".
@@ -25,7 +25,7 @@ use Yii;
  * @property string|null $model_id
  * @property string|null $model_parent_id
  */
-class LogAdmin extends \yii\db\ActiveRecord
+class LogAdmin extends Log
 {
     /**
      * {@inheritdoc}
@@ -41,8 +41,8 @@ class LogAdmin extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['is_ajax', 'duration', 'memory', 'response_http_code'], 'integer'],
-            [['data_post'], 'string'],
+            [['is_ajax', 'response_http_code'], 'integer'],
+            [['data_post'], 'string', 'max' => 4096],
             [['blog_name', 'ip', 'controller', 'action', 'model_id', 'model_parent_id'], 'string', 'max' => 60],
             [['method', 'created_date', 'created_time'], 'string', 'max' => 11],
             [['url', 'user_agent'], 'string', 'max' => 2047],
@@ -52,26 +52,25 @@ class LogAdmin extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function attributeLabels()
+    public static function log($params = [])
     {
-        return [
-            'id' => 'ID',
-            'blog_name' => 'Blog Name',
-            'ip' => 'Ip',
-            'method' => 'Method',
-            'is_ajax' => 'Is Ajax',
-            'url' => 'Url',
-            'duration' => 'Duration',
-            'memory' => 'Memory',
-            'response_http_code' => 'Response Http Code',
-            'created_date' => 'Created Date',
-            'created_time' => 'Created Time',
-            'data_post' => 'Data Post',
-            'user_agent' => 'User Agent',
-            'controller' => 'Controller',
-            'action' => 'Action',
-            'model_id' => 'Model ID',
-            'model_parent_id' => 'Model Parent ID',
+        $template = [
+            'blog_name' => null,
+            'ip' => null,
+            'method' => null,
+            'is_ajax' => null,
+            'url' => null,
+            'response_http_code' => null,
+            'created_date' => null,
+            'created_time' => null,
+            'data_post' => null,
+            'user_agent' => null,
+            'controller' => null,
+            'action' => null,
+            'model_id' => null,
+            'model_parent_id' => null,
         ];
+        $data = Helper::templatedArray($template, $params);
+        return static::getDb()->createCommand()->insert(self::tableName(), $data)->execute();
     }
 }
