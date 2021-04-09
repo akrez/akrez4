@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use app\components\Helper;
+use app\components\Jdf;
 use Yii;
 
 /**
@@ -25,7 +27,7 @@ use Yii;
  * @property int|null $model_category_id
  * @property string|null $model_parent_id
  */
-class LogApi extends \yii\db\ActiveRecord
+class LogApi extends Log
 {
     /**
      * {@inheritdoc}
@@ -41,7 +43,7 @@ class LogApi extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['is_ajax', 'response_http_code', 'model_customer_id', 'model_category_id'], 'integer'],
+            [['is_ajax', 'response_http_code'], 'integer'],
             [['blog_name', 'ip', 'controller', 'action', 'model_id', 'model_parent_id'], 'string', 'max' => 60],
             [['method', 'created_date', 'created_time'], 'string', 'max' => 11],
             [['url', 'user_agent'], 'string', 'max' => 2047],
@@ -52,26 +54,27 @@ class LogApi extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function attributeLabels()
+    public static function log($params = [])
     {
-        return [
-            'id' => 'ID',
-            'blog_name' => 'Blog Name',
-            'ip' => 'Ip',
-            'method' => 'Method',
-            'is_ajax' => 'Is Ajax',
-            'url' => 'Url',
-            'response_http_code' => 'Response Http Code',
-            'created_date' => 'Created Date',
-            'created_time' => 'Created Time',
-            'data_post' => 'Data Post',
-            'user_agent' => 'User Agent',
-            'controller' => 'Controller',
-            'action' => 'Action',
-            'model_id' => 'Model ID',
-            'model_customer_id' => 'Model Customer ID',
-            'model_category_id' => 'Model Category ID',
-            'model_parent_id' => 'Model Parent ID',
+        $template = $params + [
+            'blog_name' => Yii::$app->user->getId(),
+            'ip' => Yii::$app->request->getUserIP(),
+            'method' => Yii::$app->request->method,
+            'is_ajax' => Yii::$app->request->isAjax,
+            'url' => $_SERVER['REQUEST_URI'],
+            'response_http_code' => Yii::$app->response->statusCode,
+            'created_date' => Jdf::jdate('Y-m-d'),
+            'created_time' => date('H:i:s'),
+            'data_post' => json_encode(Yii::$app->request->post()),
+            'user_agent' => Yii::$app->request->getUserAgent(),
+            'controller' => Yii::$app->controller->id,
+            'action' => Yii::$app->controller->action->id,
+            'model_id' => Yii::$app->request->get('id'),
+            'model_customer_id' => Yii::$app->request->get('model_customer_id'),
+            'model_category_id' => Yii::$app->request->get('model_category_id'),
+            'model_parent_id' => Yii::$app->request->get('parent_id'),
         ];
+        $data = Helper::templatedArray($template, $params);
+        return static::getDb()->createCommand()->insert(self::tableName(), $data)->execute();
     }
 }
