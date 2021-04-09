@@ -17,7 +17,6 @@ use Yii;
  * @property string|null $url
  * @property int|null $response_http_code
  * @property string|null $created_date
- * @property string|null $created_time
  * @property string|null $data_post
  * @property string|null $user_agent
  * @property string|null $controller
@@ -44,7 +43,8 @@ class LogAdmin extends Log
             [['is_ajax', 'response_http_code'], 'integer'],
             [['data_post'], 'string', 'max' => 4096],
             [['blog_name', 'ip', 'controller', 'action', 'model_id', 'model_parent_id'], 'string', 'max' => 60],
-            [['method', 'created_date', 'created_time'], 'string', 'max' => 11],
+            [['method'], 'string', 'max' => 11],
+            [['created_date'], 'string', 'max' => 19],
             [['url', 'user_agent'], 'string', 'max' => 2047],
         ];
     }
@@ -56,8 +56,7 @@ class LogAdmin extends Log
     {
         $template = $params + [
             'ip' => Yii::$app->request->getUserIP(),
-            'created_date' => Jdf::jdate('Y-m-d'),
-            'created_time' => date('H:i:s'),
+            'created_date' => Jdf::jdate('Y-m-d H:i:s'),
             'blog_name' => Yii::$app->user->getId(),
             'user_agent' => Yii::$app->request->getUserAgent(),
             'data_post' => json_encode(Yii::$app->request->post()),
