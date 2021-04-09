@@ -28,6 +28,8 @@ class Log extends BaseActiveRecord
             'controller' => 'Controller',
             'action' => 'Action',
             'model_id' => 'Model ID',
+            'model_customer_id' => 'Model Customer ID',
+            'model_category_id' => 'Model Category ID',
             'model_parent_id' => 'Model Parent ID',
         ];
     }
