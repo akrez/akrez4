@@ -4,6 +4,7 @@ namespace app\models;
 
 use app\components\Helper;
 use app\components\Jdf;
+use app\controllers\Api;
 use Yii;
 
 /**
@@ -57,8 +58,8 @@ class LogApi extends Log
     public static function log($params = [])
     {
         $template = $params + [
-            'blog_name' => Yii::$app->user->getId(),
-            'ip' => Yii::$app->request->getUserIP(),
+            'blog_name' => Yii::$app->request->get(Api::BLOG_PARAM),
+            'ip' => (isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : Yii::$app->request->getUserIP()),
             'method' => Yii::$app->request->method,
             'is_ajax' => Yii::$app->request->isAjax,
             'url' => $_SERVER['REQUEST_URI'],
