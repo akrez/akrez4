@@ -18,13 +18,12 @@ use Yii;
  * @property string|null $url
  * @property int|null $response_http_code
  * @property string|null $created_date
- * @property string|null $created_time
  * @property string|null $data_post
  * @property string|null $user_agent
  * @property string|null $controller
  * @property string|null $action
  * @property string|null $model_id
- * @property int|null $model_customer_id
+ * @property int|null $customer_id
  * @property int|null $model_category_id
  * @property string|null $model_parent_id
  */
@@ -46,7 +45,8 @@ class LogApi extends Log
         return [
             [['is_ajax', 'response_http_code'], 'integer'],
             [['blog_name', 'ip', 'controller', 'action', 'model_id', 'model_parent_id'], 'string', 'max' => 60],
-            [['method', 'created_date', 'created_time'], 'string', 'max' => 11],
+            [['method'], 'string', 'max' => 11],
+            [['created_date'], 'string', 'max' => 19],
             [['url', 'user_agent'], 'string', 'max' => 2047],
             [['data_post'], 'string', 'max' => 4096],
         ];
@@ -64,14 +64,13 @@ class LogApi extends Log
             'is_ajax' => Yii::$app->request->isAjax,
             'url' => $_SERVER['REQUEST_URI'],
             'response_http_code' => Yii::$app->response->statusCode,
-            'created_date' => Jdf::jdate('Y-m-d'),
-            'created_time' => date('H:i:s'),
+            'created_date' => Jdf::jdate('Y-m-d H:i:s'),
             'data_post' => json_encode(Yii::$app->request->post()),
             'user_agent' => Yii::$app->request->getUserAgent(),
             'controller' => Yii::$app->controller->id,
             'action' => Yii::$app->controller->action->id,
             'model_id' => Yii::$app->request->get('id'),
-            'model_customer_id' => Yii::$app->request->get('model_customer_id'),
+            'customer_id' => Yii::$app->customerApi->getId(),
             'model_category_id' => Yii::$app->request->get('model_category_id'),
             'model_parent_id' => Yii::$app->request->get('parent_id'),
         ];
