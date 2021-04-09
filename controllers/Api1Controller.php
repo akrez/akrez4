@@ -21,17 +21,10 @@ use app\models\Search;
 use app\models\Status;
 use Yii;
 use yii\helpers\ArrayHelper;
-use yii\web\ForbiddenHttpException;
-use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
 class Api1Controller extends Api
 {
-
-    public const CONSTANT_HASH = '20210324172300';
-    public const TOKEN_PARAM = '_token';
-    public const BLOG_PARAM = '_blog';
-
     private static $_blog = false;
 
     public function init()
@@ -64,7 +57,7 @@ class Api1Controller extends Api
             }
         });
         if (empty(self::blog())) {
-            throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
+            Api::exceptionNotFoundHttp();
         }
     }
 
@@ -109,7 +102,7 @@ class Api1Controller extends Api
                 'class' => 'yii\filters\AccessControl',
                 'user' => Yii::$app->customerApi,
                 'denyCallback' => function ($rule, $action) {
-                    throw new ForbiddenHttpException(Yii::t('yii', 'You are not allowed to perform this action.'));
+                    Api::exceptionForbiddenHttp();
                 },
                 'rules' => [
                     [
@@ -176,11 +169,11 @@ class Api1Controller extends Api
             $category_id = null;
         } else {
             if (!isset($categories[$category_id])) {
-                throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
+                Api::exceptionNotFoundHttp();
             }
             $category = Category::findCategoryForApi($blog->name, $category_id);
             if (!$category) {
-                throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
+                Api::exceptionNotFoundHttp();
             }
             $query->andWhere(['category_id' => $category_id,]);
         }
@@ -319,7 +312,7 @@ class Api1Controller extends Api
         if ($product) {
             $product = $product->toArray();
         } else {
-            throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
+            Api::exceptionNotFoundHttp();
         }
 
         $fields = Field::getFieldsList($product['category_id']);
@@ -355,7 +348,7 @@ class Api1Controller extends Api
     {
         $signout = Yii::$app->customerApi->getIdentity();
         if (!$signout) {
-            throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
+            Api::exceptionNotFoundHttp();
         }
         $signout = $signout->signout();
         if ($signout == null) {
