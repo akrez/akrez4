@@ -56,7 +56,7 @@ class Blog extends ActiveRecord implements IdentityInterface
     {
         return [
             [['title',], 'string', 'max' => 60, 'on' => 'profile',],
-            [['des',], 'string', 'max' => 160, 'on' => 'profile',],
+            [['des',], 'string', 'on' => 'profile',],
             [['slug',], 'string', 'max' => 160, 'on' => 'profile',],
             [['twitter',], 'match', 'pattern' => '/^[A-Za-z0-9_]{1,15}$/', 'on' => 'profile',],
             [['facebook',], 'match', 'pattern' => '/^[a-z\\d.]{5,}$/i', 'on' => 'profile',],
