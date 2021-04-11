@@ -29,6 +29,11 @@ use Yii;
  */
 class LogApi extends Log
 {
+
+    public $created_date_from;
+    public $user_agent_like;
+    public $user_agent_not_like;
+
     /**
      * {@inheritdoc}
      */
@@ -43,13 +48,41 @@ class LogApi extends Log
     public function rules()
     {
         return [
-            [['is_ajax', 'response_http_code'], 'integer'],
-            [['blog_name', 'ip', 'controller', 'action', 'model_id', 'model_parent_id'], 'string', 'max' => 60],
-            [['method'], 'string', 'max' => 11],
-            [['created_date'], 'string', 'max' => 19],
-            [['url', 'user_agent'], 'string', 'max' => 2047],
-            [['data_post'], 'string', 'max' => 4096],
+            [['is_ajax', 'response_http_code'], 'integer', 'on' => ['save']],
+            [['blog_name', 'ip', 'controller', 'action', 'model_id', 'model_parent_id'], 'string', 'max' => 60, 'on' => ['save']],
+            [['method'], 'string', 'max' => 11, 'on' => ['save']],
+            [['created_date'], 'string', 'max' => 19, 'on' => ['save']],
+            [['url', 'user_agent'], 'string', 'max' => 2047, 'on' => ['save']],
+            [['data_post'], 'string', 'max' => 4096, 'on' => ['save']],
+            //
+            [['!blog_name', '!created_date_from', '!response_http_code'], 'safe'],
+            [['action'], 'in', 'range' => ['search', 'product']],
+            [['model_category_id'], 'integer'],
+            [['user_agent_like', 'user_agent_not_like'], 'string'],
         ];
+    }
+
+    public function statQueryGrouped()
+    {
+        return $this->statQuery()
+            ->select([
+                'DATE(`created_date`) AS Ymd',
+                'HOUR(`created_date`) AS H',
+                'COUNT(`ip`) AS count',
+            ])
+            ->groupBy(['Ymd', 'H',]);
+    }
+
+    public function statQuery()
+    {
+        return self::find()
+            ->where(['blog_name' => $this->blog_name])
+            ->andFilterWhere(['>', 'created_date', $this->created_date_from])
+            ->andFilterWhere(['=', 'response_http_code', $this->response_http_code])
+            ->andFilterWhere(['=', 'action', $this->action])
+            ->andFilterWhere(['=', 'model_category_id', $this->model_category_id])
+            ->andFilterWhere(['LIKE', 'user_agent', $this->user_agent_like])
+            ->andFilterWhere(['NOT LIKE', 'user_agent', $this->user_agent_not_like]);
     }
 
     /**
