@@ -5,6 +5,7 @@ namespace app\models;
 use app\components\Helper;
 use Yii;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Html;
 use yii\helpers\Json;
 use yii\web\IdentityInterface;
 
@@ -428,6 +429,15 @@ class Blog extends ActiveRecord implements IdentityInterface
     public static function findBlogForApi($name)
     {
         return static::find()->where(['name' => $name, 'status' => Status::STATUS_ACTIVE])->one();
+    }
+
+    public static function print($attribute)
+    {
+        $blog = Yii::$app->user->getIdentity();
+        if ($blog) {
+            return Html::encode($blog->$attribute);
+        }
+        return null;
     }
 
     public function toArray(array $fields = [], array $expand = [], $recursive = true)
