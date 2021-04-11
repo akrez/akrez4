@@ -14,23 +14,14 @@ class Log extends BaseActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'blog_name' => 'Blog Name',
-            'ip' => 'Ip',
-            'method' => 'Method',
-            'is_ajax' => 'Is Ajax',
-            'url' => 'Url',
-            'response_http_code' => 'Response Http Code',
-            'created_date' => 'Created Date',
-            'created_time' => 'Created Time',
-            'data_post' => 'Data Post',
+            'ip' => 'IP',
             'user_agent' => 'User Agent',
-            'controller' => 'Controller',
             'action' => 'Action',
-            'model_id' => 'Model ID',
-            'model_customer_id' => 'Model Customer ID',
-            'model_category_id' => 'Model Category ID',
-            'model_parent_id' => 'Model Parent ID',
+            'created_date' => 'تاریخ',
+            'model_category_id' => 'دسته‌بندی',
+            'model_customer_id' => 'مشتری',
+            'user_agent_like' => 'شامل باشد',
+            'user_agent_not_like' => 'شامل نباشد',
         ];
     }
 }
