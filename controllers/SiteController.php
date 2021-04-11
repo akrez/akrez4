@@ -58,11 +58,11 @@ class SiteController extends Controller
     {
         $createdDateFrom = Jdf::jdate('Y-m-d H:i:s', strtotime(-30 . " days"));
 
-        $logApi = new LogApi();
-        $logApi->load(Yii::$app->request->post());
-        $logApi->blog_name = Blog::print('name');
-        $logApi->created_date_from = $createdDateFrom;
-        $logApi->response_http_code = 200;
+        $logApiFilterModel = new LogApi();
+        $logApiFilterModel->load(Yii::$app->request->get());
+        $logApiFilterModel->blog_name = Blog::print('name');
+        $logApiFilterModel->created_date_from = $createdDateFrom;
+        $logApiFilterModel->response_http_code = 200;
 
         $dates = [];
         for ($d = 0; $d <= 29; $d++) {
@@ -72,14 +72,15 @@ class SiteController extends Controller
 
         return $this->render('blog', [
             'dates' => $dates,
-            'groupedDatas' => $logApi->statQueryGrouped()->asArray()->all(),
+            'groupedDatas' => $logApiFilterModel->statQueryGrouped()->asArray()->all(),
             'dataProvider' => new ActiveDataProvider([
-                'query' => $logApi->statQuery(),
+                'query' => $logApiFilterModel->statQuery(),
                 'sort' => ['defaultOrder' => ['id' => SORT_DESC]]
             ]),
             'list' => [
                 'categories' => Cache::getBlogCacheCategory(Yii::$app->user->getIdentity()),
-            ]
+            ],
+            'logApiFilterModel' => $logApiFilterModel,
         ]);
     }
 
