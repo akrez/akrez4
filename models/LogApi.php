@@ -34,6 +34,13 @@ class LogApi extends Log
     public $user_agent_like;
     public $user_agent_not_like;
 
+    public static $actionsList = [
+        'search' => 'Search',
+        'product' => 'Product',
+        'info' => 'Info',
+        'category' => 'Category',
+    ];
+
     /**
      * {@inheritdoc}
      */
@@ -56,9 +63,10 @@ class LogApi extends Log
             [['data_post'], 'string', 'max' => 4096, 'on' => ['save']],
             //
             [['!blog_name', '!created_date_from', '!response_http_code'], 'safe'],
-            [['action'], 'in', 'range' => ['search', 'product']],
+            [['action'], 'in', 'range' => array_keys(self::$actionsList)],
             [['model_category_id'], 'integer'],
             [['user_agent_like', 'user_agent_not_like'], 'string'],
+            [['ip'], 'ip'],
         ];
     }
 
@@ -82,6 +90,7 @@ class LogApi extends Log
             ->andFilterWhere(['=', 'action', $this->action])
             ->andFilterWhere(['=', 'model_category_id', $this->model_category_id])
             ->andFilterWhere(['LIKE', 'user_agent', $this->user_agent_like])
+            ->andFilterWhere(['LIKE', 'ip', $this->ip])
             ->andFilterWhere(['NOT LIKE', 'user_agent', $this->user_agent_not_like]);
     }
 
