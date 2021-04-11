@@ -3,6 +3,7 @@
 use app\assets\ChartJsAsset;
 use app\models\Blog;
 use app\models\Gallery;
+use app\models\LogApi;
 use yii\data\ActiveDataProvider;
 use yii\grid\GridView;
 use yii\helpers\Html;
@@ -13,9 +14,10 @@ ChartJsAsset::register($this);
 $this->title = Blog::print('title');
 
 $this->registerCss("
-    .direction-ltr {
-        direction: ltr;
-    }
+.table th, .table td {
+    text-align: center;
+    vertical-align: middle !important;
+}
 ");
 
 ?>
@@ -43,25 +45,51 @@ $this->registerCss("
 <br>
 <div class="row">
     <div class="col-sm-12">
-        <div class="table-responsive">
+        <div class="table-responsive text-center">
             <?=
             GridView::widget([
                 'dataProvider' => $dataProvider,
+                'filterModel' => $logApiFilterModel,
                 'tableOptions' => ['class' => 'table table-bordered table-striped table-hover table-condensed'],
                 'columns' => [
-                    'id',
-                    'created_date',
+                    [
+                        'attribute' => 'created_date',
+                        // 'contentOptions' => ['dir' => 'ltr'],
+                        'value' => function ($model) {
+                            return str_replace(" ", "<br/>", $model->created_date);
+                        },
+                        "format" => "raw",
+                    ],
                     [
                         'attribute' => 'user_agent',
-                        'contentOptions' => ['class' => 'direction-ltr'],
+                        'contentOptions' => ['dir' => 'ltr'],
                         'value' => function ($model) {
                             return Html::encode($model->user_agent);
-                        }
+                        },
+                        'filter' => '<div class="row">
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                            ' . Html::activeLabel($logApiFilterModel, 'user_agent_like', ['class' => 'input-group-addon']) . Html::activeTextInput($logApiFilterModel, 'user_agent_like', ['class' => 'form-control']) . '
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                            ' . Html::activeLabel($logApiFilterModel, 'user_agent_not_like', ['class' => 'input-group-addon']) . Html::activeTextInput($logApiFilterModel, 'user_agent_not_like', ['class' => 'form-control']) . '
+                            </div>
+                        </div>
+                        </div>',
                     ],
-                    'ip',
-                    'action',
+                    [
+                        'attribute' =>  'ip',
+                        'filter' => true,
+                    ],
+                    [
+                        'attribute' => 'action',
+                        'filter' => LogApi::$actionsList,
+                    ],
                     [
                         'attribute' => 'model_category_id',
+                        'filter' => $list['categories'],
                         'value' => function ($model) use ($list) {
                             if (isset($list['categories'][$model->model_category_id])) {
                                 return $list['categories'][$model->model_category_id];
