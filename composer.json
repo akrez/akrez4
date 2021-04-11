@@ -7,7 +7,8 @@
         "yiisoft/yii2-jui": "*",
         "yiisoft/yii2-imagine": "*",
         "kartik-v/yii2-widget-select2": "*",
-        "kartik-v/yii2-slider": "*"
+        "kartik-v/yii2-slider": "*",
+		"whichbrowser/parser" : "*"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "*",
