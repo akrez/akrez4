@@ -25,18 +25,16 @@ $this->registerCss("
 <div class="row">
     <div class="col-sm-12">
         <div class="row">
-            <div class="col-sm-2 mt-2">
-                <?= Html::img((Blog::print('logo') ? Gallery::getImageUrl('logo', Blog::print('logo')) : '@web/cdn/image/logo.png'), ['class' => 'img img-responsive']); ?>
+            <div class="col-sm-1">
+                <?= Html::img((Blog::print('logo') ? Gallery::getImageUrl('logo', Blog::print('logo')) : '@web/cdn/image/logo.png'), ['class' => 'img img-responsive', 'style' => 'margin: auto;margin-top: 10px;']); ?>
             </div>
-            <div class="col-sm-10 mt-2">
-                <?= Html::tag('h3', Blog::print('title'), ['style' => 'margin-top: 0;']) ?>
-                <?= (Blog::print('slug') ? Html::tag('h4', Blog::print('slug')) : '') ?>
-                <?= (Blog::print('des') ? Html::tag('p', Blog::print('des'), ['style' => 'text-align: justify;']) : '') ?>
+            <div class="col-sm-11">
+                <h4 class="mt0" style=""><?= Blog::print('title') ?> <small><?= Blog::print('slug') ?></small></h4>
+                <p class="text-justify"><?= Blog::print('des') ?></p>
             </div>
         </div>
     </div>
 </div>
-<br>
 <div class="row">
     <div class="col-sm-12">
         <canvas id="canvas" height="85"></canvas>

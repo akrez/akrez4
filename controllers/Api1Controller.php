@@ -106,7 +106,7 @@ class Api1Controller extends Api
                 },
                 'rules' => [
                     [
-                        'actions' => ['constant', 'search', 'product', 'info',],
+                        'actions' => ['constant', 'index', 'category', 'product', 'info',],
                         'allow' => true,
                         'verbs' => ['POST'],
                         'roles' => ['?', '@'],
@@ -144,13 +144,28 @@ class Api1Controller extends Api
         ];
     }
 
-    public function actionSearch($category_id = null)
+    public function actionIndex()
     {
-        $blog = self::blog();
+        return $this->search(Yii::$app->request->post());
+    }
+
+    public function actionCategory($category_id)
+    {
+        return $this->search(Yii::$app->request->post(), $category_id);
+    }
+
+    public function search($options = [], $category_id = null)
+    {
+        $options = (array)$options + [
+            'page' => null,
+            'page_size' => null,
+            'sort' => null,
+        ];
+        $page = $options['page'];
+        $page_size = $options['page_size'];
+        $sort = $options['sort'];
         //
-        $page = Yii::$app->request->post('page');
-        $page_size = Yii::$app->request->post('page_size');
-        $sort = Yii::$app->request->post('sort');
+        $blog = self::blog();
         //
         $sortAttributes = [
             '-created_at' => Yii::t('app', 'Newest'),
