@@ -2,11 +2,15 @@
 
 namespace app\controllers;
 
+use app\components\Cache;
 use app\components\Email;
+use app\components\Jdf;
 use app\models\Gallery;
 use app\models\Status;
 use app\models\Blog;
+use app\models\LogApi;
 use Yii;
+use yii\data\ActiveDataProvider;
 use yii\web\BadRequestHttpException;
 use yii\web\UploadedFile;
 
@@ -28,7 +32,7 @@ class SiteController extends Controller
                 'roles' => ['?'],
             ],
             [
-                'actions' => ['profile', 'signout'],
+                'actions' => ['blog', 'profile', 'signout'],
                 'allow' => true,
                 'verbs' => ['POST', 'GET'],
                 'roles' => ['@'],
@@ -48,6 +52,35 @@ class SiteController extends Controller
     public function actionIndex()
     {
         return $this->render('index');
+    }
+
+    public function actionBlog()
+    {
+        $createdDateFrom = Jdf::jdate('Y-m-d H:i:s', strtotime(-30 . " days"));
+
+        $logApi = new LogApi();
+        $logApi->load(Yii::$app->request->post());
+        $logApi->blog_name = Blog::print('name');
+        $logApi->created_date_from = $createdDateFrom;
+        $logApi->response_http_code = 200;
+
+        $dates = [];
+        for ($d = 0; $d <= 29; $d++) {
+            $pastDaysTimeStamp = strtotime(($d - 29) . " days");
+            $dates[] = Jdf::jdate('Y-m-d', $pastDaysTimeStamp);
+        }
+
+        return $this->render('blog', [
+            'dates' => $dates,
+            'groupedDatas' => $logApi->statQueryGrouped()->asArray()->all(),
+            'dataProvider' => new ActiveDataProvider([
+                'query' => $logApi->statQuery(),
+                'sort' => ['defaultOrder' => ['id' => SORT_DESC]]
+            ]),
+            'list' => [
+                'categories' => Cache::getBlogCacheCategory(Yii::$app->user->getIdentity()),
+            ]
+        ]);
     }
 
     public function actionSignin()
