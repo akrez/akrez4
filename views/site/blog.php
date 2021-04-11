@@ -55,7 +55,7 @@ $this->registerCss("
                         'attribute' => 'user_agent',
                         'contentOptions' => ['class' => 'direction-ltr'],
                         'value' => function ($model) {
-                            return '';json_encode(get_browser($model->user_agent));
+                            return Html::encode($model->user_agent);
                         }
                     ],
                     'ip',
