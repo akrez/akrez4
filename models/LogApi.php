@@ -33,6 +33,7 @@ class LogApi extends Log
     public $created_date_from;
     public $user_agent_like;
     public $user_agent_not_like;
+    public $ip_not_like;
 
     public static $actionsList = [
         'index' => 'Index',
@@ -66,7 +67,7 @@ class LogApi extends Log
             [['action'], 'in', 'range' => array_keys(self::$actionsList)],
             [['model_category_id'], 'integer'],
             [['user_agent_like', 'user_agent_not_like'], 'string'],
-            [['ip'], 'ip'],
+            [['ip_not_like'], 'ip'],
         ];
     }
 
@@ -90,7 +91,7 @@ class LogApi extends Log
             ->andFilterWhere(['=', 'action', $this->action])
             ->andFilterWhere(['=', 'model_category_id', $this->model_category_id])
             ->andFilterWhere(['LIKE', 'user_agent', $this->user_agent_like])
-            ->andFilterWhere(['LIKE', 'ip', $this->ip])
+            ->andFilterWhere(['NOT LIKE', 'ip', $this->ip_not_like])
             ->andFilterWhere(['NOT LIKE', 'user_agent', $this->user_agent_not_like]);
     }
 
@@ -99,7 +100,7 @@ class LogApi extends Log
      */
     public static function log($params = [])
     {
-        $template = $params + [
+        $template = [
             'blog_name' => Yii::$app->request->get(Api::BLOG_PARAM),
             'ip' => (isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : Yii::$app->request->getUserIP()),
             'method' => Yii::$app->request->method,
@@ -113,10 +114,10 @@ class LogApi extends Log
             'action' => Yii::$app->controller->action->id,
             'model_id' => Yii::$app->request->get('id'),
             'customer_id' => Yii::$app->customerApi->getId(),
-            'model_category_id' => Yii::$app->request->get('model_category_id'),
+            'model_category_id' => Yii::$app->request->get('category_id'),
             'model_parent_id' => Yii::$app->request->get('parent_id'),
         ];
-        $data = Helper::templatedArray($template, $params);
+        $data = Helper::templatedArray($template, static::$_data + $params + $template);
         return static::getDb()->createCommand()->insert(self::tableName(), $data)->execute();
     }
 }
