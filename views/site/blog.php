@@ -25,10 +25,10 @@ $this->registerCss("
 <div class="row">
     <div class="col-sm-12">
         <div class="row">
-            <div class="col-sm-1">
+            <div class="col-sm-2">
                 <?= Html::img((Blog::print('logo') ? Gallery::getImageUrl('logo', Blog::print('logo')) : '@web/cdn/image/logo.png'), ['class' => 'img img-responsive', 'style' => 'margin: auto;margin-top: 10px;']); ?>
             </div>
-            <div class="col-sm-11">
+            <div class="col-sm-10">
                 <h4 class="mt0" style=""><?= Blog::print('title') ?> <small><?= Blog::print('slug') ?></small></h4>
                 <p class="text-justify"><?= Blog::print('des') ?></p>
             </div>
@@ -79,11 +79,20 @@ $this->registerCss("
                     ],
                     [
                         'attribute' =>  'ip',
-                        'filter' => true,
+                        'filter' => '<div class="row">
+                        <div class="col-sm-12">
+                            <div class="input-group">
+                            ' . Html::activeLabel($logApiFilterModel, 'ip_not_like', ['class' => 'input-group-addon']) . Html::activeTextInput($logApiFilterModel, 'ip_not_like', ['class' => 'form-control']) . '
+                            </div>
+                        </div>
+                        </div>',
                     ],
                     [
                         'attribute' => 'action',
                         'filter' => LogApi::$actionsList,
+                        'value' => function ($model) {
+                            return ucfirst($model->action);
+                        },
                     ],
                     [
                         'attribute' => 'model_category_id',
