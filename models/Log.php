@@ -6,16 +6,21 @@ use yii\db\ActiveRecord as BaseActiveRecord;
 
 class Log extends BaseActiveRecord
 {
-    protected static $_data = [];
+    private static $_data = [];
 
     public static function getDb()
     {
         return \Yii::$app->db;
     }
 
-    public static function setData($params = [])
+    public static function getData()
     {
-        self::$_data = self::$_data + $params;
+        return self::$_data;
+    }
+
+    public static function setData($params)
+    {
+        return self::$_data = self::$_data + $params;
     }
 
     public function attributeLabels()
