@@ -14,6 +14,7 @@ use app\models\Customer;
 use app\models\Field;
 use app\models\FieldList;
 use app\models\Gallery;
+use app\models\LogApi;
 use app\models\Package;
 use app\models\Product;
 use app\models\Province;
@@ -335,6 +336,8 @@ class Api1Controller extends Api
         $images = Gallery::findProductGalleryQueryForApi($blog->name, $product['id'])->indexBy('name')->all();
 
         $packages = Package::findProductPackageQueryForApi($blog->name, $product['id'])->all();
+
+        LogApi::setData(['model_category_id' => $product['category_id']]);
 
         return [
             'categoryId' => $product['category_id'],
