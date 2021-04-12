@@ -117,7 +117,7 @@ class LogApi extends Log
             'model_category_id' => Yii::$app->request->get('category_id'),
             'model_parent_id' => Yii::$app->request->get('parent_id'),
         ];
-        $data = Helper::templatedArray($template, static::$_data + $params + $template);
+        $data = Helper::templatedArray($template, self::getData() + $params + $template);
         return static::getDb()->createCommand()->insert(self::tableName(), $data)->execute();
     }
 }

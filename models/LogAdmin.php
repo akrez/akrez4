@@ -69,7 +69,7 @@ class LogAdmin extends Log
             'model_id' => Yii::$app->request->get('id'),
             'model_parent_id' => Yii::$app->request->get('parent_id'),
         ];
-        $data = Helper::templatedArray($template, $params + $template);
+        $data = Helper::templatedArray($template, self::getData() + $params + $template);
         return static::getDb()->createCommand()->insert(self::tableName(), $data)->execute();
     }
 }
