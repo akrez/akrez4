@@ -54,7 +54,7 @@ class LogAdmin extends Log
      */
     public static function log($params = [])
     {
-        $template = $params + [
+        $template = [
             'ip' => Yii::$app->request->getUserIP(),
             'created_date' => Jdf::jdate('Y-m-d H:i:s'),
             'blog_name' => Yii::$app->user->getId(),
@@ -69,7 +69,7 @@ class LogAdmin extends Log
             'model_id' => Yii::$app->request->get('id'),
             'model_parent_id' => Yii::$app->request->get('parent_id'),
         ];
-        $data = Helper::templatedArray($template, $params);
+        $data = Helper::templatedArray($template, $params + $template);
         return static::getDb()->createCommand()->insert(self::tableName(), $data)->execute();
     }
 }
