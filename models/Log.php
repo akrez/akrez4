@@ -6,9 +6,16 @@ use yii\db\ActiveRecord as BaseActiveRecord;
 
 class Log extends BaseActiveRecord
 {
+    protected static $_data = [];
+
     public static function getDb()
     {
         return \Yii::$app->db;
+    }
+
+    public static function setData($params = [])
+    {
+        self::$_data = self::$_data + $params;
     }
 
     public function attributeLabels()
@@ -22,6 +29,7 @@ class Log extends BaseActiveRecord
             'model_customer_id' => 'مشتری',
             'user_agent_like' => 'شامل باشد',
             'user_agent_not_like' => 'شامل نباشد',
+            'ip_not_like' => 'شامل نباشد',
         ];
     }
 }
