@@ -35,10 +35,10 @@ class LogApi extends Log
     public $user_agent_not_like;
 
     public static $actionsList = [
-        'search' => 'Search',
+        'index' => 'Index',
+        'category' => 'Category',
         'product' => 'Product',
         'info' => 'Info',
-        'category' => 'Category',
     ];
 
     /**
