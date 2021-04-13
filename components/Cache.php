@@ -13,10 +13,10 @@ class Cache extends Component
 {
     public static function updateCategoryCacheOptions($category)
     {
-        $product = Product::blogValidQuery()->select('id')->where(['status' => Status::STATUS_ACTIVE])->andWhere(['category_id' => $category->id]);
+        $product = Product::blogValidQuery()->select('id')->andWhere(['status' => Status::STATUS_ACTIVE])->andWhere(['category_id' => $category->id]);
         $categoryFields = ProductField::find()
             ->select(['field', 'value', 'cnt' => 'COUNT(`value`)',])
-            ->where(['product_id' => $product])
+            ->andWhere(['product_id' => $product])
             ->groupBy(['field', 'value',])
             ->orderBy(['cnt' => SORT_DESC])
             ->all();
@@ -34,7 +34,7 @@ class Cache extends Component
 
     public static function updateBlogCacheCategory($blog)
     {
-        $blog->cache_category = Category::blogValidQuery()->select(['id', 'title'])->where(['status' => Status::STATUS_ACTIVE])->all();
+        $blog->cache_category = Category::blogValidQuery()->select(['id', 'title'])->andWhere(['status' => Status::STATUS_ACTIVE])->all();
         $blog->cache_category = ArrayHelper::map($blog->cache_category, 'id', 'title');
         $blog->save();
     }
@@ -46,7 +46,7 @@ class Cache extends Component
 
     public static function updateProductsCacheField($category)
     {
-        foreach (Product::blogValidQuery()->where(['category_id' => $category->id])->all() as  $product) {
+        foreach (Product::blogValidQuery()->andWhere(['category_id' => $category->id])->all() as  $product) {
             self::updateProductCacheField($product);
         }
     }
