@@ -2,6 +2,7 @@
 
 namespace app\components;
 
+use WhichBrowser\Parser;
 use Yii;
 use yii\base\Component;
 use yii\db\ActiveQuery;
@@ -68,6 +69,43 @@ class Helper extends Component
             return number_format((float) $input, $decimal, '.', '');
         }
         return null;
+    }
+
+    public static function parseUserAgent($userAgent)
+    {
+        $result = [
+            'browser' => ['name' => null, 'version' => null,],
+            'os' => ['name' => null, 'version' => null,],
+            'device' => null,
+        ];
+
+        $userAgentParsed = (array) new Parser($userAgent);
+
+        try {
+            $browser = (array) $userAgentParsed['browser'];
+            if (isset($browser['name'])) {
+                $result['browser']['name'] = $browser['name'];
+            }
+            if (isset($browser['version']) && $browser['version']) {
+                $result['browser']['version'] = $browser['version']->value;
+            }
+            //
+            $os = (array) $userAgentParsed['os'];
+            if (isset($os['name'])) {
+                $result['os']['name'] = $os['name'];
+            }
+            if (isset($os['version']) && $os['version']) {
+                $result['os'][$os['version']] = $os['version']->alias;
+            }
+            ///
+            $device = (array) $userAgentParsed['device'];
+            $result['device'] = $device['type'];
+        } catch (\yii\base\ErrorException $e) {
+        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+        }
+
+        return $result;
     }
 
     public static function rulesDumper($scenariosRules, $attributesRules)
