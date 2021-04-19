@@ -71,8 +71,13 @@ class Helper extends Component
         return null;
     }
 
+    public static $parseUserAgentCache = [];
     public static function parseUserAgent($userAgent)
     {
+        if (isset(self::$parseUserAgentCache[$userAgent])) {
+            return self::$parseUserAgentCache[$userAgent];
+        }
+
         $result = [
             'browser' => ['name' => null, 'version' => null,],
             'os' => ['name' => null, 'version' => null,],
@@ -105,7 +110,7 @@ class Helper extends Component
         } catch (\Throwable $e) {
         }
 
-        return $result;
+        return self::$parseUserAgentCache[$userAgent] = $result;
     }
 
     public static function rulesDumper($scenariosRules, $attributesRules)
