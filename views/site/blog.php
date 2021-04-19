@@ -1,6 +1,7 @@
 <?php
 
 use app\assets\ChartJsAsset;
+use app\components\Helper;
 use app\models\Blog;
 use app\models\Gallery;
 use app\models\LogApi;
@@ -76,6 +77,28 @@ $this->registerCss("
                             </div>
                         </div>
                         </div>',
+                    ],
+                    [
+                        'label' => Yii::t('app', 'os'),
+                        'value' => function ($model) {
+                            $parseUserAgent = Helper::parseUserAgent($model->user_agent);
+                            if ($url = Gallery::getImageUrlOfOs($parseUserAgent['os']['name'])) {
+                                return Html::img($url, ['width' => 30]);
+                            }
+                            return strval($parseUserAgent['os']['name']);
+                        },
+                        'format' => 'raw',
+                    ],
+                    [
+                        'label' => Yii::t('app', 'browser'),
+                        'value' => function ($model) {
+                            $parseUserAgent = Helper::parseUserAgent($model->user_agent);
+                            if ($url = Gallery::getImageUrlOfBrowser($parseUserAgent['browser']['name'])) {
+                                return Html::img($url, ['width' => 30]);
+                            }
+                            return strval($parseUserAgent['browser']['name']);
+                        },
+                        'format' => 'raw',
                     ],
                     [
                         'attribute' =>  'ip',
