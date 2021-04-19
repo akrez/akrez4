@@ -25,6 +25,8 @@ class Gallery extends ActiveRecord
     const TYPE_PRODUCT = 'product';
     const TYPE_LOGO = 'logo';
     const TYPE_AVATAR = 'avatar';
+    const TYPE_BROWSER = 'browser';
+    const TYPE_OS = 'os';
 
     public static function typeList()
     {
@@ -32,6 +34,8 @@ class Gallery extends ActiveRecord
             self::TYPE_PRODUCT => Yii::t('app', 'product'),
             self::TYPE_LOGO => Yii::t('app', 'logo'),
             self::TYPE_AVATAR => Yii::t('app', 'avatar'),
+            self::TYPE_BROWSER => Yii::t('app', 'browser'),
+            self::TYPE_OS => Yii::t('app', 'os'),
         ];
     }
 
@@ -65,6 +69,22 @@ class Gallery extends ActiveRecord
     public static function getImageUrl($type, $name)
     {
         return Yii::getAlias('@web/image/') . $type . '/' . $name;
+    }
+
+    public static function getImageUrlOfOs($name)
+    {
+        if (in_array($name, ['Android', 'Chrome OS', 'iOS', 'Linux', 'Ubuntu', 'Windows'])) {
+            return self::getImageUrl(self::TYPE_OS, $name . '.svg');
+        }
+        return null;
+    }
+
+    public static function getImageUrlOfBrowser($name)
+    {
+        if (in_array($name, ['Chrome', 'Edge', 'Firefox', 'Safari', 'Samsung Internet'])) {
+            return self::getImageUrl(self::TYPE_BROWSER, $name . '.svg');
+        }
+        return null;
     }
 
     public static function getImageBasePath($type)
