@@ -50,6 +50,9 @@ return [
     'alertResetPasswordRequestSuccessfull' => 'کد بازیابی رمز عبور به ایمیل شما ارسال شد. لطفا ایمیل خود را بررسی نمایید.',
     'alertResetPasswordSuccessfull' => 'بازیابی رمز عبور با موفقیت انجام شد، لطفا وارد شوید.',
     //
+    'browser' => 'مرورگر',
+    'os' => 'سیستم عامل',
+    //
     'GoToBlog' => 'نمایش فروشگاه',
     'Default' => 'پیش فرض',
     //
