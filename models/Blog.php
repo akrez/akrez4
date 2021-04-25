@@ -25,7 +25,8 @@ use yii\web\IdentityInterface;
  * @property string|null $reset_token
  * @property int|null $reset_at
  * @property string|null $email
- * @property string|null $params { "address":"", "phone":"", "mobile":"", "instagram":"", "telegram":"", "facebook":"", "twitter":"", "slug":"", "des":"" }
+ * @property string|null $mobile
+ * @property string|null $params { "address":"", "phone":"", "instagram":"", "telegram":"", "facebook":"", "twitter":"", "slug":"", "des":"" }
  */
 class Blog extends ActiveRecord implements IdentityInterface
 {
@@ -38,7 +39,6 @@ class Blog extends ActiveRecord implements IdentityInterface
     //
     public $address;
     public $phone;
-    public $mobile;
     public $instagram;
     public $telegram;
     public $facebook;
@@ -63,7 +63,7 @@ class Blog extends ActiveRecord implements IdentityInterface
             [['facebook',], 'match', 'pattern' => '/^[A-Za-z0-9_\.]{5,}$/i', 'on' => 'profile',],
             [['telegram',], 'match', 'pattern' => '/^[A-Za-z0-9_\.]+$/i', 'on' => 'profile',],
             [['instagram',], 'match', 'pattern' => '/^[A-Za-z0-9_\.]{5,}$/i', 'on' => 'profile',],
-            [['mobile',], 'match', 'pattern' => '/^[0-9+]+$/', 'on' => 'profile',],
+            [['email',], 'email', 'on' => 'profile',],
             [['phone',], 'match', 'pattern' => '/^[0-9+]+$/', 'on' => 'profile',],
             [['address',], 'string', 'max' => 2048, 'on' => 'profile',],
             [['password',], 'minLenValidation', 'params' => ['min' => 6,], 'on' => 'profile',],
@@ -74,9 +74,9 @@ class Blog extends ActiveRecord implements IdentityInterface
             [['name',], 'match', 'pattern' => '/^[a-z]+$/', 'on' => 'signup',],
             [['title',], 'required', 'on' => 'signup',],
             [['title',], 'string', 'max' => 60, 'on' => 'signup',],
-            [['email',], 'required', 'on' => 'signup',],
-            [['email',], 'unique', 'on' => 'signup',],
-            [['email',], 'email', 'on' => 'signup',],
+            [['mobile',], 'required', 'on' => 'signup',],
+            [['mobile',], 'unique', 'on' => 'signup',],
+            [['mobile',], 'match', 'pattern' => '/^[0-9+]+$/', 'on' => 'signup',],
             [['password',], 'required', 'on' => 'signup',],
             [['password',], 'minLenValidation', 'params' => ['min' => 6,], 'on' => 'signup',],
             //
@@ -86,24 +86,24 @@ class Blog extends ActiveRecord implements IdentityInterface
             [['password',], 'signinValidation', 'on' => 'signin',],
             [['password',], 'minLenValidation', 'params' => ['min' => 6,], 'on' => 'signin',],
             //
-            [['email',], 'required', 'on' => 'resetPasswordRequest',],
-            [['email',], 'resetPasswordRequestValidation', 'on' => 'resetPasswordRequest',],
-            [['email',], 'email', 'on' => 'resetPasswordRequest',],
+            [['mobile',], 'required', 'on' => 'resetPasswordRequest',],
+            [['mobile',], 'resetPasswordRequestValidation', 'on' => 'resetPasswordRequest',],
+            [['mobile',], 'match', 'pattern' => '/^[0-9+]+$/', 'on' => 'resetPasswordRequest',],
             //
-            [['email',], 'required', 'on' => 'verifyRequest',],
-            [['email',], 'verifyRequestValidation', 'on' => 'verifyRequest',],
-            [['email',], 'email', 'on' => 'verifyRequest',],
+            [['mobile',], 'required', 'on' => 'verifyRequest',],
+            [['mobile',], 'verifyRequestValidation', 'on' => 'verifyRequest',],
+            [['mobile',], 'match', 'pattern' => '/^[0-9+]+$/', 'on' => 'verifyRequest',],
             //
-            [['email',], 'required', 'on' => 'resetPassword',],
-            [['email',], 'resetPasswordValidation', 'on' => 'resetPassword',],
-            [['email',], 'email', 'on' => 'resetPassword',],
+            [['mobile',], 'required', 'on' => 'resetPassword',],
+            [['mobile',], 'resetPasswordValidation', 'on' => 'resetPassword',],
+            [['mobile',], 'match', 'pattern' => '/^[0-9+]+$/', 'on' => 'resetPassword',],
             [['password',], 'required', 'on' => 'resetPassword',],
             [['password',], 'minLenValidation', 'params' => ['min' => 6,], 'on' => 'resetPassword',],
             [['reset_token',], 'required', 'on' => 'resetPassword',],
             //
-            [['email',], 'required', 'on' => 'verify',],
-            [['email',], 'verifyValidation', 'on' => 'verify',],
-            [['email',], 'email', 'on' => 'verify',],
+            [['mobile',], 'required', 'on' => 'verify',],
+            [['mobile',], 'verifyValidation', 'on' => 'verify',],
+            [['mobile',], 'match', 'pattern' => '/^[0-9+]+$/', 'on' => 'verify',],
             [['verify_token',], 'required', 'on' => 'verify',],
         ];
     }
@@ -176,7 +176,7 @@ class Blog extends ActiveRecord implements IdentityInterface
             'signup' => [
                 'name' => [['required'], ['unique'],],
                 'title' => [['required'],],
-                'email' => [['required'], ['unique'],],
+                'mobile' => [['required'], ['unique'],],
                 'password' => [['required'],],
             ],
             'signin' => [
@@ -184,18 +184,18 @@ class Blog extends ActiveRecord implements IdentityInterface
                 'password' => [['required'], ['signinValidation']],
             ],
             'resetPasswordRequest' => [
-                'email' => [['required'], ['resetPasswordRequestValidation']],
+                'mobile' => [['required'], ['resetPasswordRequestValidation']],
             ],
             'verifyRequest' => [
-                'email' => [['required'], ['verifyRequestValidation']],
+                'mobile' => [['required'], ['verifyRequestValidation']],
             ],
             'resetPassword' => [
-                'email' => [['required'], ['resetPasswordValidation']],
+                'mobile' => [['required'], ['resetPasswordValidation']],
                 'password' => [['required']],
                 'reset_token' => [['required']],
             ],
             'verify' => [
-                'email' => [['required'], ['verifyValidation']],
+                'mobile' => [['required'], ['verifyValidation']],
                 'verify_token' => [['required']],
             ],
         ];
@@ -214,7 +214,6 @@ class Blog extends ActiveRecord implements IdentityInterface
             'facebook' => null,
             'telegram' => null,
             'instagram' => null,
-            'mobile' => null,
             'phone' => null,
             'address' => null,
             //
@@ -227,7 +226,6 @@ class Blog extends ActiveRecord implements IdentityInterface
         $this->facebook = $arrayParams['facebook'];
         $this->twitter = $arrayParams['twitter'];
         $this->phone = $arrayParams['phone'];
-        $this->mobile = $arrayParams['mobile'];
         $this->address = $arrayParams['address'];
         //
         $this->cache_category = $arrayParams['cache_category'];
@@ -246,7 +244,6 @@ class Blog extends ActiveRecord implements IdentityInterface
             'facebook' => $this->facebook,
             'twitter' => $this->twitter,
             'phone' => $this->phone,
-            'mobile' => $this->mobile,
             'address' => $this->address,
             //
             'cache_category' => (array) $this->cache_category,
@@ -272,7 +269,7 @@ class Blog extends ActiveRecord implements IdentityInterface
     public function resetPasswordRequestValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $blog = self::find()->where(['status' => [Status::STATUS_ACTIVE, Status::STATUS_DISABLE]])->andWhere(['email' => $this->email])->one();
+            $blog = self::find()->where(['status' => [Status::STATUS_ACTIVE, Status::STATUS_DISABLE]])->andWhere(['mobile' => $this->mobile])->one();
             if ($blog) {
                 return $this->_blog = $blog;
             }
@@ -284,7 +281,7 @@ class Blog extends ActiveRecord implements IdentityInterface
     public function verifyRequestValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $blog = self::find()->where(['status' => [Status::STATUS_UNVERIFIED]])->andWhere(['email' => $this->email])->one();
+            $blog = self::find()->where(['status' => [Status::STATUS_UNVERIFIED]])->andWhere(['mobile' => $this->mobile])->one();
             if ($blog) {
                 return $this->_blog = $blog;
             }
@@ -296,7 +293,7 @@ class Blog extends ActiveRecord implements IdentityInterface
     public function resetPasswordValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $blog = self::find()->where(['status' => [Status::STATUS_ACTIVE, Status::STATUS_DISABLE]])->andWhere(['email' => $this->email])->andWhere(['reset_token' => $this->reset_token])->andWhere(['>', 'reset_at', time() - self::TIMEOUT_RESET])->one();
+            $blog = self::find()->where(['status' => [Status::STATUS_ACTIVE, Status::STATUS_DISABLE]])->andWhere(['mobile' => $this->mobile])->andWhere(['reset_token' => $this->reset_token])->andWhere(['>', 'reset_at', time() - self::TIMEOUT_RESET])->one();
             if ($blog) {
                 return $this->_blog = $blog;
             }
@@ -308,7 +305,7 @@ class Blog extends ActiveRecord implements IdentityInterface
     public function verifyValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $blog = self::find()->where(['status' => [Status::STATUS_UNVERIFIED]])->andWhere(['email' => $this->email])->andWhere(['verify_token' => $this->verify_token])->andWhere(['>', 'verify_at', time() - self::TIMEOUT_RESET])->one();
+            $blog = self::find()->where(['status' => [Status::STATUS_UNVERIFIED]])->andWhere(['mobile' => $this->mobile])->andWhere(['verify_token' => $this->verify_token])->andWhere(['>', 'verify_at', time() - self::TIMEOUT_RESET])->one();
             if ($blog) {
                 return $this->_blog = $blog;
             }
