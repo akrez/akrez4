@@ -81,7 +81,7 @@ class Gallery extends ActiveRecord
 
     public static function getImageUrlOfBrowser($name)
     {
-        if (in_array($name, ['Chrome', 'Edge', 'Firefox', 'Safari', 'Samsung Internet'])) {
+        if (in_array($name, ['Chrome', 'Edge', 'Firefox', 'Safari', 'Samsung Internet', 'Opera', 'Internet Explorer',])) {
             return self::getImageUrl(self::TYPE_BROWSER, $name . '.svg');
         }
         return null;
