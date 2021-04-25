@@ -126,22 +126,22 @@ class Blog extends ActiveRecord implements IdentityInterface
             ],
             //
             'des' => [
-                ['string', 'max' => 160],
+                ['string'],
             ],
             'slug' => [
                 ['string', 'max' => 160],
             ],
             'twitter' => [
-                ['match', 'pattern' => '/^[A-Za-z0-9_]{1,15}$/'],
+                ['match', 'pattern' => '/^[A-Za-z0-9_\.]{1,15}$/'],
             ],
             'facebook' => [
-                ['match', 'pattern' => '/^[a-z\d.]{5,}$/i'],
+                ['match', 'pattern' => '/^[A-Za-z0-9_\.]{5,}$/i'],
             ],
             'telegram' => [
-                ['match', 'pattern' => '/^[a-z\d.]+$/i'],
+                ['match', 'pattern' => '/^[A-Za-z0-9_\.]+$/i'],
             ],
             'instagram' => [
-                ['match', 'pattern' => '/^[a-z\d.]{5,}$/i'],
+                ['match', 'pattern' => '/^[A-Za-z0-9_\.]{5,}$/i'],
             ],
             'mobile' => [
                 ['match', 'pattern' => '/^[0-9+]+$/'],
@@ -167,7 +167,7 @@ class Blog extends ActiveRecord implements IdentityInterface
                 'facebook' => [],
                 'telegram' => [],
                 'instagram' => [],
-                'mobile' => [],
+                'email' => [],
                 'phone' => [],
                 'address' => [],
                 'password' => [],
