@@ -82,14 +82,16 @@ class Blog extends ActiveRecord implements IdentityInterface
             [['mobile',], 'match', 'pattern' => '/^09[0-9]{9}$/', 'on' => 'signup',],
             [['password',], 'required', 'on' => 'signup',],
             [['password',], 'minLenValidation', 'params' => ['min' => 6,], 'on' => 'signup',],
-            [['captcha'], 'captcha', 'on' => 'signup',],
+            [['captcha',], 'required', 'on' => 'signup',],
+            [['captcha',], 'captcha', 'on' => 'signup',],
             //
             [['name',], 'required', 'on' => 'signin',],
             [['name',], 'match', 'pattern' => '/^[a-z]+$/', 'on' => 'signin',],
             [['password',], 'required', 'on' => 'signin',],
             [['password',], 'signinValidation', 'on' => 'signin',],
             [['password',], 'minLenValidation', 'params' => ['min' => 6,], 'on' => 'signin',],
-            [['captcha'], 'captcha', 'on' => 'signin',],
+            [['captcha',], 'required', 'on' => 'signin',],
+            [['captcha',], 'captcha', 'on' => 'signin',],
             //
             [['mobile',], 'required', 'on' => 'resetPasswordRequest',],
             [['mobile',], 'resetPasswordRequestValidation', 'on' => 'resetPasswordRequest',],
@@ -105,11 +107,15 @@ class Blog extends ActiveRecord implements IdentityInterface
             [['password',], 'required', 'on' => 'resetPassword',],
             [['password',], 'minLenValidation', 'params' => ['min' => 6,], 'on' => 'resetPassword',],
             [['reset_token',], 'required', 'on' => 'resetPassword',],
+            [['captcha',], 'required', 'on' => 'resetPassword',],
+            [['captcha',], 'captcha', 'on' => 'resetPassword',],
             //
             [['mobile',], 'required', 'on' => 'verify',],
             [['mobile',], 'verifyValidation', 'on' => 'verify',],
             [['mobile',], 'match', 'pattern' => '/^09[0-9]{9}$/', 'on' => 'verify',],
             [['verify_token',], 'required', 'on' => 'verify',],
+            [['captcha',], 'required', 'on' => 'verify',],
+            [['captcha',], 'captcha', 'on' => 'verify',],
         ];
     }
 
