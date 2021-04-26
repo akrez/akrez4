@@ -60,6 +60,7 @@ $config = [
             ],
         ],
         'db' => $params['db'],
+        'Melipayamak' => $params['Melipayamak'],
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
