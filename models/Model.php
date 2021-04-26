@@ -64,6 +64,8 @@ class Model extends BaseModel
             'product_id' => 'محصول',
             'category_id' => 'دسته‌بندی',
             'reset_token' => 'کد بازیابی رمز عبور',
+            'verify_token' => 'کد فعال‌سازی',
+            'captcha' => 'کد تأیید',
 
             'receive_from' => 'تحویل از',
             'receive_until' => 'تحویل تا',
