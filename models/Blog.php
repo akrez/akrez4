@@ -31,7 +31,7 @@ use yii\web\IdentityInterface;
 class Blog extends ActiveRecord implements IdentityInterface
 {
 
-    const TIMEOUT_RESET = 120;
+    const TIMEOUT_RESET = 120000;
 
     public $image;
     public $password;
@@ -102,17 +102,17 @@ class Blog extends ActiveRecord implements IdentityInterface
             [['mobile',], 'match', 'pattern' => '/^09[0-9]{9}$/', 'on' => 'verifyRequest',],
             //
             [['mobile',], 'required', 'on' => 'resetPassword',],
-            [['mobile',], 'resetPasswordValidation', 'on' => 'resetPassword',],
             [['mobile',], 'match', 'pattern' => '/^09[0-9]{9}$/', 'on' => 'resetPassword',],
             [['password',], 'required', 'on' => 'resetPassword',],
             [['password',], 'minLenValidation', 'params' => ['min' => 6,], 'on' => 'resetPassword',],
+            [['reset_token',], 'resetPasswordValidation', 'on' => 'resetPassword',],
             [['reset_token',], 'required', 'on' => 'resetPassword',],
             [['captcha',], 'required', 'on' => 'resetPassword',],
             [['captcha',], 'captcha', 'on' => 'resetPassword',],
             //
             [['mobile',], 'required', 'on' => 'verify',],
-            [['mobile',], 'verifyValidation', 'on' => 'verify',],
             [['mobile',], 'match', 'pattern' => '/^09[0-9]{9}$/', 'on' => 'verify',],
+            [['verify_token',], 'verifyValidation', 'on' => 'verify',],
             [['verify_token',], 'required', 'on' => 'verify',],
             [['captcha',], 'required', 'on' => 'verify',],
             [['captcha',], 'captcha', 'on' => 'verify',],
@@ -207,14 +207,14 @@ class Blog extends ActiveRecord implements IdentityInterface
                 'mobile' => [['required'], ['verifyRequestValidation']],
             ],
             'resetPassword' => [
-                'mobile' => [['required'], ['resetPasswordValidation']],
+                'mobile' => [['required']],
                 'password' => [['required']],
-                'reset_token' => [['required']],
+                'reset_token' => [['required'], ['resetPasswordValidation']],
                 'captcha' => [['required'],],
             ],
             'verify' => [
-                'mobile' => [['required'], ['verifyValidation']],
-                'verify_token' => [['required']],
+                'mobile' => [['required']],
+                'verify_token' => [['required'], ['verifyValidation']],
                 'captcha' => [['required'],],
             ],
         ];
