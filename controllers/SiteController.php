@@ -3,7 +3,7 @@
 namespace app\controllers;
 
 use app\components\Cache;
-use app\components\Email;
+use app\components\Sms;
 use app\components\Jdf;
 use app\models\Gallery;
 use app\models\Status;
@@ -20,13 +20,13 @@ class SiteController extends Controller
     {
         return $this->defaultBehaviors([
             [
-                'actions' => ['error', 'index'],
+                'actions' => ['error', 'index', 'captcha'],
                 'allow' => true,
                 'verbs' => ['POST', 'GET'],
                 'roles' => ['?', '@'],
             ],
             [
-                'actions' => ['signin', 'signup', 'reset-password-request', 'reset-password'],
+                'actions' => ['signin', 'signup', 'reset-password-request', 'reset-password', 'verify', 'verify-request'],
                 'allow' => true,
                 'verbs' => ['POST', 'GET'],
                 'roles' => ['?'],
@@ -45,6 +45,9 @@ class SiteController extends Controller
         return [
             'error' => [
                 'class' => 'app\components\ErrorAction',
+            ],
+            'captcha' => [
+                'class' => 'yii\captcha\CaptchaAction',
             ],
         ];
     }
@@ -122,9 +125,8 @@ class SiteController extends Controller
                 $signup->setVerifyToken();
                 $signup->setPasswordHash($signup->password);
                 if ($signup->save()) {
-                    Email::verifyRequest($signup);
                     Yii::$app->session->setFlash('success', Yii::t('app', 'alertSignupSuccessfull'));
-                    return $this->goBack();
+                    return $this->redirect(['site/verify-request', 'mobile' => $signup->mobile]);
                 }
             }
             return $this->render('signup', ['model' => $signup]);
@@ -168,16 +170,17 @@ class SiteController extends Controller
         }
     }
 
-    public function actionResetPasswordRequest()
+    public function actionResetPasswordRequest($mobile = '')
     {
         try {
             $resetPasswordRequest = new Blog(['scenario' => 'resetPasswordRequest']);
-            if ($resetPasswordRequest->load(\Yii::$app->request->post()) && $resetPasswordRequest->validate()) {
+            $resetPasswordRequest->mobile = $mobile;
+            if (($resetPasswordRequest->mobile || $resetPasswordRequest->load(\Yii::$app->request->post())) && $resetPasswordRequest->validate()) {
                 $blog = $resetPasswordRequest->getBlog();
                 $blog->setResetToken();
-                if ($blog->save(false) && Email::resetPasswordRequest($blog)) {
+                if ($blog->save(false) && Sms::resetPasswordRequest($blog)) {
                     Yii::$app->session->setFlash('success', Yii::t('app', 'alertResetPasswordRequestSuccessfull'));
-                    return $this->redirect(['site/index']);
+                    return $this->redirect(['site/reset-password', 'mobile' => $blog->mobile]);
                 }
             }
             return $this->render('reset-password-request', ['model' => $resetPasswordRequest]);
@@ -186,14 +189,14 @@ class SiteController extends Controller
         }
     }
 
-    public function actionResetPassword()
+    public function actionResetPassword($mobile = '')
     {
         try {
             $resetPassword = new Blog(['scenario' => 'resetPassword']);
+            $resetPassword->mobile = $mobile;
             if ($resetPassword->load(\Yii::$app->request->post()) && $resetPassword->validate()) {
                 $blog = $resetPassword->getBlog();
                 $blog->setResetToken(true);
-                $blog->status = Status::STATUS_ACTIVE;
                 $blog->setPasswordHash($resetPassword->password);
                 if ($blog->save(false)) {
                     Yii::$app->session->setFlash('success', Yii::t('app', 'alertResetPasswordSuccessfull'));
@@ -201,6 +204,45 @@ class SiteController extends Controller
                 }
             }
             return $this->render('reset-password', ['model' => $resetPassword]);
+        } catch (Exception $e) {
+            throw new BadRequestHttpException();
+        }
+    }
+
+    public function actionVerifyRequest($mobile = '')
+    {
+        try {
+            $verifyRequest = new Blog(['scenario' => 'verifyRequest']);
+            $verifyRequest->mobile = $mobile;
+            if (($verifyRequest->mobile || $verifyRequest->load(\Yii::$app->request->post())) && $verifyRequest->validate()) {
+                $blog = $verifyRequest->getBlog();
+                $blog->setVerifyToken();
+                if ($blog->save(false) && Sms::verifyRequest($blog)) {
+                    Yii::$app->session->setFlash('success', Yii::t('app', 'alertVerifyRequestSuccessfull'));
+                    return $this->redirect(['site/verify', 'mobile' => $blog->mobile]);
+                }
+            }
+            return $this->render('verify-request', ['model' => $verifyRequest]);
+        } catch (Exception $e) {
+            throw new BadRequestHttpException();
+        }
+    }
+
+    public function actionVerify($mobile = '')
+    {
+        try {
+            $verify = new Blog(['scenario' => 'verify']);
+            $verify->mobile = $mobile;
+            if ($verify->load(\Yii::$app->request->post()) && $verify->validate()) {
+                $blog = $verify->getBlog();
+                $blog->setVerifyToken(true);
+                $blog->status = Status::STATUS_ACTIVE;
+                if ($blog->save(false)) {
+                    Yii::$app->session->setFlash('success', Yii::t('app', 'alertVerifySuccessfull'));
+                    return $this->redirect(['site/index']);
+                }
+            }
+            return $this->render('verify', ['model' => $verify]);
         } catch (Exception $e) {
             throw new BadRequestHttpException();
         }
