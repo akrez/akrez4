@@ -47,8 +47,10 @@ return [
     'alertUpdateSuccessfull' => 'اطلاعات با موفقیت ویرایش شد.',
     'alertGalleryUploadSuccessfull' => 'عکس با موفقیت بارگذاری شد.',
     'alertSignupSuccessfull' => 'ثبت نام با موفقیت انجام شد، لطفا وارد شوید.',
-    'alertResetPasswordRequestSuccessfull' => 'کد بازیابی رمز عبور به ایمیل شما ارسال شد. لطفا ایمیل خود را بررسی نمایید.',
+    'alertResetPasswordRequestSuccessfull' => 'کد بازیابی رمز عبور برای شما ارسال شد.',
     'alertResetPasswordSuccessfull' => 'بازیابی رمز عبور با موفقیت انجام شد، لطفا وارد شوید.',
+    'alertVerifyRequestSuccessfull' => 'کد فعال‌سازی برای شما ارسال شد.',
+    'alertVerifySuccessfull' => 'فعال‌سازی با موفقیت انجام شد.',
     //
     'browser' => 'مرورگر',
     'os' => 'سیستم عامل',
@@ -78,6 +80,8 @@ return [
     'Basket' => 'سبد خرید',
     'ResetPasswordRequest' => 'درخواست بازیابی رمز عبور',
     'ResetPassword' => 'بازیابی رمز عبور',
+    'VerifyRequest' => 'ارسال کد فعال‌سازی',
+    'Verify' => 'فعال‌سازی',
     //
     'Create {name}' => 'ایجاد {name} جدید',
     'Update {name}' => 'ویرایش {name}',
@@ -88,7 +92,6 @@ return [
     'Add' => 'افزودن',
     'Add Multiple' => 'افزودن چندین مورد',
     'Back' => 'بازگشت',
-    'Verify' => 'تایید',
     'Search' => 'جستجو',
     //
     'SelectDefaultImage' => 'عکس پیش فرض',
