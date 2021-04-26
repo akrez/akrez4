@@ -47,6 +47,9 @@ class Blog extends ActiveRecord implements IdentityInterface
     public $des;
     //
     public $cache_category;
+    //
+    public $captcha;
+
 
     public static function tableName()
     {
@@ -76,34 +79,36 @@ class Blog extends ActiveRecord implements IdentityInterface
             [['title',], 'string', 'max' => 60, 'on' => 'signup',],
             [['mobile',], 'required', 'on' => 'signup',],
             [['mobile',], 'unique', 'on' => 'signup',],
-            [['mobile',], 'match', 'pattern' => '/^[0-9+]+$/', 'on' => 'signup',],
+            [['mobile',], 'match', 'pattern' => '/^09[0-9]{9}$/', 'on' => 'signup',],
             [['password',], 'required', 'on' => 'signup',],
             [['password',], 'minLenValidation', 'params' => ['min' => 6,], 'on' => 'signup',],
+            [['captcha'], 'captcha', 'on' => 'signup',],
             //
             [['name',], 'required', 'on' => 'signin',],
             [['name',], 'match', 'pattern' => '/^[a-z]+$/', 'on' => 'signin',],
             [['password',], 'required', 'on' => 'signin',],
             [['password',], 'signinValidation', 'on' => 'signin',],
             [['password',], 'minLenValidation', 'params' => ['min' => 6,], 'on' => 'signin',],
+            [['captcha'], 'captcha', 'on' => 'signin',],
             //
             [['mobile',], 'required', 'on' => 'resetPasswordRequest',],
             [['mobile',], 'resetPasswordRequestValidation', 'on' => 'resetPasswordRequest',],
-            [['mobile',], 'match', 'pattern' => '/^[0-9+]+$/', 'on' => 'resetPasswordRequest',],
+            [['mobile',], 'match', 'pattern' => '/^09[0-9]{9}$/', 'on' => 'resetPasswordRequest',],
             //
             [['mobile',], 'required', 'on' => 'verifyRequest',],
             [['mobile',], 'verifyRequestValidation', 'on' => 'verifyRequest',],
-            [['mobile',], 'match', 'pattern' => '/^[0-9+]+$/', 'on' => 'verifyRequest',],
+            [['mobile',], 'match', 'pattern' => '/^09[0-9]{9}$/', 'on' => 'verifyRequest',],
             //
             [['mobile',], 'required', 'on' => 'resetPassword',],
             [['mobile',], 'resetPasswordValidation', 'on' => 'resetPassword',],
-            [['mobile',], 'match', 'pattern' => '/^[0-9+]+$/', 'on' => 'resetPassword',],
+            [['mobile',], 'match', 'pattern' => '/^09[0-9]{9}$/', 'on' => 'resetPassword',],
             [['password',], 'required', 'on' => 'resetPassword',],
             [['password',], 'minLenValidation', 'params' => ['min' => 6,], 'on' => 'resetPassword',],
             [['reset_token',], 'required', 'on' => 'resetPassword',],
             //
             [['mobile',], 'required', 'on' => 'verify',],
             [['mobile',], 'verifyValidation', 'on' => 'verify',],
-            [['mobile',], 'match', 'pattern' => '/^[0-9+]+$/', 'on' => 'verify',],
+            [['mobile',], 'match', 'pattern' => '/^09[0-9]{9}$/', 'on' => 'verify',],
             [['verify_token',], 'required', 'on' => 'verify',],
         ];
     }
@@ -144,7 +149,7 @@ class Blog extends ActiveRecord implements IdentityInterface
                 ['match', 'pattern' => '/^[A-Za-z0-9_\.]{5,}$/i'],
             ],
             'mobile' => [
-                ['match', 'pattern' => '/^[0-9+]+$/'],
+                ['match', 'pattern' => '/^09[0-9]{9}$/'],
             ],
             'phone' => [
                 ['match', 'pattern' => '/^[0-9+]+$/'],
@@ -156,6 +161,10 @@ class Blog extends ActiveRecord implements IdentityInterface
             'image' => [
                 ['file'],
             ],
+            'captcha' => [
+                ['captcha']
+            ],
+
         ];
 
         $scenariosRules = [
@@ -178,10 +187,12 @@ class Blog extends ActiveRecord implements IdentityInterface
                 'title' => [['required'],],
                 'mobile' => [['required'], ['unique'],],
                 'password' => [['required'],],
+                'captcha' => [['required'],],
             ],
             'signin' => [
                 'name' => [['required']],
                 'password' => [['required'], ['signinValidation']],
+                'captcha' => [['required'],],
             ],
             'resetPasswordRequest' => [
                 'mobile' => [['required'], ['resetPasswordRequestValidation']],
@@ -193,10 +204,12 @@ class Blog extends ActiveRecord implements IdentityInterface
                 'mobile' => [['required'], ['resetPasswordValidation']],
                 'password' => [['required']],
                 'reset_token' => [['required']],
+                'captcha' => [['required'],],
             ],
             'verify' => [
                 'mobile' => [['required'], ['verifyValidation']],
                 'verify_token' => [['required']],
+                'captcha' => [['required'],],
             ],
         ];
 
