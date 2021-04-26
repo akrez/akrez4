@@ -1,5 +1,6 @@
 <?php
 
+use yii\captcha\Captcha;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
@@ -27,6 +28,9 @@ $verifyToken = Html::encode(Yii::$app->request->get('verify_token'));
         ?>
         <?= $form->field($model, 'mobile')->textInput($mobile ? ['value' => $mobile, 'readonly' => true] : []) ?>
         <?= $form->field($model, 'verify_token')->textInput($verifyToken ? ['value' => $verifyToken, 'readonly' => true] : []) ?>
+        <?= $form->field($model, 'captcha', ['template' => '{input}<small>{hint}</small>{error}'])->widget(Captcha::class, [
+            'template' => '{image}<div class="input-group">' . Html::activeLabel($model, 'captcha', ['class' => "input-group-addon"]) . '{input}</div>',
+        ])->hint('در صورت ناخوانا بودن عکس، روی آن کلیک کنید.') ?>
         <div class="form-group">
             <button type="submit" class="btn btn-primary btn-block" name="login-button" style="float: right;"> <?= Yii::t('app', 'Verify') ?> </button>
         </div>
