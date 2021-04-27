@@ -27,6 +27,7 @@ class Gallery extends ActiveRecord
     const TYPE_AVATAR = 'avatar';
     const TYPE_BROWSER = 'browser';
     const TYPE_OS = 'os';
+    const TYPE_STORY = 'story';
 
     public static function typeList()
     {
@@ -36,6 +37,7 @@ class Gallery extends ActiveRecord
             self::TYPE_AVATAR => Yii::t('app', 'avatar'),
             self::TYPE_BROWSER => Yii::t('app', 'browser'),
             self::TYPE_OS => Yii::t('app', 'os'),
+            self::TYPE_STORY => Yii::t('app', 'story'),
         ];
     }
 
@@ -66,25 +68,28 @@ class Gallery extends ActiveRecord
         return $this->hasMany(Blog::class, ['logo' => 'name']);
     }
 
+    private static function getUrl($type, $name)
+    {
+        $dir = ($type === null ? '' : '/' . $type);
+        return Yii::getAlias('@web/image') . $dir . '/' . $name;
+    }
+
     public static function getImageUrl($type, $name)
     {
-        return Yii::getAlias('@web/image/') . $type . '/' . $name;
-    }
-
-    public static function getImageUrlOfOs($name)
-    {
-        if (in_array($name, ['Android', 'Chrome OS', 'iOS', 'Linux', 'Ubuntu', 'Windows'])) {
-            return self::getImageUrl(self::TYPE_OS, $name . '.svg');
+        if ($type == self::TYPE_OS) {
+            if (in_array($name, ['Android', 'Chrome OS', 'iOS', 'Linux', 'Ubuntu', 'Windows'])) {
+                return self::getUrl(self::TYPE_OS, $name . '.svg');
+            }
+            return null;
+        } elseif ($type == self::TYPE_BROWSER) {
+            if (in_array($name, ['Chrome', 'Edge', 'Firefox', 'Safari', 'Samsung Internet', 'Opera', 'Internet Explorer',])) {
+                return self::getUrl(self::TYPE_BROWSER, $name . '.svg');
+            }
+            return null;
+        } elseif ($type == self::TYPE_STORY) {
+            return self::getUrl(self::TYPE_STORY, $name . '.svg');
         }
-        return null;
-    }
-
-    public static function getImageUrlOfBrowser($name)
-    {
-        if (in_array($name, ['Chrome', 'Edge', 'Firefox', 'Safari', 'Samsung Internet', 'Opera', 'Internet Explorer',])) {
-            return self::getImageUrl(self::TYPE_BROWSER, $name . '.svg');
-        }
-        return null;
+        return self::getUrl($type, $name);
     }
 
     public static function getImageBasePath($type)
