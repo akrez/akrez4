@@ -117,6 +117,7 @@ class SiteController extends Controller
 
     public function actionSignup()
     {
+        Blog::deleteUnverifiedTimeoutedBlog();
         try {
             $signup = new Blog(['scenario' => 'signup']);
             if ($signup->load(\Yii::$app->request->post())) {
@@ -211,6 +212,7 @@ class SiteController extends Controller
 
     public function actionVerifyRequest($mobile = '')
     {
+        Blog::deleteUnverifiedTimeoutedBlog();
         try {
             $verifyRequest = new Blog(['scenario' => 'verifyRequest']);
             $verifyRequest->mobile = $mobile;
@@ -230,6 +232,7 @@ class SiteController extends Controller
 
     public function actionVerify($mobile = '')
     {
+        Blog::deleteUnverifiedTimeoutedBlog();
         try {
             $verify = new Blog(['scenario' => 'verify']);
             $verify->mobile = $mobile;
