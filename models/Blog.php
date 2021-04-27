@@ -31,7 +31,7 @@ use yii\web\IdentityInterface;
 class Blog extends ActiveRecord implements IdentityInterface
 {
 
-    const TIMEOUT_RESET = 120000;
+    const TIMEOUT_RESET = 120;
 
     public $image;
     public $password;
@@ -75,8 +75,6 @@ class Blog extends ActiveRecord implements IdentityInterface
             [['name',], 'required', 'on' => 'signup',],
             [['name',], 'unique', 'on' => 'signup',],
             [['name',], 'match', 'pattern' => '/^[a-z]+$/', 'on' => 'signup',],
-            [['title',], 'required', 'on' => 'signup',],
-            [['title',], 'string', 'max' => 60, 'on' => 'signup',],
             [['mobile',], 'required', 'on' => 'signup',],
             [['mobile',], 'unique', 'on' => 'signup',],
             [['mobile',], 'match', 'pattern' => '/^09[0-9]{9}$/', 'on' => 'signup',],
@@ -190,7 +188,6 @@ class Blog extends ActiveRecord implements IdentityInterface
             ],
             'signup' => [
                 'name' => [['required'], ['unique'],],
-                'title' => [['required'],],
                 'mobile' => [['required'], ['unique'],],
                 'password' => [['required'],],
                 'captcha' => [['required'],],
