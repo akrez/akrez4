@@ -1,5 +1,6 @@
 <?php
 
+use app\models\Gallery;
 use yii\captcha\Captcha;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -9,7 +10,7 @@ use yii\widgets\ActiveForm;
 
 <div class="row">
     <div class="col-sm-4 col-xs-12">
-        <img src="<?= Yii::getAlias('@web/image/signin.svg') ?>">
+        <img src="<?= Gallery::getImageUrl(Gallery::TYPE_STORY ,'signin') ?>">
     </div>
     <div class="col-sm-4 col-xs-12">
         <h3 style="margin-bottom: 20px;"><?= Yii::t('app', 'Signin') ?></h3>

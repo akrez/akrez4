@@ -1,5 +1,6 @@
 <?php
 
+use app\models\Gallery;
 use yii\captcha\Captcha;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -11,7 +12,7 @@ $verifyToken = Html::encode(Yii::$app->request->get('verify_token'));
 
 <div class="row">
     <div class="col-sm-4 col-xs-12">
-        <img src="<?= Yii::getAlias('@web/image/verify.svg') ?>">
+        <img src="<?= Gallery::getImageUrl(Gallery::TYPE_STORY, 'verify') ?>">
     </div>
     <div class="col-sm-4 col-xs-12">
         <h3 style="margin-bottom: 20px;"><?= Yii::t('app', 'Verify') ?></h3>

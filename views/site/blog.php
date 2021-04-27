@@ -27,7 +27,7 @@ $this->registerCss("
     <div class="col-sm-12">
         <div class="row">
             <div class="col-sm-2">
-                <?= Html::img((Blog::print('logo') ? Gallery::getImageUrl('logo', Blog::print('logo')) : '@web/cdn/image/logo.png'), ['class' => 'img img-responsive', 'style' => 'margin: auto;margin-top: 10px;']); ?>
+                <?= Html::img(Blog::getLogoUrl(), ['class' => 'img img-responsive', 'style' => 'margin: auto;margin-top: 10px;']); ?>
             </div>
             <div class="col-sm-10">
                 <h4 class="mt0" style=""><?= Blog::print('title') ?> <small><?= Blog::print('slug') ?></small></h4>
@@ -82,7 +82,7 @@ $this->registerCss("
                         'label' => Yii::t('app', 'os'),
                         'value' => function ($model) {
                             $parseUserAgent = Helper::parseUserAgent($model->user_agent);
-                            if ($url = Gallery::getImageUrlOfOs($parseUserAgent['os']['name'])) {
+                            if ($url = Gallery::getImageUrl(Gallery::TYPE_OS, $parseUserAgent['os']['name'])) {
                                 return Html::img($url, ['width' => 30]);
                             }
                             return strval($parseUserAgent['os']['name']);
@@ -93,7 +93,7 @@ $this->registerCss("
                         'label' => Yii::t('app', 'browser'),
                         'value' => function ($model) {
                             $parseUserAgent = Helper::parseUserAgent($model->user_agent);
-                            if ($url = Gallery::getImageUrlOfBrowser($parseUserAgent['browser']['name'])) {
+                            if ($url = Gallery::getImageUrl(Gallery::TYPE_BROWSER, $parseUserAgent['browser']['name'])) {
                                 return Html::img($url, ['width' => 30]);
                             }
                             return strval($parseUserAgent['browser']['name']);

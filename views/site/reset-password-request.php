@@ -1,12 +1,13 @@
 <?php
 
+use app\models\Gallery;
 use yii\widgets\ActiveForm;
 
 ?>
 
 <div class="row">
     <div class="col-sm-4 col-xs-12">
-        <img src="<?= Yii::getAlias('@web/image/request.svg') ?>">
+        <img src="<?= Gallery::getImageUrl(Gallery::TYPE_STORY ,'request') ?>">
     </div>
     <div class="col-sm-4 col-xs-12">
         <h3 style="margin-bottom: 20px;"><?= Yii::t('app', 'ResetPasswordRequest') ?></h3>

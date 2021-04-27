@@ -1,5 +1,6 @@
 <?php
 
+use app\models\Blog;
 use app\models\Gallery;
 use yii\widgets\ActiveForm;
 use yii\widgets\Pjax;
@@ -15,19 +16,19 @@ $this->registerJs("
 <div class="row">
     <?php
     $form = ActiveForm::begin([
-                'options' => [
-                    'enctype' => 'multipart/form-data',
-                ],
-                'fieldConfig' => [
-                    'template' => '<div class="input-group">{label}{input}</div><small>{hint}</small>{error}',
-                    'labelOptions' => [
-                        'class' => 'input-group-addon',
-                    ],
-                ]
+        'options' => [
+            'enctype' => 'multipart/form-data',
+        ],
+        'fieldConfig' => [
+            'template' => '<div class="input-group">{label}{input}</div><small>{hint}</small>{error}',
+            'labelOptions' => [
+                'class' => 'input-group-addon',
+            ],
+        ]
     ]);
     ?>
     <div class="col-sm-2 pb20">
-        <img class="img img-responsive img-rounded" src="<?= empty($model->logo) ? Yii::getAlias('@web/image/logo.png') : Gallery::getImageUrl(Gallery::TYPE_LOGO, $model->logo) ?>">
+        <img class="img img-responsive img-rounded" src="<?= Blog::getLogoUrl() ?>">
         <a class="btn btn-success btn-block mt4 mb0" href="javascript:void(0);" onclick="$('#gallery-subbutton').click()">
             <span class="glyphicon glyphicon-refresh" style="border: none;display: none"></span>
             <span><?= Yii::t('app', 'UploadNewImage') ?></span>

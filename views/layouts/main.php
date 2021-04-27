@@ -3,6 +3,7 @@
 use app\assets\SiteAsset;
 use app\components\Alert;
 use app\models\Blog;
+use app\models\Gallery;
 use yii\helpers\Html;
 use yii\helpers\Url;
 
@@ -10,7 +11,7 @@ SiteAsset::register($this);
 $this->title = ($this->title ? $this->title : Yii::$app->name);
 $this->registerCss("
 .splash-style {
-    background-image: url('" . Yii::getAlias('@web/image/loading.svg') . "');
+    background-image: url('" . Gallery::getImageUrl(null, 'loading.svg') . "');
 }
 ");
 ?>
@@ -22,7 +23,7 @@ $this->registerCss("
     <meta charset="<?= Yii::$app->charset ?>">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" href="<?= Yii::getAlias('@web/favicon.svg') ?>" type="image/svg+xml">
+    <link rel="icon" href="<?= Gallery::getImageUrl(null, 'favicon.svg') ?>" type="image/svg+xml">
     <?= Html::csrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?></title>
     <?php $this->head() ?>
