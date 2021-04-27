@@ -447,6 +447,17 @@ class Blog extends ActiveRecord implements IdentityInterface
         return null;
     }
 
+    public static function deleteUnverifiedTimeoutedBlog()
+    {
+        $blog = self::find()
+            ->where(['status' => [Status::STATUS_UNVERIFIED]])
+            ->andWhere(['<', 'verify_at', time() - self::TIMEOUT_RESET])
+            ->one();
+        if ($blog) {
+            $blog->delete();
+        }
+    }
+
     public static function getLogoUrl()
     {
         if (Blog::print('logo')) {
