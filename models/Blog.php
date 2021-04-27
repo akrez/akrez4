@@ -395,7 +395,7 @@ class Blog extends ActiveRecord implements IdentityInterface
             $this->verify_at = null;
         } else {
             if (empty($this->verify_token) || time() - self::TIMEOUT_RESET > $this->verify_at) {
-                $this->verify_token = self::generateVerifyToken();
+                $this->verify_token = self::generateToken('verify_token');
             }
             $this->verify_at = time();
         }
@@ -408,26 +408,17 @@ class Blog extends ActiveRecord implements IdentityInterface
             $this->reset_at = null;
         } else {
             if (empty($this->reset_token) || time() - self::TIMEOUT_RESET > $this->reset_at) {
-                $this->reset_token = self::generateResetToken();
+                $this->reset_token = self::generateToken('reset_token');
             }
             $this->reset_at = time();
         }
     }
 
-    public function generateVerifyToken()
+    public static function generateToken($attribute)
     {
         do {
-            $rand = rand(10000, 99999);
-            $model = self::find()->where(['verify_token' => $rand])->one();
-        } while ($model != null);
-        return $rand;
-    }
-
-    public function generateResetToken()
-    {
-        do {
-            $rand = rand(10000, 99999);
-            $model = self::find()->where(['reset_token' => $rand])->one();
+            $rand = mt_rand(10000, 99999);
+            $model = self::find()->where([$attribute => $rand])->one();
         } while ($model != null);
         return $rand;
     }
