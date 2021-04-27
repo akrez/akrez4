@@ -53,7 +53,7 @@ class Api1Controller extends Api
             } else {
                 $event->sender->data['_code'] = $statusCode;
             }
-            if (YII_DEBUG) {
+            if ($statusCode == 200 || YII_DEBUG) {
                 $event->sender->data += $data;
             }
         });
@@ -279,7 +279,7 @@ class Api1Controller extends Api
         } elseif ($page_size > 0) {
             $page_size = $page_size;
         } else {
-            $page_size = 12;
+            $page_size = 9;
         }
 
         $pagination = new Pagination([
