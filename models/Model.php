@@ -48,6 +48,7 @@ class Model extends BaseModel
             'field_id' => 'ویژگی‌',
             'taxonomy' => 'دسته‌بندی',
             'guaranty' => 'گارانتی',
+            'language' => 'زبان',
 
             'label_no' => 'جایگزین عبارت "خیر"',
             'password' => 'رمز عبور',

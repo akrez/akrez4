@@ -124,6 +124,7 @@ class SiteController extends Controller
                 $signup->status = Status::STATUS_UNVERIFIED;
                 $signup->setAuthKey();
                 $signup->setVerifyToken();
+                $signup->setDefaultLanguage();
                 $signup->setPasswordHash($signup->password);
                 if ($signup->save()) {
                     Yii::$app->session->setFlash('success', Yii::t('app', 'alertSignupSuccessfull'));

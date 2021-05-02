@@ -26,7 +26,16 @@ use yii\web\IdentityInterface;
  * @property int|null $reset_at
  * @property string|null $email
  * @property string|null $mobile
- * @property string|null $params { "address":"", "phone":"", "instagram":"", "telegram":"", "facebook":"", "twitter":"", "slug":"", "des":"" }
+ * @property string|null $language
+ * @property string|null $params { "address":"", "phone":"", "mobile":"", "instagram":"", "telegram":"", "facebook":"", "twitter":"", "slug":"", "des":"" }
+ *
+ * @property Category[] $categories
+ * @property Customer[] $customers
+ * @property Field[] $fields
+ * @property Gallery $logo0
+ * @property Package[] $packages
+ * @property ProductField[] $productFields
+ * @property Product[] $products
  */
 class Blog extends ActiveRecord implements IdentityInterface
 {
@@ -71,6 +80,7 @@ class Blog extends ActiveRecord implements IdentityInterface
             [['address',], 'string', 'max' => 2048, 'on' => 'profile',],
             [['password',], 'minLenValidation', 'params' => ['min' => 6,], 'on' => 'profile',],
             [['image',], 'file', 'on' => 'profile',],
+            [['language',], 'in', 'range' => array_keys(Language::getList())],
             //
             [['name',], 'required', 'on' => 'signup',],
             [['name',], 'unique', 'on' => 'signup',],
@@ -375,6 +385,11 @@ class Blog extends ActiveRecord implements IdentityInterface
         }
     }
 
+    public function setDefaultLanguage()
+    {
+        $this->language = Language::LANGUAGE_FA;
+    }
+
     public function setPasswordHash($password)
     {
         $this->password_hash = Yii::$app->security->generatePasswordHash($password);
@@ -473,6 +488,7 @@ class Blog extends ActiveRecord implements IdentityInterface
             'des' => $this->des,
             'logo' => $this->logo,
             'email' => $this->email,
+            'language' => $this->language,
             'facebook' => $this->facebook,
             'phone' => $this->phone,
             'mobile' => $this->mobile,

@@ -2,6 +2,7 @@
 
 use app\models\Blog;
 use app\models\Gallery;
+use app\models\Language;
 use yii\widgets\ActiveForm;
 use yii\widgets\Pjax;
 
@@ -39,11 +40,14 @@ $this->registerJs("
     <div class="col-sm-10">
         <h2 class="mt10 mb20"><?= Yii::t('app', 'Profile') ?></h2>
         <div class="row">
-            <div class="col-sm-6">
+            <div class="col-sm-3">
                 <?= $form->field($model, 'title')->textInput() ?>
             </div>
             <div class="col-sm-6">
                 <?= $form->field($model, 'slug')->textInput() ?>
+            </div>
+            <div class="col-sm-3">
+                <?= $form->field($model, 'language')->dropDownList(Language::getList()) ?>
             </div>
         </div>
 
@@ -64,12 +68,9 @@ $this->registerJs("
 
         <div class="row">
             <div class="col-sm-3">
-                <?= $form->field($model, 'mobile')->textInput() ?>
-            </div>
-            <div class="col-sm-3">
                 <?= $form->field($model, 'phone')->textInput() ?>
             </div>
-            <div class="col-sm-6">
+            <div class="col-sm-9">
                 <?= $form->field($model, 'address')->textInput() ?>
             </div>
         </div>

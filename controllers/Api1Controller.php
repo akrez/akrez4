@@ -14,6 +14,7 @@ use app\models\Customer;
 use app\models\Field;
 use app\models\FieldList;
 use app\models\Gallery;
+use app\models\Language;
 use app\models\LogApi;
 use app\models\Package;
 use app\models\Product;
@@ -137,12 +138,18 @@ class Api1Controller extends Api
 
     public static function actionConstant()
     {
-        return [
-            'widget' => FieldList::widgetsList(),
-            'opertaion' => FieldList::opertaionsList(),
-            'color' => Color::getList(),
-            'province' => Province::getList(),
-        ];
+        $result = [];
+        foreach (Language::getList() as $languageKey => $language) {
+            Yii::$app->language = $languageKey;
+            $result[$languageKey] = [
+                'widget' => FieldList::widgetsList(),
+                'opertaion' => FieldList::opertaionsList(),
+                'color' => Color::getList(),
+                'province' => Province::getList(),
+                'language' => Language::getList(),
+            ];
+        }
+        return ['constant' => $result];
     }
 
     public function actionIndex()
