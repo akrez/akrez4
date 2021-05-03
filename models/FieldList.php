@@ -24,23 +24,23 @@ class FieldList extends Model
     public static function widgetsList()
     {
         return [
-            'LIKE' => Yii::t('app', 'widget_like'),
-            'NOT LIKE' => Yii::t('app', 'widget_not_like'),
-            '=' => Yii::t('app', 'widget_equal'),
-            '>=' => Yii::t('app', 'widget_bigger'),
-            '<=' => Yii::t('app', 'widget_smaller'),
-            '<>' => Yii::t('app', 'widget_not_equal'),
+            'LIKE' => Yii::t('app', 'LIKE'),
+            'NOT LIKE' => Yii::t('app', 'NOT LIKE'),
+            '=' => Yii::t('app', 'EQUAL'),
+            '>=' => Yii::t('app', 'BIGGER'),
+            '<=' => Yii::t('app', 'SMALLER'),
+            '<>' => Yii::t('app', 'NOT EQUAL'),
             //
-            'COMBO STRING' => Yii::t('app', 'widget_combo_string'),
-            'COMBO NUMBER' => Yii::t('app', 'widget_combo_number'),
+            'COMBO STRING' => Yii::t('app', 'COMBO STRING'),
+            'COMBO NUMBER' => Yii::t('app', 'COMBO NUMBER'),
             //
-            'SINGLE' => Yii::t('app', 'widget_single'),
-            'MULTI' => Yii::t('app', 'widget_multi'),
+            'SINGLE' => Yii::t('app', 'SINGLE'),
+            'MULTI' => Yii::t('app', 'MULTI'),
             //
-            'BETWEEN' => Yii::t('app', 'widget_between'),
+            'BETWEEN' => Yii::t('app', 'BETWEEN'),
             //
-            '2STATE' => Yii::t('app', 'widget_2state'),
-            '3STATE' => Yii::t('app', 'widget_3state'),
+            '2STATE' => Yii::t('app', '2STATE'),
+            '3STATE' => Yii::t('app', '3STATE'),
         ];
     }
 
