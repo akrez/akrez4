@@ -61,6 +61,7 @@ class Api1Controller extends Api
         if (empty(self::blog())) {
             Api::exceptionNotFoundHttp();
         }
+        Yii::$app->language = self::blog()->language;
     }
 
     public static function blog()
