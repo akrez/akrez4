@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b1c1926cde798dc31cf846d3b4d3c0a3",
+    "content-hash": "3528fbcdb1dd310a0af051899e5fbf39",
     "packages": [
         {
             "name": "bower-asset/bootstrap",
@@ -32,7 +32,7 @@
             "version": "3.3.11",
             "source": {
                 "type": "git",
-                "url": "git@github.com:RobinHerbots/Inputmask.git",
+                "url": "https://github.com/RobinHerbots/Inputmask.git",
                 "reference": "5e670ad62f50c738388d4dcec78d2888505ad77b"
             },
             "dist": {
@@ -53,7 +53,7 @@
             "version": "3.5.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/jquery/jquery-dist.git",
+                "url": "git@github.com:jquery/jquery-dist.git",
                 "reference": "4c0e4becb8263bb5b3e6dadc448d8e7305ef8215"
             },
             "dist": {
@@ -388,6 +388,176 @@
                 "source": "https://github.com/ezyang/htmlpurifier/tree/master"
             },
             "time": "2020-06-29T00:56:53+00:00"
+        },
+        {
+            "name": "fortawesome/font-awesome",
+            "version": "5.15.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/FortAwesome/Font-Awesome.git",
+                "reference": "d79d85c3fad85ad1885e87ed558f4afd6fce8289"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/FortAwesome/Font-Awesome/zipball/d79d85c3fad85ad1885e87ed558f4afd6fce8289",
+                "reference": "d79d85c3fad85ad1885e87ed558f4afd6fce8289",
+                "shasum": ""
+            },
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "CC-BY-4.0",
+                "OFL-1.1",
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Travis Chase",
+                    "homepage": "http://twitter.com/supercodepoet"
+                },
+                {
+                    "name": "Dave Gandy",
+                    "homepage": "http://twitter.com/davegandy"
+                },
+                {
+                    "name": "Rob Madole",
+                    "homepage": "http://twitter.com/robmadole"
+                },
+                {
+                    "name": "Jory Raphael",
+                    "homepage": "http://twitter.com/sensibleworld"
+                },
+                {
+                    "name": "Geremia Taglialatela",
+                    "homepage": "http://twitter.com/gtagliala"
+                },
+                {
+                    "name": "Brian Talbot",
+                    "homepage": "http://twitter.com/talbs"
+                },
+                {
+                    "name": "Mike Wilkerson",
+                    "homepage": "http://twitter.com/mw77"
+                }
+            ],
+            "description": "The iconic font, CSS, and SVG framework",
+            "homepage": "https://fontawesome.com",
+            "keywords": [
+                "FontAwesome",
+                "awesome",
+                "bootstrap",
+                "font",
+                "icon",
+                "svg"
+            ],
+            "support": {
+                "docs": "http://fontawesome.com/how-to-use",
+                "email": "hello@fontawesome.com",
+                "issues": "https://github.com/FortAwesome/Font-Awesome/issues",
+                "source": "https://github.com/FortAwesome/Font-Awesome"
+            },
+            "time": "2021-03-16T18:57:33+00:00"
+        },
+        {
+            "name": "froala/wysiwyg-editor",
+            "version": "v3.2.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/froala/wysiwyg-editor.git",
+                "reference": "955e52436f454cb97488a0ec2f0ca274d290c523"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/froala/wysiwyg-editor/zipball/955e52436f454cb97488a0ec2f0ca274d290c523",
+                "reference": "955e52436f454cb97488a0ec2f0ca274d290c523",
+                "shasum": ""
+            },
+            "type": "component",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "proprietary"
+            ],
+            "authors": [
+                {
+                    "name": "Froala Labs",
+                    "email": "support@froala.com"
+                }
+            ],
+            "description": "A beautiful jQuery WYSIWYG HTML rich text editor. High performance and modern design make it easy to use for developers and loved by users.",
+            "homepage": "https://www.froala.com/wysiwyg-editor",
+            "keywords": [
+                "editor",
+                "froala",
+                "froala-editor",
+                "froala-wysiwyg",
+                "html",
+                "javascript",
+                "jquery",
+                "jquery-plugin",
+                "rich editor",
+                "rich text editor",
+                "rte",
+                "text",
+                "wysiwyg"
+            ],
+            "support": {
+                "issues": "https://www.froala.com/wysiwyg-editor/contact",
+                "source": "https://github.com/froala/wysiwyg-editor/tree/v3.2.6"
+            },
+            "time": "2021-01-25T05:27:18+00:00"
+        },
+        {
+            "name": "froala/yii2-froala-editor",
+            "version": "3.2.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/froala/yii2-froala-editor.git",
+                "reference": "cbda7d567ebf448b9430eb1bab3649e3439c1d05"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/froala/yii2-froala-editor/zipball/cbda7d567ebf448b9430eb1bab3649e3439c1d05",
+                "reference": "cbda7d567ebf448b9430eb1bab3649e3439c1d05",
+                "shasum": ""
+            },
+            "require": {
+                "froala/wysiwyg-editor": "3.2.6",
+                "rmrevin/yii2-fontawesome": "^2.0 | ^3.0",
+                "yiisoft/yii2": "^2.0"
+            },
+            "type": "yii2-extension",
+            "autoload": {
+                "psr-4": {
+                    "froala\\froalaeditor\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "dungphanxuan",
+                    "email": "dungphanxuan999@gmail.com"
+                }
+            ],
+            "description": "A beautiful WYSIWYG HTML text editor based on HTML5 technology. Cross browser, with mobile support, high performance and Retina Ready modern design.",
+            "keywords": [
+                "editor",
+                "froala",
+                "html",
+                "javascript",
+                "rich editor",
+                "rich text editor",
+                "rte",
+                "text",
+                "wysiwyg"
+            ],
+            "support": {
+                "issues": "https://github.com/froala/yii2-froala-editor/issues",
+                "source": "https://github.com/froala/yii2-froala-editor/tree/v3.2.6"
+            },
+            "time": "2021-01-25T11:07:29+00:00"
         },
         {
             "name": "imagine/imagine",
@@ -776,6 +946,67 @@
                 "source": "https://github.com/php-fig/cache/tree/master"
             },
             "time": "2016-08-06T20:24:11+00:00"
+        },
+        {
+            "name": "rmrevin/yii2-fontawesome",
+            "version": "3.7.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/rmrevin/yii2-fontawesome.git",
+                "reference": "4a1c6b60773ffdbac87de3e6ae1d97ec07cc81e1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/rmrevin/yii2-fontawesome/zipball/4a1c6b60773ffdbac87de3e6ae1d97ec07cc81e1",
+                "reference": "4a1c6b60773ffdbac87de3e6ae1d97ec07cc81e1",
+                "shasum": ""
+            },
+            "require": {
+                "fortawesome/font-awesome": "^5.15.0",
+                "php": ">=5.4.0",
+                "yiisoft/yii2": "^2.0.0"
+            },
+            "require-dev": {
+                "doctrine/instantiator": "1.0.*",
+                "phpdocumentor/reflection-docblock": "~3.1.0",
+                "phpunit/phpunit": "^6.0"
+            },
+            "type": "yii2-extension",
+            "extra": {
+                "asset-installer-paths": {
+                    "npm-asset-library": "vendor/npm",
+                    "bower-asset-library": "vendor/bower"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "rmrevin\\yii\\fontawesome\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Revin Roman",
+                    "email": "roman@rmrevin.com",
+                    "homepage": "https://rmrevin.com/"
+                }
+            ],
+            "description": "Asset Bundle for Yii2 with Font Awesome",
+            "keywords": [
+                "asset",
+                "awesome",
+                "bundle",
+                "font",
+                "yii"
+            ],
+            "support": {
+                "issues": "https://github.com/rmrevin/yii2-fontawesome/issues",
+                "source": "https://github.com/rmrevin/yii2-fontawesome"
+            },
+            "time": "2021-01-13T13:58:04+00:00"
         },
         {
             "name": "select2/select2",
@@ -1998,16 +2229,16 @@
         },
         {
             "name": "symfony/browser-kit",
-            "version": "v5.2.4",
+            "version": "v5.2.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/browser-kit.git",
-                "reference": "3ca3a57ce9860318b20a924fec5daf5c6db44d93"
+                "reference": "b1c9d5701273a255da3a580f85066b83bd94e97d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/browser-kit/zipball/3ca3a57ce9860318b20a924fec5daf5c6db44d93",
-                "reference": "3ca3a57ce9860318b20a924fec5daf5c6db44d93",
+                "url": "https://api.github.com/repos/symfony/browser-kit/zipball/b1c9d5701273a255da3a580f85066b83bd94e97d",
+                "reference": "b1c9d5701273a255da3a580f85066b83bd94e97d",
                 "shasum": ""
             },
             "require": {
@@ -2049,7 +2280,7 @@
             "description": "Simulates the behavior of a web browser, allowing you to make requests, click on links and submit forms programmatically",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/browser-kit/tree/v5.2.4"
+                "source": "https://github.com/symfony/browser-kit/tree/v5.2.7"
             },
             "funding": [
                 {
@@ -2065,7 +2296,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-02-22T06:48:33+00:00"
+            "time": "2021-04-08T10:27:02+00:00"
         },
         {
             "name": "symfony/dom-crawler",
