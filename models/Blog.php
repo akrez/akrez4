@@ -387,7 +387,7 @@ class Blog extends ActiveRecord implements IdentityInterface
 
     public function setDefaultLanguage()
     {
-        $this->language = Language::LANGUAGE_FA;
+        return $this->language = Language::LANGUAGE_FA;
     }
 
     public function setPasswordHash($password)
