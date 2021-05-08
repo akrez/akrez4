@@ -1,36 +1,38 @@
 {
-    "require": {
-        "php": "7.2.*",
-        "yiisoft/yii2": "*",
-        "yiisoft/yii2-bootstrap": "*",
-        "yiisoft/yii2-swiftmailer": "*",
-        "yiisoft/yii2-jui": "*",
-        "yiisoft/yii2-imagine": "*",
-        "kartik-v/yii2-widget-select2": "*",
-        "kartik-v/yii2-slider": "*",
-        "whichbrowser/parser": "*",
-        "melipayamak/yii2": "*",
-        "froala/yii2-froala-editor": "*"
-    },
-    "require-dev": {
-        "yiisoft/yii2-debug": "*",
-        "yiisoft/yii2-gii": "*",
-        "symfony/browser-kit": "*",
-        "bizley/migration": "*"
-    },
-    "config": {
-        "disable-tls": true,
-        "secure-http": false,
-        "process-timeout": 1800,
-        "fxp-asset": {
-            "enabled": false
-        }
-    },
-    "repositories": [
-        {
-            "type": "composer",
-            "url": "https://asset-packagist.org"
-        }
-    ],
-    "minimum-stability": "stable"
+  "require": {
+    "php": "7.2.*",
+    "yiisoft/yii2": "*",
+    "yiisoft/yii2-bootstrap": "*",
+    "yiisoft/yii2-swiftmailer": "*",
+    "yiisoft/yii2-jui": "*",
+    "yiisoft/yii2-imagine": "*",
+    "kartik-v/yii2-widget-select2": "*",
+    "kartik-v/yii2-slider": "*",
+    "whichbrowser/parser": "*",
+    "melipayamak/yii2": "*",
+    "2amigos/yii2-tinymce-widget": "*",
+    "2amigos/yii2-ckeditor-widget": "*",
+    "froala/yii2-froala-editor": "*"
+  },
+  "require-dev": {
+    "yiisoft/yii2-debug": "*",
+    "yiisoft/yii2-gii": "*",
+    "symfony/browser-kit": "*",
+    "bizley/migration": "*"
+  },
+  "config": {
+    "disable-tls": true,
+    "secure-http": false,
+    "process-timeout": 1800,
+    "fxp-asset": {
+      "enabled": false
+    }
+  },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://asset-packagist.org"
+    }
+  ],
+  "minimum-stability": "stable"
 }
