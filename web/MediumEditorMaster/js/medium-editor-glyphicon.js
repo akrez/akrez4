@@ -3758,7 +3758,7 @@ if (!("classList" in document.createElement("_"))) {
             value: "700|bold",
           },
           useQueryState: true,
-          contentDefault: "<b>B</b>",
+          contentDefault: '<i class="glyphicon glyphicon-bold"></i>',
           contentFA: '<i class="fa fa-bold"></i>',
         },
         italic: {
@@ -3771,7 +3771,7 @@ if (!("classList" in document.createElement("_"))) {
             value: "italic",
           },
           useQueryState: true,
-          contentDefault: "<b><i>I</i></b>",
+          contentDefault: '<i class="glyphicon glyphicon-italic"></i>',
           contentFA: '<i class="fa fa-italic"></i>',
         },
         underline: {
@@ -3827,7 +3827,7 @@ if (!("classList" in document.createElement("_"))) {
           action: "image",
           aria: "image",
           tagNames: ["img"],
-          contentDefault: "<b>image</b>",
+          contentDefault: '<i class="glyphicon glyphicon-picture"></i>',
           contentFA: '<i class="fa fa-picture-o"></i>',
         },
         html: {
@@ -3844,7 +3844,7 @@ if (!("classList" in document.createElement("_"))) {
           aria: "ordered list",
           tagNames: ["ol"],
           useQueryState: true,
-          contentDefault: "<b>1.</b>",
+          contentDefault: '<i class="glyphicon glyphicon-th-list"></i>',
           contentFA: '<i class="fa fa-list-ol"></i>',
         },
         unorderedlist: {
@@ -3853,7 +3853,7 @@ if (!("classList" in document.createElement("_"))) {
           aria: "unordered list",
           tagNames: ["ul"],
           useQueryState: true,
-          contentDefault: "<b>&bull;</b>",
+          contentDefault: '<i class="glyphicon glyphicon-list"></i>',
           contentFA: '<i class="fa fa-list-ul"></i>',
         },
         indent: {
@@ -3881,7 +3881,7 @@ if (!("classList" in document.createElement("_"))) {
             prop: "text-align",
             value: "center",
           },
-          contentDefault: "<b>C</b>",
+          contentDefault: '<i class="glyphicon glyphicon-align-center"></i>',
           contentFA: '<i class="fa fa-align-center"></i>',
         },
         justifyFull: {
@@ -3893,7 +3893,7 @@ if (!("classList" in document.createElement("_"))) {
             prop: "text-align",
             value: "justify",
           },
-          contentDefault: "<b>J</b>",
+          contentDefault: '<i class="glyphicon glyphicon-align-justify"></i>',
           contentFA: '<i class="fa fa-align-justify"></i>',
         },
         justifyLeft: {
@@ -3905,7 +3905,7 @@ if (!("classList" in document.createElement("_"))) {
             prop: "text-align",
             value: "left",
           },
-          contentDefault: "<b>L</b>",
+          contentDefault: '<i class="glyphicon glyphicon-align-left"></i>',
           contentFA: '<i class="fa fa-align-left"></i>',
         },
         justifyRight: {
@@ -3917,7 +3917,7 @@ if (!("classList" in document.createElement("_"))) {
             prop: "text-align",
             value: "right",
           },
-          contentDefault: "<b>R</b>",
+          contentDefault: '<i class="glyphicon glyphicon-align-right"></i>',
           contentFA: '<i class="fa fa-align-right"></i>',
         },
         // Known inline elements that are not removed, or not removed consistantly across browsers:
@@ -4011,8 +4011,8 @@ if (!("classList" in document.createElement("_"))) {
         },
 
         // default labels for the form buttons
-        formSaveLabel: "&#10003;",
-        formCloseLabel: "&times;",
+        formSaveLabel: '<i class="glyphicon glyphicon-ok"></i>',
+        formCloseLabel: '<i class="glyphicon glyphicon-remove"></i>',
 
         /* activeClass: [string]
          * set class which added to shown form
@@ -4162,7 +4162,7 @@ if (!("classList" in document.createElement("_"))) {
         action: "createLink",
         aria: "link",
         tagNames: ["a"],
-        contentDefault: "<b>#</b>",
+        contentDefault: '<i class="glyphicon glyphicon-link"></i>',
         contentFA: '<i class="fa fa-link"></i>',
 
         init: function () {
@@ -6647,7 +6647,7 @@ if (!("classList" in document.createElement("_"))) {
         /* buttons: [Array]
          * the names of the set of buttons to display on the toolbar.
          */
-        buttons: ["bold", "italic", "underline", "anchor", "h2", "h3", "quote"],
+        buttons: ['bold', 'italic', 'underline',  'anchor', 'image', 'quote', 'pre', 'orderedlist', 'unorderedlist',  'justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull',  'h2', 'h3', 'h4', 'h5', 'h6', 'removeFormat', 'html'],
 
         /* diffLeft: [Number]
          * value in pixels to be added to the X axis positioning of the toolbar.
