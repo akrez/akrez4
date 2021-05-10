@@ -26,6 +26,8 @@ return [
     'number' => 'عدد',
     'boolean' => 'بله یا خیر',
     //
+    'About Us'=>'درباره ما',
+    //
     'widget_between' => 'بازه عددی',
     'widget_bigger' => 'بزرگتر از',
     'widget_smaller' => 'کوچکتر از',
@@ -60,6 +62,7 @@ return [
     //
     'Categories' => 'دسته‌بندی‌ها',
     'Category' => 'دسته‌بندی',
+    'Page' => 'صفحه',
     'Invoices' => 'سفارشات',
     'Signin' => 'ورود',
     'Signout' => 'خروج',
