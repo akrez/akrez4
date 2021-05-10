@@ -37,6 +37,7 @@ class Model extends BaseModel
             'status' => 'وضعیت',
             'height' => 'طول',
             'widget' => 'نمایه',
+            'entity' => 'نوع',
             'widgets' => 'فیلترها',
             'address' => 'آدرس',
             'package' => 'شرایط فروش',
@@ -52,6 +53,7 @@ class Model extends BaseModel
 
             'label_no' => 'جایگزین عبارت "خیر"',
             'password' => 'رمز عبور',
+            'entity_id' => 'شناسه',
             'garanties' => 'گارانتی‌ها',
             'label_yes' => 'جایگزین عبارت "بله"',
             'parent_id' => 'مرتبط با',
