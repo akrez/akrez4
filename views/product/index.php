@@ -3,6 +3,7 @@
 use app\components\Alert;
 use app\models\Category;
 use app\models\Gallery;
+use app\models\Page;
 use app\models\Product;
 use app\models\TextArea;
 use yii\grid\GridViewAsset;
@@ -34,14 +35,14 @@ $this->registerCss("
     max-height: 40px;
 }    
 ");
-$colspan = 9;
+$colspan = 10;
 $this->registerJs("
 function applyFilter() { 
 $('#table').yiiGridView(" . json_encode([
-            'filterUrl' => Url::current(),
-            'filterSelector' => '#table-filters input, #table-filters select',
-            'filterOnFocusOut' => true,
-        ]) . ");
+    'filterUrl' => Url::current(),
+    'filterSelector' => '#table-filters input, #table-filters select',
+    'filterOnFocusOut' => true,
+]) . ");
 }
 $(document).on('click','.toggler',function() {
 
@@ -97,17 +98,18 @@ Pjax::begin([
 
 <div class="row">
     <div class="col-sm-12">
-        <div class="panel panel-primary" style="position: relative;"> 
+        <div class="panel panel-primary" style="position: relative;">
             <div class="ajax-splash-show splash-style"></div>
-            <div class="panel-heading"><?= Yii::t('app', 'Products') ?></div> 
+            <div class="panel-heading"><?= Yii::t('app', 'Products') ?></div>
             <table id="table" class="table table-bordered table-condensed">
-                <thead> 
+                <thead>
                     <tr class="info">
-                        <th><?= $sort->link('updated_at', ['label' => $modelClass->getAttributeLabel('updated_at')]) ?></th> 
+                        <th><?= $sort->link('updated_at', ['label' => $modelClass->getAttributeLabel('updated_at')]) ?></th>
                         <th><?= $modelClass->getAttributeLabel('image') ?></th>
-                        <th><?= $sort->link('title', ['label' => $modelClass->getAttributeLabel('title')]) ?></th> 
+                        <th><?= $sort->link('title', ['label' => $modelClass->getAttributeLabel('title')]) ?></th>
                         <th><?= $modelClass->getAttributeLabel('des') ?></th>
                         <th><?= $sort->link('status', ['label' => $modelClass->getAttributeLabel('status')]) ?></th>
+                        <th></th>
                         <th></th>
                         <th></th>
                         <th></th>
@@ -123,11 +125,12 @@ Pjax::begin([
                         <th></th>
                         <th></th>
                         <th></th>
-                    </tr> 
+                        <th></th>
+                    </tr>
                 </thead>
                 <tbody>
-                    <?php if ($dataProvider->getModels()): ?>
-                        <?php foreach ($dataProvider->getModels() as $dataProviderModelKey => $dataProviderModel): ?>
+                    <?php if ($dataProvider->getModels()) : ?>
+                        <?php foreach ($dataProvider->getModels() as $dataProviderModelKey => $dataProviderModel) : ?>
                             <?php
                             $trCssClass = ($dataProviderModelKey % 2 == 0 ? 'active' : '');
                             //
@@ -159,7 +162,7 @@ Pjax::begin([
                             <tr class="active">
                                 <td><?= Yii::$app->formatter->asDatetimefa($dataProviderModel->updated_at) ?></td>
                                 <td class="text-center">
-                                    <?php if ($dataProviderModel->image): ?>
+                                    <?php if ($dataProviderModel->image) : ?>
                                         <img class="img max-height-40" src="<?= Gallery::getImageUrl(Gallery::TYPE_PRODUCT, $dataProviderModel->image) ?>">
                                     <?php endif; ?>
                                 </td>
@@ -169,6 +172,14 @@ Pjax::begin([
                                 <td><?= Html::button(Yii::t('app', 'Update'), ['class' => 'btn btn-block toggler' . ($displayState == 'update' ? ' btn-warning ' : ' btn-default '), 'toggle' => "#row-update-" . $dataProviderModel->id]) ?></td>
                                 <td><?= Html::button(Yii::t('app', 'ProductFields'), ['class' => 'btn btn-block toggler ' . ($displayState == 'saveFields' ? ' btn-warning ' : ' btn-default '), 'toggle' => "#row-field-" . $dataProviderModel->id]) ?></td>
                                 <td><?= Html::button(Yii::t('app', 'ProductGalleries'), ['class' => 'btn btn-block toggler' . ($isGalleryState ? ' btn-warning ' : ' btn-default '), 'toggle' => "#row-gallery-" . $dataProviderModel->id]) ?></td>
+                                <td>
+                                    <?=
+                                    Html::a(' <span class="glyphicon glyphicon-file"></span> ' . Yii::t('app', 'Page'), Url::to([0 => 'page/index', 'entity' => Page::ENTITY_PRODUCT, 'entity_id' => $dataProviderModel->id]), [
+                                        'class' => 'btn btn-default btn-block btn-social',
+                                        'data-pjax' => '0',
+                                    ]);
+                                    ?>
+                                </td>
                                 <td>
                                     <?=
                                     Html::a(' <span class="glyphicon glyphicon-usd"></span> ' . Yii::t('app', 'Packages'), Url::to([0 => 'package/index', 'parent_id' => $dataProviderModel->id]), [
@@ -208,7 +219,7 @@ Pjax::begin([
                                 </td>
                             </tr>
                         <?php endforeach; ?>
-                    <?php else: ?>
+                    <?php else : ?>
                         <tr>
                             <td colspan="<?= $colspan ?>">
                                 <?= Yii::t('yii', 'No results found.') ?>
@@ -220,14 +231,14 @@ Pjax::begin([
                         <td colspan="<?= $colspan ?>">
                             <?php
                             $form = ActiveForm::begin([
-                                        'options' => ['data-pjax' => true],
-                                        'action' => Url::current(['product/index', 'state' => 'batchSave']),
-                                        'fieldConfig' => [
-                                            'template' => '<div class="input-group">{label}{input}</div>{hint}{error}',
-                                            'labelOptions' => [
-                                                'class' => 'input-group-addon',
-                                            ],
-                                        ]
+                                'options' => ['data-pjax' => true],
+                                'action' => Url::current(['product/index', 'state' => 'batchSave']),
+                                'fieldConfig' => [
+                                    'template' => '<div class="input-group">{label}{input}</div>{hint}{error}',
+                                    'labelOptions' => [
+                                        'class' => 'input-group-addon',
+                                    ],
+                                ]
                             ]);
                             ?>
                             <div class="row">
@@ -247,7 +258,7 @@ Pjax::begin([
                             <?php ActiveForm::end(); ?>
                         </td>
                     </tr>
-                </tbody> 
+                </tbody>
             </table>
         </div>
     </div>

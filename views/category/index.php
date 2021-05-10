@@ -2,6 +2,7 @@
 
 use app\components\Alert;
 use app\models\Category;
+use app\models\Page;
 use yii\grid\GridViewAsset;
 use yii\helpers\Html;
 use yii\helpers\HtmlPurifier;
@@ -29,10 +30,10 @@ $this->registerCss("
 $this->registerJs("
 function applyFilter() { 
     $('#table').yiiGridView(" . json_encode([
-            'filterUrl' => Url::current(),
-            'filterSelector' => '#table-filters input, #table-filters select',
-            'filterOnFocusOut' => true,
-        ]) . ");
+    'filterUrl' => Url::current(),
+    'filterSelector' => '#table-filters input, #table-filters select',
+    'filterOnFocusOut' => true,
+]) . ");
 }
 $(document).on('click','.btn[toggle]',function() {
 
@@ -78,10 +79,10 @@ Pjax::begin([
 
 $this->registerJs("
 $('#table').yiiGridView(" . json_encode([
-            'filterUrl' => Url::current(['CategorySearch' => null,]),
-            'filterSelector' => '#table-filters input, #table-filters select',
-            'filterOnFocusOut' => true,
-        ]) . ");
+    'filterUrl' => Url::current(['CategorySearch' => null,]),
+    'filterSelector' => '#table-filters input, #table-filters select',
+    'filterOnFocusOut' => true,
+]) . ");
 ");
 ?>
 <div class="row">
@@ -91,16 +92,17 @@ $('#table').yiiGridView(" . json_encode([
 </div>
 <div class="row">
     <div class="col-sm-12">
-        <div class="panel panel-primary" style="position: relative;"> 
+        <div class="panel panel-primary" style="position: relative;">
             <div class="ajax-splash-show splash-style"></div>
-            <div class="panel-heading"><?= Html::encode($this->title) ?></div> 
+            <div class="panel-heading"><?= Html::encode($this->title) ?></div>
             <table id="table" class="table table-bordered table-striped">
                 <thead>
                     <tr class="info">
-                        <th><?= $sort->link('title', ['label' => $modelClass->getAttributeLabel('title')]) ?></th> 
+                        <th><?= $sort->link('title', ['label' => $modelClass->getAttributeLabel('title')]) ?></th>
                         <th><?= $sort->link('status', ['label' => $modelClass->getAttributeLabel('status')]) ?></th>
                         <th><?= $modelClass->getAttributeLabel('des') ?></th>
-                        <th></th>     
+                        <th></th>
+                        <th></th>
                         <th></th>
                         <th></th>
                     </tr>
@@ -111,18 +113,19 @@ $('#table').yiiGridView(" . json_encode([
                         <th></th>
                         <th></th>
                         <th></th>
+                        <th></th>
                     </tr>
-                </thead> 
+                </thead>
                 <tbody>
                     <?php if ($dataProvider->getModels()) { ?>
                         <?php
-                        foreach ($dataProvider->getModels() as $dataProviderModelKey => $dataProviderModel):
+                        foreach ($dataProvider->getModels() as $dataProviderModelKey => $dataProviderModel) :
                             $displayState = '';
                             if ($model && $model->id == $dataProviderModel->id) {
                                 $displayState = $state;
                                 $dataProviderModel = $model;
                             }
-                            ?>
+                        ?>
                             <tr class="active">
                                 <td>
                                     <?= HtmlPurifier::process($dataProviderModel->title) ?>
@@ -146,6 +149,14 @@ $('#table').yiiGridView(" . json_encode([
                                 </td>
                                 <td>
                                     <?=
+                                    Html::a(' <span class="glyphicon glyphicon-file"></span> ' . Yii::t('app', 'Page'), Url::to([0 => 'page/index', 'entity' => Page::ENTITY_CATEGORY, 'entity_id' => $dataProviderModel->id]), [
+                                        'class' => 'btn btn-default btn-block btn-social',
+                                        'data-pjax' => '0',
+                                    ]);
+                                    ?>
+                                </td>
+                                <td>
+                                    <?=
                                     Html::a(' <span class="glyphicon glyphicon-grain"></span> ' . Yii::t('app', 'Products'), Url::to([0 => 'product/index', 'parent_id' => $dataProviderModel->id]), [
                                         'class' => 'btn btn-default btn-block btn-social',
                                         'data-pjax' => '0',
@@ -161,30 +172,30 @@ $('#table').yiiGridView(" . json_encode([
                             }
                             ?>
                             <tr class="" style="<?= $displayStyle ?>" id="<?= "row-update-" . $dataProviderModel->id ?>">
-                                <td colspan="6">
+                                <td colspan="7">
                                     <?= $this->render('_form', ['model' => $dataProviderModel]) ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php } else { ?>
                         <tr class="danger">
-                            <td colspan="6">
+                            <td colspan="7">
                                 <?= Yii::t('yii', 'No results found.') ?>
                             </td>
                         </tr>
                     <?php } ?>
                     <tr class="success">
-                        <td colspan="6">
+                        <td colspan="7">
                             <?php
                             $form = ActiveForm::begin([
-                                        'options' => ['data-pjax' => true],
-                                        'action' => Url::current(['category/index', 'state' => 'batchSave']),
-                                        'fieldConfig' => [
-                                            'template' => '<div class="input-group">{label}{input}</div>{hint}{error}',
-                                            'labelOptions' => [
-                                                'class' => 'input-group-addon',
-                                            ],
-                                        ]
+                                'options' => ['data-pjax' => true],
+                                'action' => Url::current(['category/index', 'state' => 'batchSave']),
+                                'fieldConfig' => [
+                                    'template' => '<div class="input-group">{label}{input}</div>{hint}{error}',
+                                    'labelOptions' => [
+                                        'class' => 'input-group-addon',
+                                    ],
+                                ]
                             ]);
                             ?>
                             <div class="row">
@@ -204,7 +215,7 @@ $('#table').yiiGridView(" . json_encode([
                             <?php ActiveForm::end(); ?>
                         </td>
                     </tr>
-                </tbody> 
+                </tbody>
             </table>
         </div>
     </div>

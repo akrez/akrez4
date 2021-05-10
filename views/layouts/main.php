@@ -4,6 +4,7 @@ use app\assets\SiteAsset;
 use app\components\Alert;
 use app\models\Blog;
 use app\models\Gallery;
+use app\models\Page;
 use yii\helpers\Html;
 use yii\helpers\Url;
 
@@ -48,6 +49,7 @@ $this->registerCss("
                     <ul class="nav navbar-nav">
                         <li><a href="<?= Url::toRoute(['/site/blog']) ?>"><?= Blog::print('title') ?></a></li>
                         <li><a href="<?= Url::toRoute(['/category']) ?>"><?= Yii::t('app', 'Categories') ?></a></li>
+                        <li><a href="<?= Url::toRoute(['/page','entity'=> Page::ENTITY_BLOG, 'entity_id'=>Page::ENTITY_BLOG_ABOUTUS]) ?>"><?=Yii::t('app', 'Page') . ' '. Yii::t('app', Page::ENTITY_BLOG_ABOUTUS) ?></a></li>
                     </ul>
                 <?php endif; ?>
 
