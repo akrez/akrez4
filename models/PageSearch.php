@@ -17,8 +17,8 @@ class PageSearch extends Page
     public function rules()
     {
         return [
-            [['id', 'updated_at', 'created_at', 'status', 'entity_id'], 'integer'],
-            [['body', 'entity', 'blog_name'], 'safe'],
+            [['id', 'updated_at', 'created_at', 'status'], 'integer'],
+            [['body', 'entity', 'entity_id', 'blog_name'], 'safe'],
         ];
     }
 
@@ -40,7 +40,7 @@ class PageSearch extends Page
      */
     public function search($params)
     {
-        $query = Field::blogValidQuery();
+        $query = Page::blogValidQuery();
 
         // add conditions that should always apply here
 
@@ -69,11 +69,11 @@ class PageSearch extends Page
             'updated_at' => $this->updated_at,
             'created_at' => $this->created_at,
             'status' => $this->status,
-            'entity_id' => $this->entity_id,
         ]);
 
         $query->andFilterWhere(['like', 'body', $this->body])
             ->andFilterWhere(['like', 'entity', $this->entity])
+            ->andFilterWhere(['like', 'entity_id', $this->entity_id])
             ->andFilterWhere(['like', 'blog_name', $this->blog_name]);
 
         return $dataProvider;
