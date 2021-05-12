@@ -49,7 +49,14 @@ $this->registerCss("
                     <ul class="nav navbar-nav">
                         <li><a href="<?= Url::toRoute(['/site/blog']) ?>"><?= Blog::print('title') ?></a></li>
                         <li><a href="<?= Url::toRoute(['/category']) ?>"><?= Yii::t('app', 'Categories') ?></a></li>
-                        <li><a href="<?= Url::toRoute(['/page','entity'=> Page::ENTITY_BLOG, 'entity_id'=>Page::ENTITY_BLOG_ABOUTUS]) ?>"><?=Yii::t('app', 'Page') . ' '. Yii::t('app', Page::ENTITY_BLOG_ABOUTUS) ?></a></li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><?= Yii::t('app', 'Pages') ?><span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="<?= Url::toRoute(['/page', 'entity' => Page::ENTITY_BLOG, 'entity_id' => Page::ENTITY_BLOG_INDEX]) ?>"><?= Yii::t('app', 'Page') . ' ' . Yii::t('app', Page::ENTITY_BLOG_INDEX) ?></a></li>
+                                <li><a href="<?= Url::toRoute(['/page', 'entity' => Page::ENTITY_BLOG, 'entity_id' => Page::ENTITY_BLOG_CONTACTUS]) ?>"><?= Yii::t('app', 'Page') . ' ' . Yii::t('app', Page::ENTITY_BLOG_CONTACTUS) ?></a></li>
+                                <li><a href="<?= Url::toRoute(['/page', 'entity' => Page::ENTITY_BLOG, 'entity_id' => Page::ENTITY_BLOG_ABOUTUS]) ?>"><?= Yii::t('app', 'Page') . ' ' . Yii::t('app', Page::ENTITY_BLOG_ABOUTUS) ?></a></li>
+                            </ul>
+                        </li>
                     </ul>
                 <?php endif; ?>
 

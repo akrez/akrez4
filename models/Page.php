@@ -27,12 +27,15 @@ class Page extends ActiveRecord
     const ENTITY_PRODUCT = 'Product';
 
     const ENTITY_BLOG_INDEX = 'Index';
+    const ENTITY_BLOG_CONTACTUS = 'Contact Us';
     const ENTITY_BLOG_ABOUTUS = 'About Us';
 
     public static function entityList()
     {
         return [
             self::ENTITY_BLOG => [
+                self::ENTITY_BLOG_INDEX => Yii::t('app', 'Index'),
+                self::ENTITY_BLOG_CONTACTUS => Yii::t('app', 'Contact Us'),
                 self::ENTITY_BLOG_ABOUTUS => Yii::t('app', 'About Us'),
             ],
             self::ENTITY_CATEGORY => null,
