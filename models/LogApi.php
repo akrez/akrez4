@@ -39,7 +39,6 @@ class LogApi extends Log
         'index' => 'Index',
         'category' => 'Category',
         'product' => 'Product',
-        'info' => 'Info',
     ];
 
     /**
@@ -86,6 +85,7 @@ class LogApi extends Log
     {
         return self::find()
             ->where(['blog_name' => $this->blog_name])
+            ->andWhere(['action' => array_keys(self::$actionsList)])
             ->andFilterWhere(['>', 'created_date', $this->created_date_from])
             ->andFilterWhere(['=', 'response_http_code', $this->response_http_code])
             ->andFilterWhere(['=', 'action', $this->action])

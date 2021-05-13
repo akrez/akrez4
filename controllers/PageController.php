@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\components\Cache;
 use Yii;
 use app\components\Helper;
 use app\models\Page;
@@ -39,11 +40,12 @@ class PageController extends Controller
         }
 
         if ($page->load(Yii::$app->request->post())) {
-            $redirectNeeded = Helper::store($page, $post, [
+            $refreshNeeded = Helper::store($page, $post, [
                 'blog_name' => Yii::$app->user->getId(),
                 'status' => $page->isNewRecord ? Status::STATUS_ACTIVE : $page->status,
             ]);
-            if ($redirectNeeded) {
+            if ($refreshNeeded) {
+                Cache::updateBlogCachePages(Yii::$app->user->getIdentity(), $page);
                 return $this->refresh();
             }
         }

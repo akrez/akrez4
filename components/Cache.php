@@ -2,7 +2,9 @@
 
 namespace app\components;
 
+use app\models\Blog;
 use app\models\Category;
+use app\models\Page;
 use app\models\Product;
 use app\models\ProductField;
 use app\models\Status;
@@ -30,6 +32,22 @@ class Cache extends Component
     public static function getCategoryCacheOptions($category)
     {
         return isset($category->cache_options) ? (array) $category->cache_options : [];
+    }
+
+    public static function updateBlogCachePages($blog, $page)
+    {
+        if ($page->entity == Page::ENTITY_BLOG) {
+            if ($page->entity_id == Page::ENTITY_BLOG_INDEX) {
+                $blog->cache_has_page_index = ($page->status == Status::STATUS_ACTIVE ? true : false);
+                $blog->save();
+            } elseif ($page->entity_id == Page::ENTITY_BLOG_ABOUTUS) {
+                $blog->cache_has_page_aboutus = ($page->status == Status::STATUS_ACTIVE ? true : false);
+                $blog->save();
+            } elseif ($page->entity_id == Page::ENTITY_BLOG_CONTACTUS) {
+                $blog->cache_has_page_contactus = ($page->status == Status::STATUS_ACTIVE ? true : false);
+                $blog->save();
+            }
+        }
     }
 
     public static function updateBlogCacheCategory($blog)
