@@ -33,13 +33,18 @@ class Page extends ActiveRecord
     public static function entityList()
     {
         return [
-            self::ENTITY_BLOG => [
-                self::ENTITY_BLOG_INDEX => Yii::t('app', 'Index'),
-                self::ENTITY_BLOG_CONTACTUS => Yii::t('app', 'Contact Us'),
-                self::ENTITY_BLOG_ABOUTUS => Yii::t('app', 'About Us'),
-            ],
-            self::ENTITY_CATEGORY => null,
-            self::ENTITY_PRODUCT => null,
+            self::ENTITY_BLOG => Yii::t('app', 'Blog'),
+            self::ENTITY_CATEGORY => Yii::t('app', 'Category'),
+            self::ENTITY_PRODUCT => Yii::t('app', 'Product'),
+        ];
+    }
+
+    public static function entityBlogList()
+    {
+        return [
+            self::ENTITY_BLOG_INDEX => Yii::t('app', 'Index'),
+            self::ENTITY_BLOG_CONTACTUS => Yii::t('app', 'Contact Us'),
+            self::ENTITY_BLOG_ABOUTUS => Yii::t('app', 'About Us'),
         ];
     }
 
@@ -85,10 +90,10 @@ class Page extends ActiveRecord
     {
         $cacheKey = $entity . '-' . $entityId;
         if (!isset($this->entityModelsCache[$cacheKey])) {
-            $list = self::entityList();
             $entityModel = false;
             if ($entity == self::ENTITY_BLOG) {
-                if (isset($list[$entity][$entityId])) {
+                $list = self::entityBlogList();
+                if (isset($list[$entityId])) {
                     $entityModel = null;
                 }
             } else if ($entity == self::ENTITY_CATEGORY) {

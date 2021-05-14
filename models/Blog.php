@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\components\Cache;
 use app\components\Helper;
 use Yii;
 use yii\helpers\ArrayHelper;
@@ -59,10 +60,7 @@ class Blog extends ActiveRecord implements IdentityInterface
     //
     public $captcha;
     //
-    public $cache_has_page_index;
-    public $cache_has_page_aboutus;
-    public $cache_has_page_contactus;
-
+    public $cache_has_page;
 
     public static function tableName()
     {
@@ -248,10 +246,7 @@ class Blog extends ActiveRecord implements IdentityInterface
             'address' => null,
             //
             'cache_category' => [],
-            //
-            'cache_has_page_index' => false,
-            'cache_has_page_aboutus' => false,
-            'cache_has_page_contactus' => false,
+            'cache_has_page' => [],
         ];
         $this->des = $arrayParams['des'];
         $this->slug = $arrayParams['slug'];
@@ -263,10 +258,7 @@ class Blog extends ActiveRecord implements IdentityInterface
         $this->address = $arrayParams['address'];
         //
         $this->cache_category = $arrayParams['cache_category'];
-        //
-        $this->cache_has_page_index = $arrayParams['cache_has_page_index'];
-        $this->cache_has_page_aboutus = $arrayParams['cache_has_page_aboutus'];
-        $this->cache_has_page_contactus = $arrayParams['cache_has_page_contactus'];
+        $this->cache_has_page = $arrayParams['cache_has_page'];
     }
 
     public function beforeSave($insert)
@@ -285,10 +277,7 @@ class Blog extends ActiveRecord implements IdentityInterface
             'address' => $this->address,
             //
             'cache_category' => (array) $this->cache_category,
-            //
-            'cache_has_page_index' => ($this->cache_has_page_index === null ? false : $this->cache_has_page_index),
-            'cache_has_page_aboutus' => ($this->cache_has_page_aboutus === null ? false : $this->cache_has_page_aboutus),
-            'cache_has_page_contactus' => ($this->cache_has_page_contactus === null ? false : $this->cache_has_page_contactus),
+            'cache_has_page' => (array) $this->cache_has_page,
         ];
         $this->params = Json::encode($this->params);
         return true;
@@ -512,9 +501,7 @@ class Blog extends ActiveRecord implements IdentityInterface
             'telegram' => $this->telegram,
             'address' => $this->address,
             'twitter' => $this->twitter,
-            'has_page_index' => $this->cache_has_page_index,
-            'has_page_aboutus' => $this->cache_has_page_aboutus,
-            'has_page_contactus' => $this->cache_has_page_contactus,
+            'has_page' => Cache::getBlogCachePages($this),
         ];
     }
 }
