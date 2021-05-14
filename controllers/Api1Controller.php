@@ -117,7 +117,7 @@ class Api1Controller extends Api
                 },
                 'rules' => [
                     [
-                        'actions' => ['constant', 'index', 'category', 'product', 'info', 'page-blog', 'page-category', 'page-product'],
+                        'actions' => ['constant', 'index', 'category', 'product', 'info', 'page'],
                         'allow' => true,
                         'verbs' => ['POST'],
                         'roles' => ['?', '@'],
@@ -156,6 +156,8 @@ class Api1Controller extends Api
                 'color' => Color::getList(),
                 'province' => Province::getList(),
                 'language' => Language::getList(),
+                'page_entity' => Page::entityList(),
+                'page_entity_blog' => Page::entityBlogList(),
             ];
         }
         return ['constant' => $result];
@@ -364,22 +366,7 @@ class Api1Controller extends Api
         ];
     }
 
-    public function actionPageBlog($id = null)
-    {
-        return $this->page(Page::ENTITY_BLOG, $id);
-    }
-
-    public function actionPageCategory($id = null)
-    {
-        return $this->page(Page::ENTITY_CATEGORY, $id);
-    }
-
-    public function actionPageProduct($id = null)
-    {
-        return $this->page(Page::ENTITY_PRODUCT, $id);
-    }
-
-    public function page($entity = null, $entity_id = null)
+    public function actionPage($entity = null, $entity_id = null)
     {
         Yii::$app->response->format = Response::FORMAT_HTML;
         $blog = self::blog();
