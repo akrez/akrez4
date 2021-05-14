@@ -40,21 +40,17 @@ class Cache extends Component
             if (!is_array($blog->cache_has_page)) {
                 $blog->cache_has_page = [];
             }
-            $blog->cache_has_page[$page->entity_id] = ($page->status == Status::STATUS_ACTIVE ? true : false);
-            $blog->cache_has_page = self::getBlogCachePages($blog);
+            $blog->cache_has_page = array_diff($blog->cache_has_page, [$page->entity_id]);
+            if ($page->status == Status::STATUS_ACTIVE) {
+                $blog->cache_has_page[] = $page->entity_id;
+            }
             $blog->save();
         }
     }
 
     public static function getBlogCachePages($blog)
     {
-        $result = [];
-        foreach (Page::entityBlogList() as $pageKey => $pageName) {
-            if (is_array($blog->cache_has_page) && in_array($pageKey, $blog->cache_has_page)) {
-                $result[] = $pageKey;
-            }
-        }
-        return $result;
+        return (array) $blog->cache_has_page;
     }
 
     public static function updateBlogCacheCategory($blog)
