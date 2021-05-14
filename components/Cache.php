@@ -37,17 +37,24 @@ class Cache extends Component
     public static function updateBlogCachePages($blog, $page)
     {
         if ($page->entity == Page::ENTITY_BLOG) {
-            if ($page->entity_id == Page::ENTITY_BLOG_INDEX) {
-                $blog->cache_has_page_index = ($page->status == Status::STATUS_ACTIVE ? true : false);
-                $blog->save();
-            } elseif ($page->entity_id == Page::ENTITY_BLOG_ABOUTUS) {
-                $blog->cache_has_page_aboutus = ($page->status == Status::STATUS_ACTIVE ? true : false);
-                $blog->save();
-            } elseif ($page->entity_id == Page::ENTITY_BLOG_CONTACTUS) {
-                $blog->cache_has_page_contactus = ($page->status == Status::STATUS_ACTIVE ? true : false);
-                $blog->save();
+            if (!is_array($blog->cache_has_page)) {
+                $blog->cache_has_page = [];
             }
+            $blog->cache_has_page[$page->entity_id] = ($page->status == Status::STATUS_ACTIVE ? true : false);
+            $blog->cache_has_page = self::getBlogCachePages($blog);
+            $blog->save();
         }
+    }
+
+    public static function getBlogCachePages($blog)
+    {
+        $result = [];
+        foreach (Page::entityBlogList() as $pageKey => $pageName) {
+            $result[$pageKey] = is_array($blog->cache_has_page) &&
+                isset($blog->cache_has_page[$pageKey]) &&
+                $blog->cache_has_page[$pageKey];
+        }
+        return $result;
     }
 
     public static function updateBlogCacheCategory($blog)
