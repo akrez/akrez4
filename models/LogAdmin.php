@@ -41,7 +41,7 @@ class LogAdmin extends Log
     {
         return [
             [['is_ajax', 'response_http_code'], 'integer'],
-            [['data_post'], 'string', 'max' => 4096],
+            [['data_post'], 'safe'],
             [['blog_name', 'ip', 'controller', 'action', 'model_id', 'model_parent_id'], 'string', 'max' => 60],
             [['method'], 'string', 'max' => 11],
             [['created_date'], 'string', 'max' => 19],
