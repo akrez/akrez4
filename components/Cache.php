@@ -50,9 +50,9 @@ class Cache extends Component
     {
         $result = [];
         foreach (Page::entityBlogList() as $pageKey => $pageName) {
-            $result[$pageKey] = is_array($blog->cache_has_page) &&
-                isset($blog->cache_has_page[$pageKey]) &&
-                $blog->cache_has_page[$pageKey];
+            if (is_array($blog->cache_has_page) && in_array($pageKey, $blog->cache_has_page)) {
+                $result[] = $pageKey;
+            }
         }
         return $result;
     }
