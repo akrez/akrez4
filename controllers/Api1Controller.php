@@ -17,6 +17,7 @@ use app\models\Gallery;
 use app\models\Language;
 use app\models\LogApi;
 use app\models\Package;
+use app\models\Page;
 use app\models\Product;
 use app\models\Province;
 use app\models\Search;
@@ -40,22 +41,29 @@ class Api1Controller extends Api
         Yii::$app->response->charset = 'UTF-8';
         Yii::$app->response->on(Response::EVENT_BEFORE_SEND, function ($event) {
             $statusCode = $event->sender->statusCode;
-            $data = (array) $event->sender->data;
+            $data = $event->sender->data;
             //
-            $event->sender->data = [
-                '_constant_hash' => self::CONSTANT_HASH,
-                '_blog'          => (self::blog() ? self::blog()->toArray() : []),
-                '_categories'    => self::categories(),
-                '_customer'      => (Yii::$app->customerApi->getIdentity() ? Yii::$app->customerApi->getIdentity()->toArray() : []),
-            ];
-            //
-            if ($statusCode == 200 && isset($data['code'])) {
-                $event->sender->data['_code'] = $data['code'];
+            if (Yii::$app->response->format == Response::FORMAT_JSON) {
+                $data = (array) $data;
+                $event->sender->data = [
+                    '_constant_hash' => self::CONSTANT_HASH,
+                    '_blog'          => (self::blog() ? self::blog()->toArray() : []),
+                    '_categories'    => self::categories(),
+                    '_customer'      => (Yii::$app->customerApi->getIdentity() ? Yii::$app->customerApi->getIdentity()->toArray() : []),
+                ];
+                if ($statusCode == 200 && isset($data['code'])) {
+                    $event->sender->data['_code'] = $data['code'];
+                } else {
+                    $event->sender->data['_code'] = $statusCode;
+                }
+                if ($statusCode == 200 || YII_DEBUG) {
+                    $event->sender->data += $data;
+                }
             } else {
-                $event->sender->data['_code'] = $statusCode;
-            }
-            if ($statusCode == 200 || YII_DEBUG) {
-                $event->sender->data += $data;
+                if ($statusCode == 200 || YII_DEBUG) {
+                } else {
+                    $event->sender->data = null;
+                }
             }
         });
         if (empty(self::blog())) {
@@ -109,7 +117,7 @@ class Api1Controller extends Api
                 },
                 'rules' => [
                     [
-                        'actions' => ['constant', 'index', 'category', 'product', 'info',],
+                        'actions' => ['constant', 'index', 'category', 'product', 'info', 'page-blog', 'page-category', 'page-product'],
                         'allow' => true,
                         'verbs' => ['POST'],
                         'roles' => ['?', '@'],
@@ -354,6 +362,32 @@ class Api1Controller extends Api
             'images' => ArrayHelper::toArray($images),
             'packages' => ArrayHelper::toArray($packages),
         ];
+    }
+
+    public function actionPageBlog($id = null)
+    {
+        return $this->page(Page::ENTITY_BLOG, $id);
+    }
+
+    public function actionPageCategory($id = null)
+    {
+        return $this->page(Page::ENTITY_CATEGORY, $id);
+    }
+
+    public function actionPageProduct($id = null)
+    {
+        return $this->page(Page::ENTITY_PRODUCT, $id);
+    }
+
+    public function page($entity = null, $entity_id = null)
+    {
+        Yii::$app->response->format = Response::FORMAT_HTML;
+        $blog = self::blog();
+        $page = Page::findPageQueryForApi($blog->name, $entity, $entity_id)->one();
+        if (!$page) {
+            Api::exceptionNotFoundHttp();
+        }
+        return $page->body;
     }
 
     public function actionSignup()

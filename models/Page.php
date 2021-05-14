@@ -116,6 +116,16 @@ class Page extends ActiveRecord
         return $this->entityModelsCache[$cacheKey];
     }
 
+    public static function findPageQueryForApi($blogName, $entity, $entityId)
+    {
+        return Page::find()->where(['AND', [
+            'blog_name' => $blogName,
+            'status' => Status::STATUS_ACTIVE,
+            'entity' => $entity,
+            'entity_id' => $entityId,
+        ]]);
+    }
+
     /**
      * Gets query for [[BlogName]].
      *
