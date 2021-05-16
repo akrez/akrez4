@@ -45,7 +45,7 @@ class PageController extends Controller
                 'status' => $page->isNewRecord ? Status::STATUS_ACTIVE : $page->status,
             ]);
             if ($refreshNeeded) {
-                Cache::updateBlogCachePages(Yii::$app->user->getIdentity(), $page);
+                Cache::updateCachePages($entityModel, $page);
                 return $this->refresh();
             }
         }

@@ -34,23 +34,28 @@ class Cache extends Component
         return isset($category->cache_options) ? (array) $category->cache_options : [];
     }
 
-    public static function updateBlogCachePages($blog, $page)
+    public static function updateCachePages($entity, $page)
     {
         if ($page->entity == Page::ENTITY_BLOG) {
-            if (!is_array($blog->cache_has_page)) {
-                $blog->cache_has_page = [];
+            if (!is_array($entity->cache_has_page)) {
+                $entity->cache_has_page = [];
             }
-            $blog->cache_has_page = array_diff($blog->cache_has_page, [$page->entity_id]);
+            $entity->cache_has_page = array_diff($entity->cache_has_page, [$page->entity_id]);
             if ($page->status == Status::STATUS_ACTIVE) {
-                $blog->cache_has_page[] = $page->entity_id;
+                $entity->cache_has_page[] = $page->entity_id;
             }
-            $blog->save();
+        } else if ($page->entity == Page::ENTITY_CATEGORY || $page->entity == Page::ENTITY_PRODUCT) {
+            $page->cache_has_page = ($page->status == Status::STATUS_ACTIVE);
         }
+        $entity->save();
     }
 
-    public static function getBlogCachePages($blog)
+    public static function getCachePages($entity)
     {
-        return (array) $blog->cache_has_page;
+        if ($entity instanceof Blog) {
+            return (array) $entity->cache_has_page;
+        }
+        return $entity->cache_has_page;
     }
 
     public static function updateBlogCacheCategory($blog)

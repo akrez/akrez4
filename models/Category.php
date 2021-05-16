@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\components\Cache;
 use Yii;
 use yii\helpers\Json;
 
@@ -24,6 +25,7 @@ class Category extends ActiveRecord
     public $price_max;
     public $des;
     public $cache_options;
+    public $cache_has_page;
 
     public static function tableName()
     {
@@ -50,11 +52,13 @@ class Category extends ActiveRecord
             'price_min' => null,
             'price_max' => null,
             'des' => null,
+            'cache_has_page' => false,
             'cache_options' => [],
         ];
         $this->price_min = $arrayParams['price_min'];
         $this->price_max = $arrayParams['price_max'];
         $this->des = $arrayParams['des'];
+        $this->des = $arrayParams['cache_has_page'];
         $this->cache_options = $arrayParams['cache_options'];
     }
 
@@ -68,6 +72,7 @@ class Category extends ActiveRecord
             'price_min' => $this->price_min,
             'price_max' => $this->price_max,
             'des' => $this->des,
+            'cache_has_page' => $this->cache_has_page,
             'cache_options' => $this->cache_options,
         ]);
 
@@ -137,6 +142,7 @@ class Category extends ActiveRecord
             'price_min' => $this->price_min,
             'price_max' => $this->price_max,
             'des' => $this->des,
+            'has_page' => Cache::getCachePages($this),
         ];
     }
 

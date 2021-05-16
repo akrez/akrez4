@@ -32,6 +32,7 @@ class Product extends ActiveRecord
 
     public $picture;
     public $cache_fields;
+    public $cache_has_page;
 
     public static function validStatuses()
     {
@@ -64,9 +65,11 @@ class Product extends ActiveRecord
         parent::afterFind();
         $arrayParams = (array) Json::decode($this->params) + [
             'cache_fields' => [],
+            'cache_has_page' => false,
         ];
 
         $this->cache_fields = $arrayParams['cache_fields'];
+        $this->cache_has_page = $arrayParams['cache_has_page'];
     }
 
     public function beforeSave($insert)
@@ -77,6 +80,7 @@ class Product extends ActiveRecord
 
         $this->params = [
             'cache_fields' => $this->cache_fields,
+            'cache_has_page' => $this->cache_has_page,
         ];
 
         $this->params = Json::encode($this->params);
@@ -153,6 +157,7 @@ class Product extends ActiveRecord
             'view' => $this->view,
             'image' => $this->image,
             'category_id' => $this->category_id,
+            'has_page' => Cache::getCachePages($this),
             '_fields' => Cache::getProductCacheField($this),
         ];
     }

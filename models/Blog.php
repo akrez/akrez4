@@ -501,7 +501,7 @@ class Blog extends ActiveRecord implements IdentityInterface
             'telegram' => $this->telegram,
             'address' => $this->address,
             'twitter' => $this->twitter,
-            'has_page' => Cache::getBlogCachePages($this),
+            'has_page' => Cache::getCachePages($this),
         ];
     }
 }
