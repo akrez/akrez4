@@ -35,7 +35,7 @@ class PageController extends Controller
         }
 
         $entityModel = $page->setEntity($entity, $entity_id);
-        if ($entityModel === false) {
+        if (empty($entityModel)) {
             throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
         }
 

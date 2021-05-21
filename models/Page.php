@@ -84,38 +84,31 @@ class Page extends ActiveRecord
         $this->setEntity($this->entity, $this->entity_id);
     }
 
-    //in case of error return false
     private $entityModelsCache = [];
     public function setEntity($entity, $entityId)
     {
         $cacheKey = $entity . '-' . $entityId;
         if (!isset($this->entityModelsCache[$cacheKey])) {
-            $entityModel = false;
+            $this->entityModelsCache[$cacheKey] = null;
+            //
             if ($entity == self::ENTITY_BLOG) {
                 $list = self::entityBlogList();
-                if (isset($list[$entityId])) {
-                    $entityModel = null;
+                if (isset($list[$entityId]) && Yii::$app->user->getIdentity()) {
+                    $this->entityModelsCache[$cacheKey] = Yii::$app->user->getIdentity();
                 }
             } else if ($entity == self::ENTITY_CATEGORY) {
-                $entityModel = Category::blogValidQuery($entityId)->one();
-                if (empty($entityModel)) {
-                    $entityModel = false;
-                }
+                $this->entityModelsCache[$cacheKey] = Category::blogValidQuery($entityId)->one();
             } elseif ($entity == self::ENTITY_PRODUCT) {
-                $entityModel = Product::blogValidQuery($entityId)->one();
-                if (empty($entityModel)) {
-                    $entityModel = false;
-                }
+                $this->entityModelsCache[$cacheKey] = Product::blogValidQuery($entityId)->one();
             }
-            $this->entityModelsCache[$cacheKey] = $entityModel;
         }
 
-        if ($this->entityModelsCache[$cacheKey] === false) {
-            $this->entity = null;
-            $this->entity_id = null;
-        } else {
+        if ($this->entityModelsCache[$cacheKey]) {
             $this->entity = $entity;
             $this->entity_id = $entityId;
+        } else {
+            $this->entity = null;
+            $this->entity_id = null;
         }
 
         return $this->entityModelsCache[$cacheKey];
