@@ -74,7 +74,7 @@ class LogApi extends Log
     {
         return $this->statQuery()
             ->select([
-                'DATE(`created_date`) AS Ymd',
+                'SUBSTRING_INDEX(`created_date`, " ", 1) AS Ymd',
                 'HOUR(`created_date`) AS H',
                 'COUNT(`ip`) AS count',
             ])
