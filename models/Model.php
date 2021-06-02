@@ -71,6 +71,8 @@ class Model extends BaseModel
             'captcha' => 'کد تأیید',
 
             'receive_from' => 'تحویل از',
+            'telegram_bot_token' => 'Telegram Bot Token',
+            
             'receive_until' => 'تحویل تا',
         ];
     }
