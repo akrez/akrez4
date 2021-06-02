@@ -4,6 +4,7 @@ namespace app\models;
 
 use app\components\Image;
 use Yii;
+use yii\helpers\Url;
 
 /**
  * This is the model class for table "gallery".
@@ -68,13 +69,13 @@ class Gallery extends ActiveRecord
         return $this->hasMany(Blog::class, ['logo' => 'name']);
     }
 
-    private static function getUrl($type, $name)
+    private static function getUrl($type, $name, $schema = null)
     {
         $dir = ($type === null ? '' : '/' . $type);
-        return Yii::getAlias('@web/image') . $dir . '/' . $name;
+        return Url::to(Yii::getAlias('@web/image') . $dir . '/' . $name, $schema);
     }
 
-    public static function getImageUrl($type, $name)
+    public static function getImageUrl($type, $name, $schema = null)
     {
         if ($type == self::TYPE_OS) {
             if (in_array($name, ['Android', 'Chrome OS', 'iOS', 'Linux', 'Ubuntu', 'Windows'])) {
@@ -89,7 +90,7 @@ class Gallery extends ActiveRecord
         } elseif ($type == self::TYPE_STORY) {
             return self::getUrl(self::TYPE_STORY, $name . '.svg');
         }
-        return self::getUrl($type, $name);
+        return self::getUrl($type, $name, $schema);
     }
 
     public static function getImageBasePath($type)
