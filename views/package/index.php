@@ -44,10 +44,10 @@ $this->registerCss("
 $this->registerJs("
 function applyFilter() { 
     $('#table').yiiGridView(" . json_encode([
-            'filterUrl' => Url::current(),
-            'filterSelector' => '#table-filters input, #table-filters select',
-            'filterOnFocusOut' => true,
-        ]) . ");
+    'filterUrl' => Url::current(),
+    'filterSelector' => '#table-filters input, #table-filters select',
+    'filterOnFocusOut' => true,
+]) . ");
 }
 $(document).on('click','.btn[toggle]',function() {
 
@@ -67,6 +67,10 @@ $(document).on('click','.btn[toggle]',function() {
         btn.removeClass('btn-default');
     }
 
+});
+$(document).on('click', '.sendTelegram', function() {
+    var url = $(this).attr('data-url');
+    $.get(url);
 });
 
 $(document).on('pjax:beforeSend', function(xhr, options) {
@@ -93,10 +97,10 @@ Pjax::begin([
 
 $this->registerJs("
 $('#table').yiiGridView(" . json_encode([
-            'filterUrl' => Url::current(['PackageSearch' => null,]),
-            'filterSelector' => '#table-filters input, #table-filters select',
-            'filterOnFocusOut' => true,
-        ]) . ");
+    'filterUrl' => Url::current(['PackageSearch' => null,]),
+    'filterSelector' => '#table-filters input, #table-filters select',
+    'filterOnFocusOut' => true,
+]) . ");
 ");
 ?>
 <div class="row">
@@ -106,9 +110,9 @@ $('#table').yiiGridView(" . json_encode([
 </div>
 <div class="row">
     <div class="col-sm-12">
-        <div class="panel panel-primary" style="position: relative;"> 
+        <div class="panel panel-primary" style="position: relative;">
             <div class="ajax-splash-show splash-style"></div>
-            <div class="panel-heading"><?= Yii::t('app', 'Packages') ?></div> 
+            <div class="panel-heading"><?= Yii::t('app', 'Packages') ?></div>
             <table id="table" class="table table-bordered table-striped">
                 <thead>
                     <tr class="info">
@@ -119,6 +123,7 @@ $('#table').yiiGridView(" . json_encode([
                         <th><?= $sort->link('updated_at', ['label' => $modelClass->getAttributeLabel('updated_at')]) ?></th>
                         <th><?= $sort->link('price', ['label' => $modelClass->getAttributeLabel('price')]) ?></th>
                         <th></th>
+                        <th></th>
                     </tr>
                     <tr id="table-filters" class="info">
                         <th></th>
@@ -128,25 +133,26 @@ $('#table').yiiGridView(" . json_encode([
                         <th></th>
                         <th><?= Html::activeInput('text', $searchModel, 'price', ['class' => 'form-control']) ?></th>
                         <th></th>
+                        <th></th>
                     </tr>
-                </thead> 
+                </thead>
                 <tbody>
                     <?php if ($dataProvider->getModels()) { ?>
                         <?php
-                        foreach ($dataProvider->getModels() as $dataProviderModelKey => $dataProviderModel):
+                        foreach ($dataProvider->getModels() as $dataProviderModelKey => $dataProviderModel) :
                             $displayState = '';
                             if ($model && $model->id == $dataProviderModel->id) {
                                 $displayState = $state;
                                 $dataProviderModel = $model;
                             }
-                            ?>
+                        ?>
                             <tr class="active">
                                 <td>
                                     <?= HtmlPurifier::process($dataProviderModel->guaranty) ?>
                                 </td>
                                 <td>
                                     <?php if ($dataProviderModel->color) : ?>
-                                        <span class="color-class" style="background-color: #<?= $dataProviderModel->color ?>;">⠀⠀</span>  <?= Color::getLabel($dataProviderModel->color) ?>
+                                        <span class="color-class" style="background-color: #<?= $dataProviderModel->color ?>;">⠀⠀</span> <?= Color::getLabel($dataProviderModel->color) ?>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -164,6 +170,12 @@ $('#table').yiiGridView(" . json_encode([
                                 <td>
                                     <?= Html::button(Yii::t('app', 'Update'), ['class' => 'btn btn-block' . ($displayState == 'update' ? ' btn-warning ' : ' btn-default '), 'toggle' => "#row-update-" . $dataProviderModel->id]) ?>
                                 </td>
+                                <td>
+                                    <?= Html::button('<span class="glyphicon glyphicon-send"></span>' . Yii::t('app', 'Telegram'), [
+                                        'class' => 'btn btn-info btn-block btn-social sendTelegram',
+                                        'data-url' => Url::to(['telegram/send-package-to-channel', 'id' => $dataProviderModel->id]),
+                                    ]) ?>
+                                </td>
                             </tr>
                             <?php
                             $displayStyle = 'display: none;';
@@ -173,24 +185,24 @@ $('#table').yiiGridView(" . json_encode([
                             }
                             ?>
                             <tr class="" style="<?= $displayStyle ?>" id="<?= "row-update-" . $dataProviderModel->id ?>">
-                                <td colspan="7">
+                                <td colspan="8">
                                     <?= $this->render('_form', ['model' => $dataProviderModel]) ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php } else { ?>
                         <tr class="danger">
-                            <td colspan="7">
+                            <td colspan="8">
                                 <?= Yii::t('yii', 'No results found.') ?>
                             </td>
                         </tr>
                     <?php } ?>
                     <tr class="success">
-                        <td colspan="7">
+                        <td colspan="8">
                             <?= $this->render('_form', ['model' => $newModel]) ?>
                         </td>
                     </tr>
-                </tbody> 
+                </tbody>
             </table>
         </div>
     </div>
