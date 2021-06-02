@@ -83,6 +83,12 @@ $this->registerJs("
 
         <div class="row">
             <div class="col-sm-12">
+                <?= $form->field($model, 'telegram_bot_token')->textInput() ?>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
                 <?= $form->field($model, 'password')->passwordInput()->hint('برای عدم تغییر رمز عبور خالی بگذارید.') ?>
             </div>
         </div>
