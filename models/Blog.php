@@ -27,6 +27,7 @@ use yii\web\IdentityInterface;
  * @property int|null $reset_at
  * @property string|null $email
  * @property string|null $mobile
+ * @property string|null $telegram_bot_token
  * @property string|null $language
  * @property string|null $params { "address":"", "phone":"", "mobile":"", "instagram":"", "telegram":"", "facebook":"", "twitter":"", "slug":"", "des":"" }
  *
@@ -35,6 +36,7 @@ use yii\web\IdentityInterface;
  * @property Field[] $fields
  * @property Gallery $logo0
  * @property Package[] $packages
+ * @property Page[] $pages
  * @property ProductField[] $productFields
  * @property Product[] $products
  */
@@ -83,6 +85,7 @@ class Blog extends ActiveRecord implements IdentityInterface
             [['password',], 'minLenValidation', 'params' => ['min' => 6,], 'on' => 'profile',],
             [['image',], 'file', 'on' => 'profile',],
             [['language',], 'in', 'range' => array_keys(Language::getList())],
+            [['telegram_bot_token'], 'string', 'max' => 63],
             //
             [['name',], 'required', 'on' => 'signup',],
             [['name',], 'unique', 'on' => 'signup',],
@@ -173,6 +176,9 @@ class Blog extends ActiveRecord implements IdentityInterface
             'address' => [
                 ['string', 'max' => 2048],
             ],
+            'telegram_bot_token' => [
+                ['string', 'max' => 63],
+            ],
             //
             'image' => [
                 ['file'],
@@ -195,6 +201,7 @@ class Blog extends ActiveRecord implements IdentityInterface
                 'email' => [],
                 'phone' => [],
                 'address' => [],
+                'telegram_bot_token' => [],
                 'password' => [],
                 'image' => [],
             ],
