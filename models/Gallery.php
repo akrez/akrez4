@@ -101,12 +101,10 @@ class Gallery extends ActiveRecord
         return Yii::getAlias('@webroot/image/') . $type;
     }
 
-    public static function updateTelegramId($blogName, $name, $telegramId)
+    public function updateTelegramId($telegramId)
     {
-        return Gallery::updateAll(['telegram_id' => $telegramId], 'name = :name AND blog_name = :blog_name', [
-            ':name' => $name,
-            ':blog_name' => $blogName,
-        ]);
+        $this->telegram_id = $telegramId;
+        $this->save();
     }
 
     public static function getImagePath($type, $name)
