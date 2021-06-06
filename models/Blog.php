@@ -482,12 +482,12 @@ class Blog extends ActiveRecord implements IdentityInterface
         }
     }
 
-    public static function getLogoUrl()
+    public static function getLogoUrl($schema = null)
     {
         if (Blog::print('logo')) {
-            return Gallery::getImageUrl(Gallery::TYPE_LOGO, Blog::print('logo'));
+            return Gallery::getImageUrl(Gallery::TYPE_LOGO, Blog::print('logo'), $schema);
         }
-        return Gallery::getImageUrl(null, 'logo.svg');
+        return Gallery::getImageUrl(null, 'logo.svg', $schema);
     }
 
     public function toArray(array $fields = [], array $expand = [], $recursive = true)

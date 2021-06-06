@@ -30,33 +30,32 @@ class Telegram extends Component
             $caption[] = Package::printHtmlForTelegram($package, "\n");
         }
 
-        $params = [
-            'chat_id' => '@' . $blog->telegram,
-            'media' => [
-                [
-                    "type" => "photo",
-                    "media" => $product->image ? Gallery::getImageUrl(Gallery::TYPE_PRODUCT, $product->image, true) : Blog::getLogoUrl(),
-                    'parse_mode' => 'html',
-                    'caption' => implode("\n\n", $caption),
-                ],
-            ]
+        $caption = [
+            'type' => 'photo',
+            'parse_mode' => 'html',
+            'caption' => implode("\n\n", $caption),
         ];
+
+        if ($product->image) {
+            $caption['media'] = Gallery::getImageUrl(Gallery::TYPE_PRODUCT, $product->image, true);
+            $medias = [$product->image => $caption];
+        } else {
+            $caption['media'] = Blog::getLogoUrl(true);
+            $medias = [Blog::print('logo') => $caption];
+        }
 
         $galleries = Gallery::findProductGalleryQueryForApi($blog->name, $product->id)->indexBy('name')->all();
         if (isset($galleries[$product->image])) {
             unset($galleries[$product->image]);
         }
         foreach ($galleries as $gallery) {
-            $params['media'][] =  [
+            $medias[$gallery->name] =  [
                 "type" => "photo",
                 "media" => Gallery::getImageUrl(Gallery::TYPE_PRODUCT, $gallery->name, true),
             ];
         }
 
-        $params['media'] = json_encode($params['media']);
-
         $curl = curl_init('https://api.telegram.org/bot' . $blog->telegram_bot_token . '/sendMediaGroup');
-
         curl_setopt_array($curl,  [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
@@ -65,11 +64,12 @@ class Telegram extends Component
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => $params,
+            CURLOPT_POSTFIELDS => [
+                'chat_id' => '@' . $blog->telegram,
+                'media' => json_encode(array_values($medias)),
+            ],
         ]);
-
         $response = curl_exec($curl);
-
         curl_close($curl);
         echo $response;
     }

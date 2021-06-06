@@ -79,16 +79,16 @@ class Gallery extends ActiveRecord
     {
         if ($type == self::TYPE_OS) {
             if (in_array($name, ['Android', 'Chrome OS', 'iOS', 'Linux', 'Ubuntu', 'Windows'])) {
-                return self::getUrl(self::TYPE_OS, $name . '.svg');
+                return self::getUrl(self::TYPE_OS, $name . '.svg', $schema);
             }
             return null;
         } elseif ($type == self::TYPE_BROWSER) {
             if (in_array($name, ['Chrome', 'Edge', 'Firefox', 'Safari', 'Samsung Internet', 'Opera', 'Internet Explorer',])) {
-                return self::getUrl(self::TYPE_BROWSER, $name . '.svg');
+                return self::getUrl(self::TYPE_BROWSER, $name . '.svg', $schema);
             }
             return null;
         } elseif ($type == self::TYPE_STORY) {
-            return self::getUrl(self::TYPE_STORY, $name . '.svg');
+            return self::getUrl(self::TYPE_STORY, $name . '.svg', $schema);
         }
         return self::getUrl($type, $name, $schema);
     }
