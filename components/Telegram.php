@@ -93,7 +93,7 @@ class Telegram extends Component
                     $i = 0;
                     foreach ($medias as $galleryName => $media) {
                         $photo = end($response['result'][$i]['photo']);
-                        if (isset($galleries[$galleryName]) && empty($galleries[$galleryName])) {
+                        if (isset($galleries[$galleryName]) && empty($galleries[$galleryName]['telegram_id'])) {
                             $galleries[$galleryName]->updateTelegramId($photo['file_id']);
                         }
                         $i++;
