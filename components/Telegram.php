@@ -18,6 +18,33 @@ class Telegram extends Component
         return boolval($blog->telegram);
     }
 
+    public static function response($message, $status = false)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        return [
+            'status' => $status,
+            'message' => $message,
+        ];
+    }
+
+    public static function send($url, $postFields)
+    {
+        $curl = curl_init($url);
+        curl_setopt_array($curl,  [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => $postFields,
+        ]);
+        $response = curl_exec($curl);
+        curl_close($curl);
+        return $response;
+    }
+
     public static function sendProductToChannel($blog, $product, $packageId)
     {
         $caption = [Product::printHtmlForTelegram($product, "\n")];
@@ -31,50 +58,32 @@ class Telegram extends Component
             $caption[] = Package::printHtmlForTelegram($package, "\n");
         }
 
-        $caption = [
-            'type' => 'photo',
-            'parse_mode' => 'html',
-            'caption' => implode("\n\n", $caption),
-        ];
-
-        if ($product->image) {
-            $caption['media'] = Gallery::getImageUrl(Gallery::TYPE_PRODUCT, $product->image, true);
-            $medias = [$product->image => $caption];
-        } else {
-            $caption['media'] = Blog::getLogoUrl(true);
-            $medias = [Blog::print('logo') => $caption];
+        $galleries = Gallery::findProductGalleryQueryForApi($blog->name, $product->id)->indexBy('name')->all();
+        if (empty($galleries)) {
+            return self::response(Yii::t('yii', 'Please upload a file.'));
         }
 
-        $galleries = Gallery::findProductGalleryQueryForApi($blog->name, $product->id)->indexBy('name')->all();
         if (isset($galleries[$product->image])) {
-            unset($galleries[$product->image]);
+            $galleries = [$product->image => $galleries[$product->image]] + $galleries;
         }
         foreach ($galleries as $gallery) {
             $medias[$gallery->name] =  [
                 "type" => "photo",
-                "media" => Gallery::getImageUrl(Gallery::TYPE_PRODUCT, $gallery->name, true),
+                "media" => ($gallery['telegram_id'] ? $gallery['telegram_id'] : Gallery::getImageUrl(Gallery::TYPE_PRODUCT, $gallery->name, true)),
             ];
+            if ($caption) {
+                $medias[$gallery->name]['caption'] = implode("\n\n", $caption);
+                $medias[$gallery->name]['parse_mode'] = 'html';
+                $caption = null;
+            }
         }
 
-        $curl = curl_init('https://api.telegram.org/bot' . $blog->telegram_bot_token . '/sendMediaGroup');
-        curl_setopt_array($curl,  [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => [
-                'chat_id' => '@' . $blog->telegram,
-                'media' => json_encode(array_values($medias)),
-            ],
+        $response = self::send('https://api.telegram.org/bot' . $blog->telegram_bot_token . '/sendMediaGroup', [
+            'chat_id' => '@' . $blog->telegram,
+            'media' => json_encode(array_values($medias)),
         ]);
-        $response = curl_exec($curl);
-        curl_close($curl);
 
         try {
-            Yii::$app->response->format = Response::FORMAT_JSON;
             if ($response) {
                 $response = json_decode($response, true);
                 if (
@@ -84,14 +93,16 @@ class Telegram extends Component
                     $i = 0;
                     foreach ($medias as $galleryName => $media) {
                         $photo = end($response['result'][$i]['photo']);
-                        Gallery::updateTelegramId($blog->name, $galleryName, $photo['file_id']);
+                        if (isset($galleries[$galleryName]) && empty($galleries[$galleryName])) {
+                            $galleries[$galleryName]->updateTelegramId($photo['file_id']);
+                        }
                         $i++;
                     }
-                    return ['status' => true];
+                    return self::response('', true);
                 }
             }
         } catch (\Throwable $th) {
         }
-        return ['status' => false];
+        return self::response(Yii::t('yii', 'Error'));
     }
 }
