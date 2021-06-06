@@ -165,7 +165,7 @@ $('#table').yiiGridView(" . json_encode([
                                     <?= Yii::$app->formatter->asDatetimefa($dataProviderModel->updated_at) ?>
                                 </td>
                                 <td>
-                                    <?= number_format($dataProviderModel->price) ?> ریال
+                                    <?= Yii::$app->formatter->asPrice($dataProviderModel->price) ?>
                                 </td>
                                 <td>
                                     <?= Html::button(Yii::t('app', 'Update'), ['class' => 'btn btn-block' . ($displayState == 'update' ? ' btn-warning ' : ' btn-default '), 'toggle' => "#row-update-" . $dataProviderModel->id]) ?>
