@@ -93,6 +93,11 @@ class Gallery extends ActiveRecord
         return self::getUrl($type, $name, $schema);
     }
 
+    public static function getProductGallery($productId)
+    {
+        return self::find()->where(['blog_name' => \Yii::$app->user->getId()])->andWhere(['product_id'->$productId])->indexBy('name')->all();
+    }
+
     public static function getImageBasePath($type)
     {
         return Yii::getAlias('@webroot/image/') . $type;
