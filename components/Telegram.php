@@ -9,6 +9,7 @@ use app\models\Product;
 use Exception;
 use Yii;
 use yii\base\Component;
+use yii\web\Response;
 
 class Telegram extends Component
 {
@@ -71,6 +72,26 @@ class Telegram extends Component
         ]);
         $response = curl_exec($curl);
         curl_close($curl);
-        echo $response;
+
+        try {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            if ($response) {
+                $response = json_decode($response, true);
+                if (
+                    isset($response['ok']) && $response['ok'] &&
+                    isset($response['result']) && is_array($response['result']) && $response['result']
+                ) {
+                    $i = 0;
+                    foreach ($medias as $galleryName => $media) {
+                        $photo = end($response['result'][$i]['photo']);
+                        Gallery::updateTelegramId($blog->name, $galleryName, $photo['file_id']);
+                        $i++;
+                    }
+                    return ['status' => true];
+                }
+            }
+        } catch (\Throwable $th) {
+        }
+        return ['status' => false];
     }
 }

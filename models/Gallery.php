@@ -14,10 +14,12 @@ use yii\helpers\Url;
  * @property int $width
  * @property int $height
  * @property string $type
+ * @property string|null $telegram_id
  * @property int|null $product_id
  * @property string|null $blog_name
  *
  * @property Blog[] $blogs
+ * @property Product[] $products
  */
 class Gallery extends ActiveRecord
 {
@@ -54,6 +56,7 @@ class Gallery extends ActiveRecord
             [['updated_at', 'width', 'height', 'product_id'], 'integer'],
             [['name'], 'string', 'max' => 16],
             [['type'], 'string', 'max' => 12],
+            [['telegram_id'], 'string', 'max' => 127],
             [['blog_name'], 'string', 'max' => 31],
             [['name'], 'unique'],
         ];
@@ -96,6 +99,14 @@ class Gallery extends ActiveRecord
     public static function getImageBasePath($type)
     {
         return Yii::getAlias('@webroot/image/') . $type;
+    }
+
+    public static function updateTelegramId($blogName, $name, $telegramId)
+    {
+        return Gallery::updateAll(['telegram_id' => $telegramId], 'name = :name AND blog_name = :blog_name', [
+            ':name' => $name,
+            ':blog_name' => $blogName,
+        ]);
     }
 
     public static function getImagePath($type, $name)
