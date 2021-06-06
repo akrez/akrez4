@@ -173,7 +173,7 @@ $('#table').yiiGridView(" . json_encode([
                                 <td>
                                     <?= Html::button('<span class="glyphicon glyphicon-send"></span>' . Yii::t('app', 'Telegram'), [
                                         'class' => 'btn btn-info btn-block btn-social sendTelegram',
-                                        'data-url' => Url::to(['telegram/send-package-to-channel', 'id' => $dataProviderModel->id]),
+                                        'data-url' => Url::to(['telegram/send-product-to-channel', 'product_id' => $dataProviderModel->product_id, 'package_id' => $dataProviderModel->id]),
                                     ]) ?>
                                 </td>
                             </tr>

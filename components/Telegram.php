@@ -14,26 +14,46 @@ class Telegram extends Component
 {
     public static function hasPermission($blog)
     {
-        return true;
+        return boolval($blog->telegram);
     }
 
-    public static function sendPackageToChannel(Package $package, $blog)
+    public static function sendProductToChannel($blog, $product, $packageId)
     {
-        $product = $package->getProduct()->one();
-        $caption = Product::printHtmlForTelegram($product);
+        $caption = [Product::printHtmlForTelegram($product, "\n")];
+
+        if ($packageId == -1) {
+            $packages = [];
+        } else {
+            $packages = Package::findProductPackageQueryForApi($blog->name, $product->id)->andFilterWhere(['id' => $packageId])->all();
+        }
+        foreach ($packages as $package) {
+            $caption[] = Package::printHtmlForTelegram($package, "\n");
+        }
 
         $params = [
             'chat_id' => '@' . $blog->telegram,
-            'media' => json_encode([
+            'media' => [
                 [
                     "type" => "photo",
                     "media" => $product->image ? Gallery::getImageUrl(Gallery::TYPE_PRODUCT, $product->image, true) : Blog::getLogoUrl(),
                     'parse_mode' => 'html',
-                    'caption' => implode("\n", $caption),
+                    'caption' => implode("\n\n", $caption),
                 ],
-            ]),
+            ]
         ];
-        $caption[] = '<b>' . Yii::$app->formatter->asPrice($package->price) . '</b>';
+
+        $galleries = Gallery::findProductGalleryQueryForApi($blog->name, $product->id)->indexBy('name')->all();
+        if (isset($galleries[$product->image])) {
+            unset($galleries[$product->image]);
+        }
+        foreach ($galleries as $gallery) {
+            $params['media'][] =  [
+                "type" => "photo",
+                "media" => Gallery::getImageUrl(Gallery::TYPE_PRODUCT, $gallery->name, true),
+            ];
+        }
+
+        $params['media'] = json_encode($params['media']);
 
         $curl = curl_init('https://api.telegram.org/bot' . $blog->telegram_bot_token . '/sendMediaGroup');
 

@@ -134,16 +134,15 @@ class Product extends ActiveRecord
         $this->save();
     }
 
-    public static function printHtmlForTelegram($product)
+    public static function printHtmlForTelegram($product, $seprator)
     {
-        $caption = [];
-        $caption[] = '<b>' . $product->title . '</b>';
+        $caption = ['<b>' . $product->title . '</b>'];
         foreach (Cache::getProductCacheField($product) as $field) {
             if ($field['in_summary']) {
                 $caption[] = '<b>' . $field['field'] . ': </b>' . implode(', ', $field["values"]) . ' ' . $field['unit'];
             }
         }
-        return $caption;
+        return implode($seprator, $caption);
     }
 
     public function getPackages()

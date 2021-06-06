@@ -35,7 +35,7 @@ $this->registerCss("
     max-height: 40px;
 }    
 ");
-$colspan = 10;
+$colspan = 11;
 $this->registerJs("
 function applyFilter() { 
 $('#table').yiiGridView(" . json_encode([
@@ -68,6 +68,10 @@ $(document).on('click','.toggler',function() {
 function galleryFormSubmit(input) {
     $(input).closest('form').submit();
 }
+$(document).on('click', '.sendTelegram', function() {
+    var url = $(this).attr('data-url');
+    $.get(url);
+});
 $(document).on('pjax:beforeSend', function(xhr, options) {
     $('.ajax-splash-show').css('display','inline-block');
     $('.ajax-splash-hide').css('display','none');
@@ -114,6 +118,7 @@ Pjax::begin([
                         <th></th>
                         <th></th>
                         <th></th>
+                        <th></th>
                     </tr>
                     <tr id="table-filters" class="info filters">
                         <th></th>
@@ -121,6 +126,7 @@ Pjax::begin([
                         <th><?= Html::activeInput('text', $searchModel, 'title', ['class' => 'form-control']) ?></th>
                         <th><?= Html::activeInput('text', $searchModel, 'des', ['class' => 'form-control']) ?></th>
                         <th><?= Html::activeDropDownList($searchModel, 'status', Product::validStatuses(), ['class' => 'form-control', 'prompt' => '']) ?></th>
+                        <th></th>
                         <th></th>
                         <th></th>
                         <th></th>
@@ -187,6 +193,12 @@ Pjax::begin([
                                         'data-pjax' => 0,
                                     ])
                                     ?>
+                                </td>
+                                <td>
+                                    <?= Html::button('<span class="glyphicon glyphicon-send"></span>' . Yii::t('app', 'Telegram'), [
+                                        'class' => 'btn btn-info btn-block btn-social sendTelegram',
+                                        'data-url' => Url::to(['telegram/send-product-to-channel', 'product_id' => $dataProviderModel->id]),
+                                    ]) ?>
                                 </td>
                             </tr>
                             <tr class="" style="<?= $displayState == 'update' ? '' : 'display: none;' ?>" id="<?= "row-update-" . $dataProviderModel->id ?>">

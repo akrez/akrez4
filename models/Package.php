@@ -53,6 +53,23 @@ class Package extends ActiveRecord
         return Package::find()->where(['blog_name' => $blogName, 'status' => Status::STATUS_ACTIVE, 'product_id' => $productId]);
     }
 
+    public static function printHtmlForTelegram($package, $seprator)
+    {
+        $caption = [];
+        if ($package->guaranty) {
+            $caption[] = $package->guaranty;
+        }
+        if ($package->des) {
+            $caption[] = $package->des;
+        }
+        if ($package->color) {
+            $caption[] = Color::getLabel($package->color);
+        }
+        $caption[] = '<b>' . Yii::$app->formatter->asPrice($package->price) . '</b>';
+
+        return implode($seprator, $caption);
+    }
+
     public function afterFind()
     {
         parent::afterFind();
