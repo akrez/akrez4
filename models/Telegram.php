@@ -50,7 +50,7 @@ class Telegram extends ActiveRecord
         ];
     }
 
-    public static function send($url, $postFields)
+    public static function send($url, $postFields = [])
     {
         $curl = curl_init($url);
         curl_setopt_array($curl,  [
@@ -68,7 +68,7 @@ class Telegram extends ActiveRecord
         return $response;
     }
 
-    public static function sendProductToChannel($blog, $product, $packageId)
+    public static function sendProductToChannel($blog, $product, $packageId = null)
     {
         $caption = [Product::printHtmlForTelegram($product, "\n")];
 
