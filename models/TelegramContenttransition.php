@@ -5,7 +5,7 @@ namespace app\models;
 use Yii;
 
 /**
- * This is the model class for table "telegram_webhook".
+ * This is the model class for table "telegram_contenttransition".
  *
  * @property int $id
  * @property int|null $created_at
@@ -13,14 +13,14 @@ use Yii;
  * @property string|null $update_id
  * @property string|null $message
  */
-class TelegramContenttransition  extends ActiveRecord
+class TelegramContenttransition extends ActiveRecord
 {
     /**
      * {@inheritdoc}
      */
     public static function tableName()
     {
-        return 'telegram_webhook';
+        return 'telegram_contenttransition';
     }
 
     /**
