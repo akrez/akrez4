@@ -8,13 +8,12 @@ use yii\web\Response;
 /**
  * This is the model class for table "telegram_contenttransition".
  *
- * @property int $id
  * @property int|null $created_at
  * @property string|null $forward_from
- * @property string|null $update_id
+ * @property int $update_id
  * @property string|null $message
  */
-class TelegramContenttransition extends ActiveRecord
+class Telegram extends ActiveRecord
 {
     /**
      * {@inheritdoc}
@@ -31,8 +30,8 @@ class TelegramContenttransition extends ActiveRecord
     {
         return [
             [['message'], 'string'],
-            [['forward_from'], 'string', 'max' => 31],
-            [['update_id'], 'string', 'max' => 15],
+            [['update_id'], 'integer'],
+            [['update_id'], 'required'],
         ];
     }
 
@@ -72,28 +71,39 @@ class TelegramContenttransition extends ActiveRecord
         ]);
         $response = curl_exec($curl);
         curl_close($curl);
-        return $response;
+
+        if ($response) {
+            $response = (array) @json_decode($response, true);
+            if (isset($response['ok']) && $response['ok'] && isset($response['result']) && $response['result']) {
+                return $response;
+            }
+        }
+        return null;
     }
 
     public static function updateTelegramContenttransition()
     {
-        try {
-            $response = self::send(Yii::$app->params['contentTransitionBotToken'], 'getUpdates');
-            $response = (array) @json_decode($response, true);
-            if (
-                isset($response['ok']) && $response['ok'] &&
-                isset($response['result']) && $response['result'] && is_array($response['result'])
-            ) {
-                foreach ($response['result'] as $message) {
+        $message = Yii::t('yii', 'Error');
+        $response = self::send(Yii::$app->params['contentTransitionBotToken'], 'getUpdates');
+        if ($response) {
+            $messages = [];
+            foreach ($response['result'] as $resultKey => $resultValue) {
+                $messages[$resultValue['update_id']] = $resultValue['message'];
+                unset($response['result'][$resultKey]);
+            }
+            $existedUpdateIds = TelegramContenttransition::find()->select('update_id')->where(['update_id' => array_keys($messages)])->column();
+            foreach ($messages as $updateId => $message) {
+                if (!in_array($updateId, $existedUpdateIds)) {
                     $model = new TelegramContenttransition();
+                    $model->update_id = $updateId;
+                    $model->forward_from = (isset($message['forward_from_chat']['username']) ? $message['forward_from_chat']['username'] : null);
                     $model->message = json_encode($message);
                     $model->save();
                 }
-                return self::response('', true);
             }
-        } catch (\Throwable $th) {
+            return self::response('', true);
         }
-        return self::response(Yii::t('yii', 'Error'));
+        return self::response($message);
     }
 
     public static function sendProductToChannel($blog, $product, $packageId = null)
@@ -136,21 +146,15 @@ class TelegramContenttransition extends ActiveRecord
 
         try {
             if ($response) {
-                $response = json_decode($response, true);
-                if (
-                    isset($response['ok']) && $response['ok'] &&
-                    isset($response['result']) && is_array($response['result']) && $response['result']
-                ) {
-                    $i = 0;
-                    foreach ($medias as $galleryName => $media) {
-                        $photo = end($response['result'][$i]['photo']);
-                        if (isset($galleries[$galleryName]) && empty($galleries[$galleryName]->telegram_id)) {
-                            $galleries[$galleryName]->updateTelegramId($photo['file_id']);
-                        }
-                        $i++;
+                $i = 0;
+                foreach ($medias as $galleryName => $media) {
+                    $photo = end($response['result'][$i]['photo']);
+                    if (isset($galleries[$galleryName]) && empty($galleries[$galleryName]->telegram_id)) {
+                        $galleries[$galleryName]->updateTelegramId($photo['file_id']);
                     }
-                    return self::response('', true);
+                    $i++;
                 }
+                return self::response('', true);
             }
         } catch (\Throwable $th) {
         }
