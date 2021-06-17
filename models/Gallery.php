@@ -101,6 +101,11 @@ class Gallery extends ActiveRecord
         return self::getUrl($type, $name, $schema);
     }
 
+    public function getMyUrl($schema = null)
+    {
+        return self::getImageUrl($this->type, $this->name, $schema);
+    }
+
     public static function getImageBasePath($type)
     {
         return Yii::getAlias('@webroot/image/') . $type;
