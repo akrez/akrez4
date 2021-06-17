@@ -45,7 +45,7 @@ class Cache extends Component
                 $entity->cache_has_page[] = $page->entity_id;
             }
         } else if ($page->entity == Page::ENTITY_CATEGORY || $page->entity == Page::ENTITY_PRODUCT) {
-            $page->cache_has_page = ($page->status == Status::STATUS_ACTIVE);
+            $entity->cache_has_page = ($page->status == Status::STATUS_ACTIVE);
         }
         $entity->save();
     }
