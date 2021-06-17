@@ -77,7 +77,7 @@ class Telegram extends Model
             foreach ($galleries as $gallery) {
                 $medias[$gallery->name] =  [
                     "type" => "photo",
-                    "media" => ($gallery->telegram_id ? $gallery->telegram_id : Gallery::getImageUrl(Gallery::TYPE_PRODUCT, $gallery->name, true)),
+                    "media" => ($gallery->telegram_id ? $gallery->telegram_id : $gallery->getMyUrl(true)),
                 ];
                 if ($caption) {
                     $medias[$gallery->name]['caption'] = implode("\n\n", $caption);
@@ -86,7 +86,6 @@ class Telegram extends Model
                 }
             }
 
-            v($medias);
             $response = self::send($blog->telegram_bot_token, 'sendMediaGroup', [
                 'chat_id' => '@' . $blog->telegram,
                 'media' => json_encode(array_values($medias)),
