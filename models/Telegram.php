@@ -5,36 +5,8 @@ namespace app\models;
 use Yii;
 use yii\web\Response;
 
-/**
- * This is the model class for table "telegram_contenttransition".
- *
- * @property int|null $created_at
- * @property string|null $forward_from
- * @property int $update_id
- * @property string|null $message
- */
-class Telegram extends ActiveRecord
+class Telegram extends Model
 {
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
-    {
-        return 'telegram_contenttransition';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
-        return [
-            [['message'], 'string'],
-            [['update_id'], 'integer'],
-            [['update_id'], 'required'],
-        ];
-    }
-
     public static function hasPermission($blog)
     {
         return boolval($blog->telegram);
@@ -52,11 +24,7 @@ class Telegram extends ActiveRecord
 
     public static function send($token, $func, $postFields = [])
     {
-        if (true) {
-            $url = 'http://aliakbarrezaei.ir/telegram.php?func=' . $func . '&token=' . $token;
-        } else {
-            $url = 'https://api.telegram.org/bot' . $token . '/' . $func;
-        }
+        $url = 'https://api.telegram.org/bot' . $token . '/' . $func;
 
         $curl = curl_init($url);
         curl_setopt_array($curl,  [
@@ -79,31 +47,6 @@ class Telegram extends ActiveRecord
             }
         }
         return null;
-    }
-
-    public static function updateTelegramContenttransition()
-    {
-        $message = Yii::t('yii', 'Error');
-        $response = self::send(Yii::$app->params['contentTransitionBotToken'], 'getUpdates');
-        if ($response) {
-            $messages = [];
-            foreach ($response['result'] as $resultKey => $resultValue) {
-                $messages[$resultValue['update_id']] = $resultValue['message'];
-                unset($response['result'][$resultKey]);
-            }
-            $existedUpdateIds = TelegramContenttransition::find()->select('update_id')->where(['update_id' => array_keys($messages)])->column();
-            foreach ($messages as $updateId => $message) {
-                if (!in_array($updateId, $existedUpdateIds)) {
-                    $model = new TelegramContenttransition();
-                    $model->update_id = $updateId;
-                    $model->forward_from = (isset($message['forward_from_chat']['username']) ? $message['forward_from_chat']['username'] : null);
-                    $model->message = json_encode($message);
-                    $model->save();
-                }
-            }
-            return self::response('', true);
-        }
-        return self::response($message);
     }
 
     public static function sendProductToChannel($blog, $product, $packageId = null)
