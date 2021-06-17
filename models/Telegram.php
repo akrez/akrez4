@@ -103,7 +103,6 @@ class Telegram extends Model
                 return self::response('', true);
             }
         } catch (\Throwable $th) {
-            return self::response($th->getMessage());
         }
         return self::response(Yii::t('yii', 'Error'));
     }
