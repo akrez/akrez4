@@ -67,6 +67,11 @@ class Gallery extends ActiveRecord
         return Gallery::find()->where(['blog_name' => $blogName, 'type' => Gallery::TYPE_PRODUCT, 'product_id' => $productId]);
     }
 
+    public static function findLogoGalleryQueryForApi($blogName)
+    {
+        return Gallery::find()->where(['blog_name' => $blogName, 'type' => Gallery::TYPE_LOGO]);
+    }
+
     public function getBlogs()
     {
         return $this->hasMany(Blog::class, ['logo' => 'name']);

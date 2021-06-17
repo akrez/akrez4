@@ -64,6 +64,9 @@ class Telegram extends Model
 
         $galleries = Gallery::findProductGalleryQueryForApi($blog->name, $product->id)->indexBy('name')->all();
         if (empty($galleries)) {
+            $galleries = Gallery::findLogoGalleryQueryForApi($blog->name)->indexBy('name')->all();
+        }
+        if (empty($galleries)) {
             return self::response(Yii::t('yii', 'Please upload a file.'));
         }
 
