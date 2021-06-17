@@ -38,7 +38,6 @@ class Telegram extends Model
             CURLOPT_POSTFIELDS => $postFields,
         ]);
         $response = curl_exec($curl);
-        v($response);
         curl_close($curl);
 
         if ($response) {
@@ -87,6 +86,7 @@ class Telegram extends Model
                 }
             }
 
+            v($medias);
             $response = self::send($blog->telegram_bot_token, 'sendMediaGroup', [
                 'chat_id' => '@' . $blog->telegram,
                 'media' => json_encode(array_values($medias)),
