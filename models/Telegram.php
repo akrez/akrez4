@@ -38,6 +38,7 @@ class Telegram extends Model
             CURLOPT_POSTFIELDS => $postFields,
         ]);
         $response = curl_exec($curl);
+        v(curl_error($curl));
         curl_close($curl);
 
         if ($response) {
