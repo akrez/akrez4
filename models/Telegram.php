@@ -51,46 +51,46 @@ class Telegram extends Model
 
     public static function sendProductToChannel($blog, $product, $packageId = null)
     {
-        $caption = [Product::printHtmlForTelegram($product, "\n")];
-
-        if ($packageId == -1) {
-            $packages = [];
-        } else {
-            $packages = Package::findProductPackageQueryForApi($blog->name, $product->id)->andFilterWhere(['id' => $packageId])->all();
-        }
-        foreach ($packages as $package) {
-            $caption[] = Package::printHtmlForTelegram($package, "\n");
-        }
-
-        $galleries = Gallery::findProductGalleryQueryForApi($blog->name, $product->id)->indexBy('name')->all();
-        if (empty($galleries)) {
-            $galleries = Gallery::findLogoGalleryQueryForApi($blog->name)->indexBy('name')->all();
-        }
-        if (empty($galleries)) {
-            return self::response(Yii::t('yii', 'Please upload a file.'));
-        }
-
-        if (isset($galleries[$product->image])) {
-            $galleries = [$product->image => $galleries[$product->image]] + $galleries;
-        }
-        foreach ($galleries as $gallery) {
-            $medias[$gallery->name] =  [
-                "type" => "photo",
-                "media" => ($gallery->telegram_id ? $gallery->telegram_id : Gallery::getImageUrl(Gallery::TYPE_PRODUCT, $gallery->name, true)),
-            ];
-            if ($caption) {
-                $medias[$gallery->name]['caption'] = implode("\n\n", $caption);
-                $medias[$gallery->name]['parse_mode'] = 'html';
-                $caption = null;
-            }
-        }
-
-        $response = self::send($blog->telegram_bot_token, 'sendMediaGroup', [
-            'chat_id' => '@' . $blog->telegram,
-            'media' => json_encode(array_values($medias)),
-        ]);
-
         try {
+            $caption = [Product::printHtmlForTelegram($product, "\n")];
+
+            if ($packageId == -1) {
+                $packages = [];
+            } else {
+                $packages = Package::findProductPackageQueryForApi($blog->name, $product->id)->andFilterWhere(['id' => $packageId])->all();
+            }
+            foreach ($packages as $package) {
+                $caption[] = Package::printHtmlForTelegram($package, "\n");
+            }
+
+            $galleries = Gallery::findProductGalleryQueryForApi($blog->name, $product->id)->indexBy('name')->all();
+            if (empty($galleries)) {
+                $galleries = Gallery::findLogoGalleryQueryForApi($blog->name)->indexBy('name')->all();
+            }
+            if (empty($galleries)) {
+                return self::response(Yii::t('yii', 'Please upload a file.'));
+            }
+
+            if (isset($galleries[$product->image])) {
+                $galleries = [$product->image => $galleries[$product->image]] + $galleries;
+            }
+            foreach ($galleries as $gallery) {
+                $medias[$gallery->name] =  [
+                    "type" => "photo",
+                    "media" => ($gallery->telegram_id ? $gallery->telegram_id : Gallery::getImageUrl(Gallery::TYPE_PRODUCT, $gallery->name, true)),
+                ];
+                if ($caption) {
+                    $medias[$gallery->name]['caption'] = implode("\n\n", $caption);
+                    $medias[$gallery->name]['parse_mode'] = 'html';
+                    $caption = null;
+                }
+            }
+
+            $response = self::send($blog->telegram_bot_token, 'sendMediaGroup', [
+                'chat_id' => '@' . $blog->telegram,
+                'media' => json_encode(array_values($medias)),
+            ]);
+
             if ($response) {
                 $i = 0;
                 foreach ($medias as $galleryName => $media) {
@@ -103,6 +103,7 @@ class Telegram extends Model
                 return self::response('', true);
             }
         } catch (\Throwable $th) {
+            return self::response($th->getMessage());
         }
         return self::response(Yii::t('yii', 'Error'));
     }
