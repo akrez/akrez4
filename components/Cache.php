@@ -42,10 +42,7 @@ class Cache extends Component
 
     public static function getCachePages($entity)
     {
-        if ($entity instanceof Blog) {
-            return (array) $entity->cache_has_page;
-        }
-        return $entity->cache_has_page;
+        return (array) $entity->cache_has_page;
     }
 
     public static function updateBlogCacheCategory($blog)
