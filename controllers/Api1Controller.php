@@ -156,8 +156,7 @@ class Api1Controller extends Api
                 'color' => Color::getList(),
                 'province' => Province::getList(),
                 'language' => Language::getList(),
-                'page_entity' => Page::entityList(),
-                'page_entity_blog' => Page::entityBlogList(),
+                'entity_page' => Page::entityPage(),
             ];
         }
         return ['constant' => $result];
@@ -366,11 +365,11 @@ class Api1Controller extends Api
         ];
     }
 
-    public function actionPage($entity = null, $entity_id = null)
+    public function actionPage($entity = null, $page_type = null, $entity_id = null)
     {
         Yii::$app->response->format = Response::FORMAT_HTML;
         $blog = self::blog();
-        $page = Page::findPageQueryForApi($blog->name, $entity, $entity_id)->one();
+        $page = Page::findPageQueryForApi($blog->name, $entity, $page_type, $entity_id)->one();
         if (!$page) {
             Api::exceptionNotFoundHttp();
         }

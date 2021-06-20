@@ -23,18 +23,18 @@ class PageController extends Controller
         ]);
     }
 
-    public function actionIndex($entity, $entity_id)
+    public function actionIndex($entity, $page_type, $entity_id)
     {
         $post = Yii::$app->request->post();
 
-        $page = Page::blogValidQuery()->andWhere(['entity' => $entity, 'entity_id' => $entity_id,])->one();
+        $page = Page::blogValidQuery()->andWhere(['entity' => $entity, 'page_type' => $page_type, 'entity_id' => $entity_id,])->one();
         if (empty($page)) {
             $page = new Page();
             $page->entity = $entity;
             $page->entity_id = $entity_id;
         }
 
-        $entityModel = $page->setEntity($entity, $entity_id);
+        $entityModel = $page->setEntity($entity, $page_type, $entity_id);
         if (empty($entityModel)) {
             throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
         }

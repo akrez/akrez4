@@ -295,7 +295,7 @@ class Blog extends ActiveRecord implements IdentityInterface
     public function signinValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $blog = self::find()->where(['status' => [Status::STATUS_ACTIVE, Status::STATUS_DISABLE]])->andWhere(['name' => $this->name])->one();
+            $blog = self::blogValidQuery($this->name)->one();
             if ($blog && $blog->validatePassword($this->password)) {
                 return $this->_blog = $blog;
             }
@@ -307,7 +307,7 @@ class Blog extends ActiveRecord implements IdentityInterface
     public function resetPasswordRequestValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $blog = self::find()->where(['status' => [Status::STATUS_ACTIVE, Status::STATUS_DISABLE]])->andWhere(['mobile' => $this->mobile])->one();
+            $blog = self::find()->where(['status' => array_keys(Blog::validStatuses())])->andWhere(['mobile' => $this->mobile])->one();
             if ($blog) {
                 return $this->_blog = $blog;
             }
@@ -331,7 +331,7 @@ class Blog extends ActiveRecord implements IdentityInterface
     public function resetPasswordValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $blog = self::find()->where(['status' => [Status::STATUS_ACTIVE, Status::STATUS_DISABLE]])->andWhere(['mobile' => $this->mobile])->andWhere(['reset_token' => $this->reset_token])->andWhere(['>', 'reset_at', time() - self::TIMEOUT_RESET])->one();
+            $blog = self::find()->where(['status' => array_keys(Blog::validStatuses())])->andWhere(['mobile' => $this->mobile])->andWhere(['reset_token' => $this->reset_token])->andWhere(['>', 'reset_at', time() - self::TIMEOUT_RESET])->one();
             if ($blog) {
                 return $this->_blog = $blog;
             }
@@ -356,12 +356,12 @@ class Blog extends ActiveRecord implements IdentityInterface
 
     public static function findIdentity($name)
     {
-        return static::find()->where(['name' => $name])->andWhere(['status' => [Status::STATUS_ACTIVE, Status::STATUS_DISABLE]])->one();
+        return self::blogValidQuery($name)->one();
     }
 
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        return static::find()->where(['token' => $token])->andWhere(['status' => [Status::STATUS_ACTIVE, Status::STATUS_DISABLE]])->one();
+        return static::find()->where(['token' => $token])->andWhere(['status' => array_keys(Blog::validStatuses())])->one();
     }
 
     public function getId()
@@ -455,6 +455,22 @@ class Blog extends ActiveRecord implements IdentityInterface
     public function getBlog()
     {
         return $this->_blog;
+    }
+
+    public static function validStatuses()
+    {
+        return [
+            Status::STATUS_ACTIVE => Yii::t('app', 'Active'),
+            Status::STATUS_DISABLE => Yii::t('app', 'Disable'),
+        ];
+    }
+
+    public static function blogValidQuery($name)
+    {
+        $query = Blog::find();
+        $query->andWhere(['name' => $name,]);
+        $query->andWhere(['status' => array_keys(Blog::validStatuses())]);
+        return $query;
     }
 
     public static function findBlogForApi($name)

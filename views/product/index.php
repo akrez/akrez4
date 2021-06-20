@@ -180,7 +180,7 @@ Pjax::begin([
                                 <td><?= Html::button(Yii::t('app', 'ProductGalleries'), ['class' => 'btn btn-block toggler' . ($isGalleryState ? ' btn-warning ' : ' btn-default '), 'toggle' => "#row-gallery-" . $dataProviderModel->id]) ?></td>
                                 <td>
                                     <?=
-                                    Html::a(' <span class="glyphicon glyphicon-file"></span> ' . Yii::t('app', 'Page'), Url::to([0 => 'page/index', 'entity' => Page::ENTITY_PRODUCT, 'entity_id' => $dataProviderModel->id]), [
+                                    Html::a(' <span class="glyphicon glyphicon-file"></span> ' . Yii::t('app', 'Page'), Url::to([0 => 'page/index', 'entity' => Page::ENTITY_PRODUCT, 'page_type' => Page::PAGE_TYPE_INDEX, 'entity_id' => $dataProviderModel->id]), [
                                         'class' => 'btn btn-default btn-block btn-social',
                                         'data-pjax' => '0',
                                     ]);

@@ -65,7 +65,7 @@ class Product extends ActiveRecord
         parent::afterFind();
         $arrayParams = (array) Json::decode($this->params) + [
             'cache_fields' => [],
-            'cache_has_page' => false,
+            'cache_has_page' => [],
         ];
 
         $this->cache_fields = $arrayParams['cache_fields'];

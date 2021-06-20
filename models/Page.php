@@ -26,9 +26,9 @@ class Page extends ActiveRecord
     const ENTITY_CATEGORY = 'Category';
     const ENTITY_PRODUCT = 'Product';
 
-    const ENTITY_BLOG_INDEX = 'Index';
-    const ENTITY_BLOG_CONTACTUS = 'Contact Us';
-    const ENTITY_BLOG_ABOUTUS = 'About Us';
+    const PAGE_TYPE_INDEX = 'Index';
+    const PAGE_TYPE_CONTACTUS = 'ContactUs';
+    const PAGE_TYPE_ABOUTUS = 'AboutUs';
 
     public static function entityList()
     {
@@ -39,13 +39,30 @@ class Page extends ActiveRecord
         ];
     }
 
-    public static function entityBlogList()
+    public static function entityPage()
     {
         return [
-            self::ENTITY_BLOG_INDEX => Yii::t('app', 'Index'),
-            self::ENTITY_BLOG_CONTACTUS => Yii::t('app', 'Contact Us'),
-            self::ENTITY_BLOG_ABOUTUS => Yii::t('app', 'About Us'),
+            self::ENTITY_BLOG => [
+                self::PAGE_TYPE_INDEX => Yii::t('app', 'Index'),
+                self::PAGE_TYPE_CONTACTUS => Yii::t('app', 'Contact Us'),
+                self::PAGE_TYPE_ABOUTUS => Yii::t('app', 'About Us'),
+            ],
+            self::ENTITY_CATEGORY => [
+                self::PAGE_TYPE_INDEX => Yii::t('app', 'Index'),
+            ],
+            self::ENTITY_PRODUCT => [
+                self::PAGE_TYPE_INDEX => Yii::t('app', 'Index'),
+            ],
         ];
+    }
+
+    public static function entityPageList($page = self::ENTITY_BLOG)
+    {
+        $list = self::entityPage();
+        if ($list[$page]) {
+            return $list[$page];
+        }
+        return [];
     }
 
     public static function validStatuses()
@@ -64,7 +81,7 @@ class Page extends ActiveRecord
     public function rules()
     {
         return [
-            [['!entity'], 'entityFilter'],
+            [['!entity'], 'entityValidation'],
             [['status', '!entity', '!entity_id'], 'required'],
             [['status'], 'in', 'range' => array_keys(self::validStatuses())],
             [['body'], 'string'],
@@ -79,47 +96,55 @@ class Page extends ActiveRecord
         return $query;
     }
 
-    public function entityFilter($attribute, $params, $validator)
+    public function entityValidation($attribute, $params, $validator)
     {
-        $this->setEntity($this->entity, $this->entity_id);
+        $this->setEntity($this->entity, $this->page_type, $this->entity_id);
     }
 
-    private $entityModelsCache = [];
-    public function setEntity($entity, $entityId)
+    private static $entityModelsCache = [];
+    public static function findEntityIdByPage($entity, $pageType, $entityId)
     {
-        $cacheKey = $entity . '-' . $entityId;
-        if (!isset($this->entityModelsCache[$cacheKey])) {
-            $this->entityModelsCache[$cacheKey] = null;
-            //
+        $cacheKey = $entity . '-' . $pageType . '-' . $entityId;
+        if (isset(self::$entityModelsCache[$cacheKey])) {
+            return self::$entityModelsCache[$cacheKey];
+        }
+        $pageList = self::entityPageList($entity);
+        if (isset($pageList[$pageType]) && $entityId) {
             if ($entity == self::ENTITY_BLOG) {
-                $list = self::entityBlogList();
-                if (isset($list[$entityId]) && Yii::$app->user->getIdentity()) {
-                    $this->entityModelsCache[$cacheKey] = Yii::$app->user->getIdentity();
-                }
+                return self::$entityModelsCache[$cacheKey] = Blog::blogValidQuery($entityId)->one();
             } else if ($entity == self::ENTITY_CATEGORY) {
-                $this->entityModelsCache[$cacheKey] = Category::blogValidQuery($entityId)->one();
+                return self::$entityModelsCache[$cacheKey] = Category::blogValidQuery($entityId)->one();
             } elseif ($entity == self::ENTITY_PRODUCT) {
-                $this->entityModelsCache[$cacheKey] = Product::blogValidQuery($entityId)->one();
+                return self::$entityModelsCache[$cacheKey] = Product::blogValidQuery($entityId)->one();
             }
         }
+        return self::$entityModelsCache[$cacheKey] = null;
+    }
 
-        if ($this->entityModelsCache[$cacheKey]) {
+    public function setEntity($entity, $pageType, $entityId)
+    {
+        $entityIdModel = self::findEntityIdByPage($entity, $pageType, $entityId);
+
+        if ($entityIdModel) {
             $this->entity = $entity;
+            $this->page_type = $pageType;
             $this->entity_id = $entityId;
         } else {
             $this->entity = null;
+            $this->page_type = null;
             $this->entity_id = null;
         }
 
-        return $this->entityModelsCache[$cacheKey];
+        return $entityIdModel;
     }
 
-    public static function findPageQueryForApi($blogName, $entity, $entityId)
+    public static function findPageQueryForApi($blogName, $entity, $page_type, $entityId)
     {
         return Page::find()->where(['AND', [
             'blog_name' => $blogName,
             'status' => Status::STATUS_ACTIVE,
             'entity' => $entity,
+            'page_type' => $page_type,
             'entity_id' => $entityId,
         ]]);
     }

@@ -52,8 +52,8 @@ $this->registerCss("
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><?= Yii::t('app', 'Pages') ?><span class="caret"></span></a>
                             <ul class="dropdown-menu">
-                                <?php foreach (Page::entityBlogList() as $entityBlog => $entityBlogName) { ?>
-                                    <li><a href="<?= Url::toRoute(['/page', 'entity' => Page::ENTITY_BLOG, 'entity_id' => $entityBlog]) ?>"><?= Yii::t('app', 'Page') . ' ' . $entityBlogName ?></a></li>
+                                <?php foreach (Page::entityPageList(Page::ENTITY_BLOG) as $entityBlog => $entityBlogName) { ?>
+                                    <li><a href="<?= Url::toRoute(['/page', 'entity' => Page::ENTITY_BLOG, 'page_type' => $entityBlog, 'page_type' => $entityBlog, 'entity_id' => Yii::$app->user->getId(),]) ?>"><?= Yii::t('app', 'Page') . ' ' . $entityBlogName ?></a></li>
                                 <?php } ?>
                             </ul>
                         </li>

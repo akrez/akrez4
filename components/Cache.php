@@ -36,17 +36,7 @@ class Cache extends Component
 
     public static function updateCachePages($entity, $page)
     {
-        if ($page->entity == Page::ENTITY_BLOG) {
-            if (!is_array($entity->cache_has_page)) {
-                $entity->cache_has_page = [];
-            }
-            $entity->cache_has_page = array_diff($entity->cache_has_page, [$page->entity_id]);
-            if ($page->status == Status::STATUS_ACTIVE) {
-                $entity->cache_has_page[] = $page->entity_id;
-            }
-        } else if ($page->entity == Page::ENTITY_CATEGORY || $page->entity == Page::ENTITY_PRODUCT) {
-            $entity->cache_has_page = ($page->status == Status::STATUS_ACTIVE);
-        }
+        $entity->cache_has_page[$page->page_type] = ($page->status == Status::STATUS_ACTIVE);
         $entity->save();
     }
 
