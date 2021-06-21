@@ -8,15 +8,15 @@ use yii\widgets\ActiveForm;
 
 <?php
 $form = ActiveForm::begin([
-            'options' => ['data-pjax' => true],
-            'action' => Url::current(['product/index', 'id' => $model->id, 'state' => ($model->isNewRecord ? 'save' : 'update'),]),
-            'fieldConfig' => [
-                'template' => '<div class="input-group">{label}{input}</div>{hint}{error}',
-                'labelOptions' => [
-                    'class' => 'input-group-addon',
-                ],
-            ]
-        ]);
+    'options' => ['data-pjax' => true],
+    'action' => Url::current(['product/index', 'id' => $model->id, 'state' => ($model->isNewRecord ? 'save' : 'update'),]),
+    'fieldConfig' => [
+        'template' => '<div class="input-group">{label}{input}</div>{hint}{error}',
+        'labelOptions' => [
+            'class' => 'input-group-addon',
+        ],
+    ]
+]);
 ?>
 
 <div class="row">
@@ -24,13 +24,16 @@ $form = ActiveForm::begin([
         <?= $form->field($model, 'title')->textInput(['maxlength' => true]) ?>
     </div>
     <div class="col-sm-3">
-        <?= $form->field($model, 'status')->dropDownList(Product::validStatuses()) ?>
+        <?= $form->field($model, 'code')->textInput(['maxlength' => true]) ?>
     </div>
 </div>
 
 <div class="row">
-    <div class="col-sm-12">
+    <div class="col-sm-9">
         <?= $form->field($model, 'des')->textInput(['maxlength' => true]) ?>
+    </div>
+    <div class="col-sm-3">
+        <?= $form->field($model, 'status')->dropDownList(Product::validStatuses()) ?>
     </div>
 </div>
 

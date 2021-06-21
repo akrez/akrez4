@@ -23,6 +23,7 @@ class Model extends BaseModel
             'unit' => 'واحد',
             'logo' => 'لوگو',
             'slug' => 'شعار',
+            'code' => 'کد محصول',
             'phone' => 'تلفن',
             'title' => 'عنوان',
             'image' => 'تصویر',
@@ -72,7 +73,7 @@ class Model extends BaseModel
 
             'receive_from' => 'تحویل از',
             'telegram_bot_token' => 'Telegram Bot Token',
-            
+
             'receive_until' => 'تحویل تا',
         ];
     }

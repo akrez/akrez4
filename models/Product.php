@@ -13,19 +13,23 @@ use yii\helpers\Json;
  * @property int $id
  * @property int|null $updated_at
  * @property int|null $created_at
- * @property int|null $view
  * @property int $status
  * @property string $title
+ * @property string|null $code
  * @property float|null $price_min
  * @property float|null $price_max
  * @property string|null $des
+ * @property int|null $view
+ * @property string|null $params
  * @property string|null $image
  * @property int|null $category_id
  * @property string|null $blog_name
  *
+ * @property Blog $blogName
  * @property Category $category
- * @property Gallery $gallery
- * @property Blog $blog
+ * @property Gallery $image0
+ * @property Package[] $packages
+ * @property ProductField[] $productFields
  */
 class Product extends ActiveRecord
 {
@@ -57,6 +61,7 @@ class Product extends ActiveRecord
             [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::class, 'targetAttribute' => ['category_id' => 'id']],
             [['des'], 'string', 'max' => 160],
             [['picture',], 'file'],
+            [['code'], 'string', 'max' => 31],
         ];
     }
 
@@ -136,7 +141,7 @@ class Product extends ActiveRecord
 
     public static function printHtmlForTelegram($product, $seprator)
     {
-        $caption = ['<b>' . $product->title . '</b>'];
+        $caption = ['<b>' . $product->title  . '-' . $product->code . '</b>'];
         foreach (Cache::getProductCacheField($product) as $field) {
             if ($field['in_summary']) {
                 $caption[] = '<b>' . $field['field'] . ': </b>' . implode(', ', $field["values"]) . ' ' . $field['unit'];
@@ -162,6 +167,7 @@ class Product extends ActiveRecord
             'updated_at' => $this->updated_at,
             'created_at' => $this->created_at,
             'title' => $this->title,
+            'code' => $this->code,
             'price_min' => $this->price_min,
             'price_max' => $this->price_max,
             'des' => $this->des,

@@ -35,7 +35,7 @@ $this->registerCss("
     max-height: 40px;
 }    
 ");
-$colspan = 11;
+$colspan = 12;
 $this->registerJs("
 function applyFilter() { 
 $('#table').yiiGridView(" . json_encode([
@@ -111,6 +111,7 @@ Pjax::begin([
                         <th><?= $sort->link('updated_at', ['label' => $modelClass->getAttributeLabel('updated_at')]) ?></th>
                         <th><?= $modelClass->getAttributeLabel('image') ?></th>
                         <th><?= $sort->link('title', ['label' => $modelClass->getAttributeLabel('title')]) ?></th>
+                        <th><?= $sort->link('code', ['label' => $modelClass->getAttributeLabel('code')]) ?></th>
                         <th><?= $modelClass->getAttributeLabel('des') ?></th>
                         <th><?= $sort->link('status', ['label' => $modelClass->getAttributeLabel('status')]) ?></th>
                         <th></th>
@@ -124,6 +125,7 @@ Pjax::begin([
                         <th></th>
                         <th></th>
                         <th><?= Html::activeInput('text', $searchModel, 'title', ['class' => 'form-control']) ?></th>
+                        <th><?= Html::activeInput('text', $searchModel, 'code', ['class' => 'form-control']) ?></th>
                         <th><?= Html::activeInput('text', $searchModel, 'des', ['class' => 'form-control']) ?></th>
                         <th><?= Html::activeDropDownList($searchModel, 'status', Product::validStatuses(), ['class' => 'form-control', 'prompt' => '']) ?></th>
                         <th></th>
@@ -173,6 +175,7 @@ Pjax::begin([
                                     <?php endif; ?>
                                 </td>
                                 <td><?= HtmlPurifier::process($dataProviderModel->title) ?></td>
+                                <td><?= HtmlPurifier::process($dataProviderModel->code) ?></td>
                                 <td><?= HtmlPurifier::process($dataProviderModel->des) ?></td>
                                 <td><?= Yii::$app->formatter->asStatus($dataProviderModel->status) ?></td>
                                 <td><?= Html::button(Yii::t('app', 'Update'), ['class' => 'btn btn-block toggler' . ($displayState == 'update' ? ' btn-warning ' : ' btn-default '), 'toggle' => "#row-update-" . $dataProviderModel->id]) ?></td>

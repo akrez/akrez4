@@ -19,7 +19,7 @@ class ProductSearch extends Product
     {
         return [
             [['id', 'category_id'], 'integer'],
-            [['title', 'des'], 'safe'],
+            [['title', 'code', 'des'], 'safe'],
             [['status'], 'in', 'range' => array_keys(Product::validStatuses())],
         ];
     }
@@ -43,9 +43,9 @@ class ProductSearch extends Product
     public function search($params, $parentModel)
     {
         $query = Product::blogValidQuery()->where(['category_id' => $parentModel->id])
-                ->with('category')
-                ->with('galleries')
-                ->with('productFields');
+            ->with('category')
+            ->with('galleries')
+            ->with('productFields');
 
         // add conditions that should always apply here
 
@@ -75,9 +75,11 @@ class ProductSearch extends Product
             'category_id' => $this->category_id,
         ]);
 
-        $query->andFilterWhere(['like', 'status', $this->status])
-                ->andFilterWhere(['like', 'des', $this->des])
-                ->andFilterWhere(['like', 'title', $this->title]);
+        $query
+            ->andFilterWhere(['like', 'status', $this->status])
+            ->andFilterWhere(['like', 'code', $this->code])
+            ->andFilterWhere(['like', 'des', $this->des])
+            ->andFilterWhere(['like', 'title', $this->title]);
 
         return $dataProvider;
     }
