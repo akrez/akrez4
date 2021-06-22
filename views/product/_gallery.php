@@ -34,12 +34,12 @@ $formSelector = "gallery-form-" . $id;
 
     <?php
     $form = ActiveForm::begin([
-                'action' => Url::current(['product/index', 'id' => $id, 'state' => 'galleryUpload', 'parent_id' => $dataProviderModel->category_id]),
-                'method' => 'post',
-                'options' => [
-                    'data-pjax' => true,
-                    'enctype' => 'multipart/form-data',
-                ],
+        'action' => Url::current(['product/index', 'id' => $id, 'state' => 'galleryUpload', 'parent_id' => $dataProviderModel->category_id]),
+        'method' => 'post',
+        'options' => [
+            'data-pjax' => true,
+            'enctype' => 'multipart/form-data',
+        ],
     ]);
     ?>
 
@@ -53,19 +53,19 @@ $formSelector = "gallery-form-" . $id;
         <div class="col-sm-12">
             <?php
             echo $form
-                    ->field($dataProviderModel, 'picture')
-                    ->fileInput([
-                        'id' => $buttonSelector,
-                        'class' => "gallery-file-input",
-                        'onchange' => 'galleryFormSubmit(this);',
-                        'style' => 'display: none',
-                    ])->label(false);
+                ->field($dataProviderModel, 'picture')
+                ->fileInput([
+                    'id' => $buttonSelector,
+                    'class' => "gallery-file-input",
+                    'onchange' => 'galleryFormSubmit(this);',
+                    'style' => 'display: none',
+                ])->label(false);
             ?>
         </div>
     </div>
 
     <div class='row'>
-        <?php foreach ($dataProviderModel->galleries as $gallery): ?>
+        <?php foreach ($dataProviderModel->galleries as $gallery) : ?>
             <div class="col-sm-3 pb15">
                 <div class="thumbnail akrez-container" style="<?= $dataProviderModel->image == $gallery->name ? 'border-color: #e89929; box-shadow: 0 1px 2px #f2b968;' : '' ?>">
                     <div class="akrez-text" style="background-image: url('<?= Gallery::getImageUrl('product', $gallery->name) ?>');">
@@ -75,14 +75,14 @@ $formSelector = "gallery-form-" . $id;
                             </a>
                         </div>
                         <div style="bottom: 5px; position: absolute; right: 5px;">
-                            <a class="btn btn-sm btn-danger btn-social" href="<?= Url::current([0 => 'product/index', 'state' => 'galleryDelete', 'name' => $gallery->name, 'id' => $dataProviderModel->id, 'parent_id' => $dataProviderModel->category_id]) ?>" data-confirm="<?= Yii::t('yii', 'Are you sure you want to delete this item?') ?>" role="button"> 
+                            <a class="btn btn-sm btn-danger btn-social" href="<?= Url::current([0 => 'product/index', 'state' => 'galleryDelete', 'name' => $gallery->name, 'id' => $dataProviderModel->id, 'parent_id' => $dataProviderModel->category_id]) ?>" data-confirm="<?= Yii::t('yii', 'Are you sure you want to delete this item?') ?>" role="button">
                                 <span class="glyphicon glyphicon-trash"></span> <?= Yii::t('yii', 'Delete') ?>
                             </a>
                         </div>
                     </div>
                 </div>
             </div>
-        <?php endforeach; ?> 
+        <?php endforeach; ?>
     </div>
 
     <?php ActiveForm::end(); ?>
