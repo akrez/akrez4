@@ -117,4 +117,8 @@ return [
     'Customer Deleted Verified' => 'حذف شده توسط کاربر (تایید شده)',
     'Admin Deleted Unverified' => 'حذف شده توسط فروشنده (تایید نشده)',
     'Admin Deleted Verified' => 'حذف شده توسط فروشنده (تایید شده)',
+    //
+    'image_mode_none' => 'عادی',
+    'image_mode_square_inbound' => 'کوچکنمایی مربعی',
+    'image_mode_square_outbound' => 'بزرگنمایی مربعی',
 ];

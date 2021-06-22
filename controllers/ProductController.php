@@ -81,7 +81,9 @@ class ProductController extends Controller
             }
         } elseif ($state == 'galleryUpload' && $model) {
             if ($model->picture = UploadedFile::getInstance($model, 'picture')) {
-                $gallery = Gallery::upload($model->picture->tempName, Gallery::TYPE_PRODUCT, $id);
+                $gallery = Gallery::upload($model->picture->tempName, Gallery::TYPE_PRODUCT, $id, [
+                    'mode' => Yii::$app->request->post('mode')
+                ]);
                 if ($gallery->hasErrors()) {
                     $model->addErrors(['picture' => $gallery->getErrorSummary(true)]);
                 } else {

@@ -13,15 +13,22 @@ use yii\imagine\Image as Imagine;
 
 class Image extends Component
 {
+    const MODE_NONE = 0;
+    const MODE_SQUARE_INBOUND = 1;
+    const MODE_SQUARE_OUTBOUND = 2;
+
     public static $validTypes = [
         'image/jpeg' => 'jpg',
         'image/png' => 'png',
     ];
-    public static $validModes = [
-        0 => 'NONE',
-        1 => 'INBOUND',
-        2 => 'OUTBOUND',
-    ];
+    public static function getValidModes()
+    {
+        return [
+            self::MODE_NONE => Yii::t('app', 'image_mode_none'),
+            self::MODE_SQUARE_INBOUND => Yii::t('app', 'image_mode_square_inbound'),
+            self::MODE_SQUARE_OUTBOUND => Yii::t('app', 'image_mode_square_outbound'),
+        ];
+    }
     //
     public $basePath = ".";
     //
@@ -82,7 +89,7 @@ class Image extends Component
             $width = (empty($width) || $width < 1 || $imageSize[0] * 3 < $width ? null : intval($width));
             $height = (empty($height) || $height < 1 || $imageSize[1] * 3 < $height ? null : intval($height));
             $quality = (empty($quality) || $quality < 1 || 100 < $quality ? null : intval($quality));
-            $mode = (empty($mode) || !in_array($mode, array_keys(Image::$validModes)) ? 0 : intval($mode));
+            $mode = (empty($mode) || !in_array($mode, array_keys(Image::getValidModes())) ? 0 : intval($mode));
 
             $image = Imagine::getImagine()->open($srcFile);
 
@@ -96,23 +103,33 @@ class Image extends Component
                 $height = $imageSize[1];
             }
             if ($mode == 1) {
-                $image = Imagine::resize($image, $width, $height, true, true);
-                $box = new Box($width, $height);
-                //
-                if ($imageSize[0] / $width < $imageSize[1] / $height) {
-                    $scale = $height / $imageSize[1];
+                if ($width > $height) {
+                    $size = $width;
                 } else {
-                    $scale = $width / $imageSize[0];
+                    $size = $height;
+                }
+                $image = Imagine::resize($image, $size, $size, true, true);
+                $box = new Box($size, $size);
+                //
+                if ($imageSize[0] / $size < $imageSize[1] / $size) {
+                    $scale = $size / $imageSize[1];
+                } else {
+                    $scale = $size / $imageSize[0];
                 }
                 $newWidth = intval($imageSize[0] * $scale);
                 $newHeight = intval($imageSize[1] * $scale);
                 //
-                $color = (new RGB())->color('000', 0);
-                $pasteTo = new Point(($width - $newWidth) / 2, ($height - $newHeight) / 2);
+                $color = (new RGB())->color('FFF', 0);
+                $pasteTo = new Point(($size - $newWidth) / 2, ($size - $newHeight) / 2);
                 //
                 $image = Imagine::getImagine()->create($box, $color)->paste($image, $pasteTo);
             } elseif ($mode == 2) {
-                $image = Imagine::thumbnail($image, $width, $height);
+                if ($width > $height) {
+                    $size = $height;
+                } else {
+                    $size = $width;
+                }
+                $image = Imagine::thumbnail($image, $size, $size);
             } else {
                 $image = Imagine::resize($image, $width, $height, false, true);
             }

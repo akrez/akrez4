@@ -1,8 +1,10 @@
 <?php
 
+use app\components\Image;
 use app\models\Gallery;
 use yii\helpers\Html;
 use yii\helpers\Url;
+use yii\widgets\ActiveField;
 use yii\widgets\ActiveForm;
 
 $this->registerCss("
@@ -27,6 +29,7 @@ $this->registerCss("
 ");
 $id = $dataProviderModel->id;
 $buttonSelector = "gallery-button-" . $id;
+$modeSelector = "gallery-mode-" . $id;
 $formSelector = "gallery-form-" . $id;
 ?>
 
@@ -44,9 +47,11 @@ $formSelector = "gallery-form-" . $id;
     ?>
 
     <div class="row mt20">
-        <div class="col-sm-3">
-            <?= Html::a(' <span class="glyphicon glyphicon-plus"></span> ' . Yii::t('app', 'UploadNewImage'), 'javascript:void(0);', ['class' => 'btn btn-success btn-block btn-social', "onclick" => "$('#" . $buttonSelector . "').click()"]); ?>
-        </div>
+        <?php foreach (Image::getValidModes() as $validModeKey => $validModeValue) { ?>
+            <div class="col-sm-4">
+                <?= Html::a(' <span class="glyphicon glyphicon-plus"></span> ' . Yii::t('app', 'UploadNewImage') . ' (' . $validModeValue . ')', 'javascript:void(0);', ['class' => 'btn btn-success btn-block btn-social', "onclick" => "$('#" . $modeSelector . "').val(" . $validModeKey . "); $('#" . $buttonSelector . "').click();"]); ?>
+            </div>
+        <?php } ?>
     </div>
 
     <div class="row mt10">
@@ -60,6 +65,7 @@ $formSelector = "gallery-form-" . $id;
                     'onchange' => 'galleryFormSubmit(this);',
                     'style' => 'display: none',
                 ])->label(false);
+            echo Html::hiddenInput('mode', Image::MODE_NONE, ['id' => $modeSelector]);
             ?>
         </div>
     </div>

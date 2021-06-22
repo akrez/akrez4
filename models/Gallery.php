@@ -129,12 +129,12 @@ class Gallery extends ActiveRecord
         return parent::delete();
     }
 
-    public static function upload($src, $type, $productId = null)
+    public static function upload($src, $type, $productId = null, $options = [])
     {
         $gallery = new Gallery();
 
         $handler = new Image();
-        $handler->save($src, self::getImageBasePath($type));
+        $handler->save($src, self::getImageBasePath($type), $options);
         if ($handler->getError()) {
             $gallery->addErrors(['name' => $handler->getError()]);
         } else {
