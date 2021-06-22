@@ -38,9 +38,23 @@ class Image extends Component
         return $this->_error;
     }
 
-    public function save($srcFile, $des, $width = null, $height = null, $quality = null, $desIsAbsolute = false, $mode = 0)
+    public function save($srcFile, $des, $options = [])
     {
         try {
+
+            $options = $options + [
+                'width' => null,
+                'height' => null,
+                'quality' => null,
+                'desIsAbsolute' => false,
+                'mode' => 0,
+            ];
+            $width = $options['width'];
+            $height = $options['height'];
+            $quality = $options['quality'];
+            $desIsAbsolute = $options['desIsAbsolute'];
+            $mode = $options['mode'];
+
             $this->setError(null);
 
             if (!file_exists($srcFile)) {
