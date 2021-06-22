@@ -83,16 +83,23 @@ class LogApi extends Log
 
     public function statQuery()
     {
-        return self::find()
+        $query = self::find()
             ->where(['blog_name' => $this->blog_name])
             ->andWhere(['action' => array_keys(self::$actionsList)])
             ->andFilterWhere(['>', 'created_date', $this->created_date_from])
             ->andFilterWhere(['=', 'response_http_code', $this->response_http_code])
             ->andFilterWhere(['=', 'action', $this->action])
-            ->andFilterWhere(['=', 'model_category_id', $this->model_category_id])
-            ->andFilterWhere(['LIKE', 'user_agent', $this->user_agent_like])
-            ->andFilterWhere(['NOT LIKE', 'ip', $this->ip_not_like])
-            ->andFilterWhere(['NOT LIKE', 'user_agent', $this->user_agent_not_like]);
+            ->andFilterWhere(['=', 'model_category_id', $this->model_category_id]);
+        foreach ((array)explode(',', $this->user_agent_like) as $userAgentLike) {
+            $query->andFilterWhere(['LIKE', 'user_agent', trim($userAgentLike)]);
+        }
+        foreach ((array)explode(',', $this->user_agent_not_like) as $userAgentNotLike) {
+            $query->andFilterWhere(['NOT LIKE', 'user_agent', trim($userAgentNotLike)]);
+        }
+        foreach ((array)explode(',', $this->ip_not_like) as $ipNotLike) {
+            $query->andFilterWhere(['NOT LIKE', 'ip', trim($ipNotLike)]);
+        }
+        return $query;
     }
 
     /**
