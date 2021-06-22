@@ -296,7 +296,7 @@ class Api1Controller extends Api
         } elseif ($page_size > 0) {
             $page_size = $page_size;
         } else {
-            $page_size = 9;
+            $page_size = 12;
         }
 
         $pagination = new Pagination([
