@@ -11,15 +11,16 @@ use yii\widgets\ActiveForm;
 ?>
 <?php
 $form = ActiveForm::begin([
-            'options' => ['data-pjax' => true],
-            'action' => Url::current(['package/index', 'id' => $model->id, 'state' => ($model->isNewRecord ? 'create' : 'update'),]),
-            'fieldConfig' => [
-                'template' => '<div class="input-group">{label}{input}</div>{hint}{error}',
-                'labelOptions' => [
-                    'class' => 'input-group-addon',
-                ],
-            ]
-        ]);
+    'options' => ['data-pjax' => true],
+    'action' => Url::current(['package/index', 'id' => $model->id, 'state' => ($model->isNewRecord ? 'create' : 'update'),]),
+    'fieldConfig' => [
+        'template' => '<div class="input-group">{label}{input}</div>{hint}{error}',
+        'labelOptions' => [
+            'class' => 'input-group-addon',
+        ],
+    ]
+]);
+$colorTagId = Html::getInputId($model, 'color') . '-' . $model->id;
 ?>
 
 
@@ -43,7 +44,7 @@ $form = ActiveForm::begin([
             'data' => Color::getList(),
             'options' => [
                 'placeholder' => '',
-                'id' => Html::getInputId($model, 'color') . '-' . $model->id,
+                'id' => $colorTagId,
                 'dir' => 'rtl',
             ],
             'pluginOptions' => [
@@ -70,7 +71,7 @@ $form = ActiveForm::begin([
     <div class="col-sm-3">
         <?php
         if (!$model->isNewRecord) :
-            echo Html::a(' <span class="glyphicon glyphicon-trash"></span> ' . Yii::t('app', 'Remove'), Url::to([0 => 'package/index', 'state' => 'remove', 'id' => $model->id]), [
+            echo Html::a(' <span class="glyphicon glyphicon-trash"></span> ' . Yii::t('app', 'Remove'), Url::to([0 => 'package/index', 'state' => 'remove', 'id' => $model->id, 'parent_id' => $model->product_id]), [
                 'class' => 'btn btn-danger btn-block btn-social',
                 'data-confirm' => Yii::t('yii', 'Are you sure you want to delete this item?'),
             ]);
