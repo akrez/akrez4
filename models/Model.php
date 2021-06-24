@@ -23,7 +23,7 @@ class Model extends BaseModel
             'unit' => 'واحد',
             'logo' => 'لوگو',
             'slug' => 'شعار',
-            'code' => 'کد محصول',
+            'code' => 'کد',
             'phone' => 'تلفن',
             'title' => 'عنوان',
             'image' => 'تصویر',

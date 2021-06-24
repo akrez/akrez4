@@ -58,6 +58,7 @@ class Blog extends ActiveRecord implements IdentityInterface
     public $slug;
     public $des;
     //
+    public $cache_color;
     public $cache_category;
     //
     public $captcha;
@@ -252,6 +253,7 @@ class Blog extends ActiveRecord implements IdentityInterface
             'phone' => null,
             'address' => null,
             //
+            'cache_color' => [],
             'cache_category' => [],
             'cache_has_page' => [],
         ];
@@ -264,6 +266,7 @@ class Blog extends ActiveRecord implements IdentityInterface
         $this->phone = $arrayParams['phone'];
         $this->address = $arrayParams['address'];
         //
+        $this->cache_color = $arrayParams['cache_color'];
         $this->cache_category = $arrayParams['cache_category'];
         $this->cache_has_page = $arrayParams['cache_has_page'];
     }
@@ -283,6 +286,7 @@ class Blog extends ActiveRecord implements IdentityInterface
             'phone' => $this->phone,
             'address' => $this->address,
             //
+            'cache_color' => (array) $this->cache_color,
             'cache_category' => (array) $this->cache_category,
             'cache_has_page' => (array) $this->cache_has_page,
         ];
