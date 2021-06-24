@@ -23,9 +23,9 @@ $this->registerCss("
 .table td {
     vertical-align: middle !important;
 }
-");
-
-$this->registerCss("
+.font-family-monospace {
+    font-family: monospace;
+}
 .color-class {
     border: solid 1px #333333;
     border-radius: 12px;
@@ -133,7 +133,7 @@ $('#table').yiiGridView(" . json_encode([
                                     <span class=""><?= HtmlPurifier::process($dataProviderModel->title) ?></span>
                                 </td>
                                 <td class="td-ltr">
-                                    <?= $dataProviderModel->code ?>
+                                    <span class="font-family-monospace"><?= $dataProviderModel->code ?></span>
                                     <span class="color-class" style="background-color: <?= $dataProviderModel->code ?>;">⠀⠀</span>
                                 </td>
                                 <td>
