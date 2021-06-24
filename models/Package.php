@@ -43,7 +43,7 @@ class Package extends ActiveRecord
             [['status'], 'in', 'range' => array_keys(self::validStatuses())],
             [['color'], 'in', 'range' => array_keys(Color::getList())],
             [['price', 'status', 'guaranty'], 'required'],
-            [['price'], 'number'],
+            [['price'], 'number', 'numberPattern' => '/^\s*[-+]?[0-9,]*[.]?[0-9]+([eE][-+]?[0-9]+)?\s*$/'],
             [['guaranty', 'des'], 'safe'],
         ];
     }
@@ -83,6 +83,14 @@ class Package extends ActiveRecord
         $this->des = $arrayParams['des'];
     }
 
+    public function beforeValidate()
+    {
+        if (!parent::beforeValidate()) {
+            return false;
+        }
+        $this->price = str_replace(',', '', $this->price);
+        return true;
+    }
     public function beforeSave($insert)
     {
         if (!parent::beforeSave($insert)) {

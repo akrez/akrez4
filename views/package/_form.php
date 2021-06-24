@@ -30,7 +30,10 @@ $colorTagId = Html::getInputId($model, 'color') . '-' . $model->id;
         <?= $form->field($model, 'guaranty')->textInput() ?>
     </div>
     <div class="col-xs-12 col-sm-4">
-        <?= $form->field($model, 'price')->textInput() ?>
+        <?= $form->field($model, 'price')->textInput([
+            'class' => 'form-control input-decimal-separator',
+            'value' => (mb_strlen($model->price) ? number_format($model->price) : ''),
+        ]) ?>
     </div>
     <div class="col-xs-12 col-sm-4">
         <?= $form->field($model, 'status')->dropDownList(Package::validStatuses()) ?>
