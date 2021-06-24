@@ -153,7 +153,6 @@ class Api1Controller extends Api
             $result[$languageKey] = [
                 'widget' => FieldList::widgetsList(),
                 'opertaion' => FieldList::opertaionsList(),
-                'color' => Color::getList(),
                 'province' => Province::getList(),
                 'language' => Language::getList(),
                 'entity_page' => Page::entityPage(),
