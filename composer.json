@@ -1,6 +1,6 @@
 {
   "require": {
-    "php": "7.*",
+    "php": ">= 7.2",
     "yiisoft/yii2": "*",
     "yiisoft/yii2-bootstrap": "*",
     "yiisoft/yii2-swiftmailer": "*",
@@ -12,9 +12,19 @@
     "melipayamak/yii2": "*",
     "2amigos/yii2-tinymce-widget": "*",
     "2amigos/yii2-ckeditor-widget": "*",
-    "froala/yii2-froala-editor": "*"
+    "froala/yii2-froala-editor": "*",
+    "yiisoft/yii2-bootstrap4": "*",
+    "yiisoft/yii2-httpclient": "*",
+    "kartik-v/yii2-widget-colorinput": "*"
   },
   "require-dev": {
+    "yiisoft/yii2-faker": "*",
+    "codeception/codeception": "*",
+    "codeception/verify": "*",
+    "codeception/specify": "*",
+    "codeception/module-filesystem": "*",
+    "codeception/module-yii2": "*",
+    "codeception/module-asserts": "*",
     "yiisoft/yii2-debug": "*",
     "yiisoft/yii2-gii": "*",
     "symfony/browser-kit": "*",
@@ -26,6 +36,17 @@
     "process-timeout": 1800,
     "fxp-asset": {
       "enabled": false
+    }
+  },
+  "extra": {
+    "yii\\composer\\Installer::postCreateProject": {
+      "setPermission": [
+        {
+          "runtime": "0777",
+          "web/assets": "0777",
+          "yii": "0755"
+        }
+      ]
     }
   },
   "repositories": [
