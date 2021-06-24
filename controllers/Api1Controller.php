@@ -342,6 +342,7 @@ class Api1Controller extends Api
             ]
         ])->one();
         if ($product) {
+            $product->increaseView();
             $product = $product->toArray();
         } else {
             Api::exceptionNotFoundHttp();

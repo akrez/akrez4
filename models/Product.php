@@ -150,6 +150,11 @@ class Product extends ActiveRecord
         return implode($seprator, $caption);
     }
 
+    public function increaseView()
+    {
+        $this->updateCounters(['view' => 1]);
+    }
+
     public function getPackages()
     {
         return $this->hasMany(Package::class, ['product_id' => 'id']);
