@@ -529,6 +529,7 @@ class Blog extends ActiveRecord implements IdentityInterface
             'address' => $this->address,
             'twitter' => $this->twitter,
             'has_page' => Cache::getCachePages($this),
+            'color' => Cache::getBlogCacheColor($this),
         ];
     }
 }
