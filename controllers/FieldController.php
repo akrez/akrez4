@@ -41,7 +41,6 @@ class FieldController extends Controller
         } else {
             $model = null;
         }
-        $newModel = new Field();
         $searchModel = new FieldSearch();
         $parentModel = Helper::findOrFail(Category::blogValidQuery()->andWhere(['id' => $parent_id]));
         $parentSearchModel = new CategorySearch();
@@ -71,6 +70,6 @@ class FieldController extends Controller
             'state' => $state,
             'textAreaModel' => $textAreaModel,
             'autoCompleteSource' => $autoCompleteSource,
-        ] + compact('newModel', 'searchModel', 'parentModel', 'parentSearchModel', 'model', 'dataProvider'));
+        ] + compact('searchModel', 'parentModel', 'parentSearchModel', 'model', 'dataProvider'));
     }
 }

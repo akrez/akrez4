@@ -34,7 +34,6 @@ class CategoryController extends Controller
         $textAreaModel = new TextArea();
         //
         $model = null;
-        $newModel = new Category();
         $searchModel = new CategorySearch();
         //
         if ($state == 'update' && $id) {
@@ -70,6 +69,6 @@ class CategoryController extends Controller
         }
         //
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams, null);
-        return $this->render('index', ['state' => $state, 'textAreaModel' => $textAreaModel,] + compact('newModel', 'searchModel', 'model', 'dataProvider'));
+        return $this->render('index', ['state' => $state, 'textAreaModel' => $textAreaModel,] + compact('searchModel', 'model', 'dataProvider'));
     }
 }

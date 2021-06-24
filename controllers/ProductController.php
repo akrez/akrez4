@@ -45,7 +45,6 @@ class ProductController extends Controller
         } else {
             $model = null;
         }
-        $newModel = new Product();
         $searchModel = new ProductSearch();
         $parentModel = Helper::findOrFail(Category::blogValidQuery()->andWhere(['id' => $parent_id]));
         $parentSearchModel = new CategorySearch();
@@ -133,6 +132,6 @@ class ProductController extends Controller
             'textAreaFields' => $textAreaFields,
             'textAreaProducts' => $textAreaProducts,
             'autoCompleteSource' => $autoCompleteSource,
-        ] + compact('newModel', 'searchModel', 'parentModel', 'parentSearchModel', 'model', 'dataProvider'));
+        ] + compact('searchModel', 'parentModel', 'parentSearchModel', 'model', 'dataProvider'));
     }
 }

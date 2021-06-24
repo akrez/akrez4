@@ -227,7 +227,6 @@ Pjax::begin([
                                 <td colspan="<?= $colspan ?>" style="position: relative;">
                                     <?=
                                     $this->render('_gallery', [
-                                        'newModel' => $newModel,
                                         'dataProviderModel' => $dataProviderModel,
                                     ])
                                     ?>
