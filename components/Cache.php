@@ -52,11 +52,17 @@ class Cache extends Component
         $blog->cache_category = ArrayHelper::map($blog->cache_category, 'id', 'title');
         $blog->save();
     }
+
     public static function updateBlogCacheColor($blog)
     {
         $blog->cache_color = Color::blogValidQuery()->select(['code', 'title'])->all();
         $blog->cache_color = ArrayHelper::map($blog->cache_color, 'code', 'title');
         $blog->save();
+    }
+
+    public static function getBlogCacheColor(Blog $blog)
+    {
+        return (array) $blog->cache_color;
     }
 
     public static function getBlogCacheCategory($blog)
