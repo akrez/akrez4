@@ -7,6 +7,7 @@ use app\models\Gallery;
 use app\models\Page;
 use yii\helpers\Html;
 use yii\helpers\Url;
+use yii\web\View;
 
 SiteAsset::register($this);
 $this->title = ($this->title ? $this->title : Yii::$app->name);
@@ -15,6 +16,33 @@ $this->registerCss("
     background-image: url('" . Gallery::getImageUrl(null, 'loading.svg') . "');
 }
 ");
+$format = <<< SCRIPT
+function inputDecimalSeparator(Number) {
+    var commaCounter = 10;
+    Number += '';
+
+    for (var i = 0; i < commaCounter; i++) {
+        Number = Number.replace(',', '');
+    }
+
+    x = Number.split('.');
+    y = x[0];
+    z = x.length > 1 ? '.' + x[1] : '';
+    var rgx = /(\d+)(\d{3})/;
+
+    while (rgx.test(y)) {
+        y = y.replace(rgx, '$1' + ',' + '$2');
+    }
+    commaCounter++;
+    return y + z;
+}
+$(document).on('keypress , paste', '.input-decimal-separator', function(e) {
+    $('.input-decimal-separator').on('input', function() {
+        e.target.value = inputDecimalSeparator(e.target.value);
+    });
+});
+SCRIPT;
+$this->registerJs($format, View::POS_READY);
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
