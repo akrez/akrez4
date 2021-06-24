@@ -35,6 +35,7 @@ class Color extends ActiveRecord
             [['title'], 'string', 'max' => 31],
             [['code'], 'string', 'max' => 12],
             [['code',], 'match', 'pattern' => '/#([A-Fa-f0-9]{6})$/'],
+            [['code'], 'unique', 'targetAttribute' => ['code', 'blog_name']],
         ];
     }
 
