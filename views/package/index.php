@@ -35,7 +35,7 @@ $this->registerCss("
 
 $this->registerCss("
 .color-class {
-    border: solid 2px #333333;
+    border: solid 1px #333333;
     border-radius: 12px;
     margin-left: 4px;
 }
@@ -90,7 +90,7 @@ applyFilter();
 
 <?php
 Pjax::begin([
-    'id' => "category-pjax",
+    'id' => "package-pjax",
     'timeout' => false,
     'enablePushState' => false,
 ]);
