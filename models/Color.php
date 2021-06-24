@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\components\Cache;
 use Yii;
 
 /**
@@ -43,6 +44,17 @@ class Color extends ActiveRecord
         $query->andWhere(['blog_name' => Yii::$app->user->getId(),]);
         $query->andFilterWhere(['id' => $id]);
         return $query;
+    }
+
+    public static function getLabel($item)
+    {
+        $list = self::getList();
+        return (isset($list[$item]) ? $list[$item] : null);
+    }
+
+    public static function getList()
+    {
+        return Cache::getBlogCacheColor(Yii::$app->user->getIdentity());
     }
 
     /**
