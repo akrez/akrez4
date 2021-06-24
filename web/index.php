@@ -1,24 +1,5 @@
 <?php
 
-function v(...$input)
-{
-    foreach ($input as $i) {
-        var_dump($i);
-    }
-    die;
-}
-
-function jd(...$input)
-{
-    die(json_encode($input));
-}
-
-function ed($input)
-{
-    var_export($input);
-    die;
-}
-
 $params = require(__DIR__ . '/../config/params.php');
 
 require VENDOR_PATH . '/autoload.php';
