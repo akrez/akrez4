@@ -64,6 +64,7 @@ return [
     //
     'Categories' => 'دسته‌بندی‌ها',
     'Category' => 'دسته‌بندی',
+    'Colors' => 'رنگ‌ها',
     'Page' => 'صفحه',
     'Pages' => 'صفحات',
     'Invoices' => 'سفارشات',
