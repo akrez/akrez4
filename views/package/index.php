@@ -19,7 +19,7 @@ $modelClass = new Package();
 
 $format = <<< SCRIPT
 function format(data, container) {
-    return ' <span style="background-color: #' + data.id + ';">⠀⠀</span> ' + data.text;
+    return ' <span style="background-color: ' + data.id + ';">⠀⠀</span> ' + data.text;
 }
 SCRIPT;
 $this->registerJs($format, View::POS_HEAD);
@@ -152,7 +152,7 @@ $('#table').yiiGridView(" . json_encode([
                                 </td>
                                 <td>
                                     <?php if ($dataProviderModel->color) : ?>
-                                        <span class="color-class" style="background-color: #<?= $dataProviderModel->color ?>;">⠀⠀</span> <?= Color::getLabel($dataProviderModel->color) ?>
+                                        <span class="color-class" style="background-color: <?= $dataProviderModel->color ?>;">⠀⠀</span> <?= Color::getLabel($dataProviderModel->color) ?>
                                     <?php endif; ?>
                                 </td>
                                 <td>
