@@ -58,6 +58,7 @@ class PackageController extends Controller
             $updateCacheNeeded = Helper::delete($model);
         }
         if ($updateCacheNeeded) {
+            $newModel = new Package();
             Cache::updateProductPrice($parentModel);
             $category = Category::blogValidQuery()->where(['id' => $parentModel->category_id])->one();
             if ($category) {
