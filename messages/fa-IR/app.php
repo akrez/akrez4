@@ -61,6 +61,7 @@ return [
     //
     'GoToBlog' => 'نمایش فروشگاه',
     'Default' => 'پیش فرض',
+    'Settings' => 'تنظیمات',
     //
     'Categories' => 'دسته‌بندی‌ها',
     'Category' => 'دسته‌بندی',

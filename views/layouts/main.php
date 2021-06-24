@@ -94,7 +94,13 @@ $this->registerJs($format, View::POS_READY);
                         <li><a href="<?= Url::toRoute(['/site/signin']) ?>" style="padding-left: 0;"><?= Yii::t('app', 'Signin') ?></a></li>
                     <?php else : ?>
                         <li><a href="<?= Yii::$app->params['urlToBlog'](Blog::print('name')) ?>" target="_blank"><?= Yii::t('app', 'GoToBlog') ?></a></li>
-                        <li><a href="<?= Url::toRoute(['/site/profile']) ?>"><?= Yii::t('app', 'Profile') ?></a></li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><?= Yii::t('app', 'Settings') ?><span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="<?= Url::toRoute(['/site/profile']) ?>"><?= Yii::t('app', 'Profile') ?></a></li>
+                                <li><a href="<?= Url::toRoute(['/color/index']) ?>"><?= Yii::t('app', 'Colors') ?></a></li>
+                            </ul>
+                        </li>
                         <li><a href="<?= Url::toRoute(['/site/signout']) ?>"><?= Yii::t('app', 'Signout') ?></a></li>
                     <?php endif; ?>
                 </ul>
