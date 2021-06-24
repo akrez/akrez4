@@ -33,7 +33,7 @@ class Color extends ActiveRecord
             [['title', 'code'], 'required'],
             [['title'], 'string', 'max' => 31],
             [['code'], 'string', 'max' => 12],
-            [['code',], 'match', 'pattern' => '/^[A-F0-9]{6}$/'],
+            [['code',], 'match', 'pattern' => '/#([a-f0-9]{3}){1,2}\b/i'],
         ];
     }
 

@@ -2,9 +2,9 @@
 
 namespace app\models;
 
+use app\models\Color;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\Color;
 
 /**
  * ColorSearch represents the model behind the search form of `app\models\Color`.
@@ -17,7 +17,6 @@ class ColorSearch extends Color
     public function rules()
     {
         return [
-            [['id'], 'integer'],
             [['title', 'code', 'blog_name'], 'safe'],
         ];
     }
@@ -40,12 +39,18 @@ class ColorSearch extends Color
      */
     public function search($params)
     {
-        $query = Color::find();
+        $query = Color::blogValidQuery();
 
         // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'sort' => [
+                'defaultOrder' => [
+                    'title' => SORT_ASC,
+                ]
+            ],
+            'pagination' => false,
         ]);
 
         $this->load($params);
@@ -56,14 +61,8 @@ class ColorSearch extends Color
             return $dataProvider;
         }
 
-        // grid filtering conditions
-        $query->andFilterWhere([
-            'id' => $this->id,
-        ]);
-
         $query->andFilterWhere(['like', 'title', $this->title])
-            ->andFilterWhere(['like', 'code', $this->code])
-            ->andFilterWhere(['like', 'blog_name', $this->blog_name]);
+            ->andFilterWhere(['like', 'code', $this->code]);
 
         return $dataProvider;
     }
