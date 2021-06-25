@@ -14,7 +14,8 @@ use yii\helpers\Json;
  * @property string $status
  * @property double $price
  * @property string $guaranty
- * @property string $color
+ * @property string|null $color_code
+ * @property int|null $cache_stock
  * @property string $des
  * @property int $product_id
  * @property string|null $blog_name
@@ -26,7 +27,6 @@ class Package extends ActiveRecord
 {
 
     public $guaranty;
-    public $color;
     public $des;
     //
     public $price_min;
@@ -41,7 +41,7 @@ class Package extends ActiveRecord
     {
         return [
             [['status'], 'in', 'range' => array_keys(self::validStatuses())],
-            [['color'], 'in', 'range' => array_keys(Color::getList())],
+            [['color_code'], 'in', 'range' => array_keys(Color::getList())],
             [['price', 'status', 'guaranty'], 'required'],
             [['price'], 'number', 'numberPattern' => '/^\s*[-+]?[0-9,]*[.]?[0-9]+([eE][-+]?[0-9]+)?\s*$/'],
             [['guaranty', 'des'], 'safe'],
@@ -62,8 +62,8 @@ class Package extends ActiveRecord
         if ($package->des) {
             $caption[] = $package->des;
         }
-        if ($package->color) {
-            $caption[] = Color::getLabel($package->color);
+        if ($package->color_code) {
+            $caption[] = Color::getLabel($package->color_code);
         }
         $caption[] = '<b>' . Yii::$app->formatter->asPrice($package->price) . '</b>';
 
@@ -75,11 +75,9 @@ class Package extends ActiveRecord
         parent::afterFind();
         $arrayParams = (array) Json::decode($this->params) + [
             'guaranty' => null,
-            'color' => null,
             'des' => null,
         ];
         $this->guaranty = $arrayParams['guaranty'];
-        $this->color = $arrayParams['color'];
         $this->des = $arrayParams['des'];
     }
 
@@ -98,7 +96,6 @@ class Package extends ActiveRecord
         }
         $this->params = [
             'guaranty' => $this->guaranty,
-            'color' => $this->color,
             'des' => $this->des,
         ];
         $this->params = Json::encode($this->params);
@@ -131,9 +128,8 @@ class Package extends ActiveRecord
             'price' => $this->price,
             'product_id' => $this->product_id,
             'blog_name' => $this->blog_name,
-            "guaranty" => $this->guaranty,
-            "color" => $this->color,
-            "des" => $this->des,
+            'guaranty' => $this->guaranty,
+            'des' => $this->des,
         ];
     }
 

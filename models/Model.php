@@ -51,7 +51,7 @@ class Model extends BaseModel
             'taxonomy' => 'دسته‌بندی',
             'guaranty' => 'گارانتی',
             'language' => 'زبان',
-
+            
             'label_no' => 'جایگزین عبارت "خیر"',
             'password' => 'رمز عبور',
             'entity_id' => 'شناسه',
@@ -62,6 +62,7 @@ class Model extends BaseModel
             'price_max' => 'بیشترین قیمت',
             'value_max' => 'بیشترین مقدار فیلتر',
             'blog_name' => 'نام کاربری',
+            'color_code' => 'رنگ',
             'in_summary' => 'نمایش در خلاصه',
             'updated_at' => 'تاریخ ویرایش',
             'created_at' => 'تاریخ ایجاد',

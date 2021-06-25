@@ -20,7 +20,7 @@ $form = ActiveForm::begin([
         ],
     ]
 ]);
-$colorTagId = Html::getInputId($model, 'color') . '-' . $model->id;
+$colorTagId = Html::getInputId($model, 'color_code') . '-' . $model->id;
 ?>
 
 
@@ -43,7 +43,7 @@ $colorTagId = Html::getInputId($model, 'color') . '-' . $model->id;
 <div class="row">
     <div class="col-xs-12 col-sm-4">
         <?=
-        $form->field($model, 'color')->widget(Select2::class, [
+        $form->field($model, 'color_code')->widget(Select2::class, [
             'data' => Color::getList(),
             'options' => [
                 'placeholder' => '',

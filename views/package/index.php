@@ -117,7 +117,7 @@ $('#table').yiiGridView(" . json_encode([
                 <thead>
                     <tr class="info">
                         <th><?= $modelClass->getAttributeLabel('guaranty') ?></th>
-                        <th><?= $modelClass->getAttributeLabel('color') ?></th>
+                        <th><?= $modelClass->getAttributeLabel('color_code') ?></th>
                         <th><?= $modelClass->getAttributeLabel('des') ?></th>
                         <th><?= $sort->link('status', ['label' => $modelClass->getAttributeLabel('status')]) ?></th>
                         <th><?= $sort->link('updated_at', ['label' => $modelClass->getAttributeLabel('updated_at')]) ?></th>
@@ -151,8 +151,8 @@ $('#table').yiiGridView(" . json_encode([
                                     <?= HtmlPurifier::process($dataProviderModel->guaranty) ?>
                                 </td>
                                 <td>
-                                    <?php if ($dataProviderModel->color) : ?>
-                                        <span class="color-class" style="background-color: <?= $dataProviderModel->color ?>;">⠀⠀</span> <?= Color::getLabel($dataProviderModel->color) ?>
+                                    <?php if ($dataProviderModel->color_code) : ?>
+                                        <span class="color-class" style="background-color: <?= $dataProviderModel->color_code ?>;">⠀⠀</span> <?= Color::getLabel($dataProviderModel->color_code) ?>
                                     <?php endif; ?>
                                 </td>
                                 <td>
