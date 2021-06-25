@@ -45,6 +45,7 @@ class Package extends ActiveRecord
             [['color_code'], 'in', 'range' => array_keys(Cache::getBlogCacheColor(Yii::$app->user->getIdentity()))],
             [['price', 'status', 'guaranty'], 'required'],
             [['price'], 'number', 'numberPattern' => '/^\s*[-+]?[0-9,]*[.]?[0-9]+([eE][-+]?[0-9]+)?\s*$/'],
+            [['cache_stock'], 'number'],
             [['guaranty', 'des'], 'safe'],
         ];
     }

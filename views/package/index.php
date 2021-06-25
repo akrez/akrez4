@@ -118,7 +118,8 @@ $('#table').yiiGridView(" . json_encode([
                 <thead>
                     <tr class="info">
                         <th><?= $modelClass->getAttributeLabel('guaranty') ?></th>
-                        <th><?= $modelClass->getAttributeLabel('color_code') ?></th>
+                        <th><?= $sort->link('color_code', ['label' => $modelClass->getAttributeLabel('color_code')]) ?></th>
+                        <th><?= $sort->link('cache_stock', ['label' => $modelClass->getAttributeLabel('cache_stock')]) ?></th>
                         <th><?= $modelClass->getAttributeLabel('des') ?></th>
                         <th><?= $sort->link('status', ['label' => $modelClass->getAttributeLabel('status')]) ?></th>
                         <th><?= $sort->link('updated_at', ['label' => $modelClass->getAttributeLabel('updated_at')]) ?></th>
@@ -127,6 +128,7 @@ $('#table').yiiGridView(" . json_encode([
                         <th></th>
                     </tr>
                     <tr id="table-filters" class="info">
+                        <th></th>
                         <th></th>
                         <th></th>
                         <th></th>
@@ -155,6 +157,9 @@ $('#table').yiiGridView(" . json_encode([
                                     <?php if ($dataProviderModel->color_code) : ?>
                                         <span class="color-class" style="background-color: <?= $dataProviderModel->color_code ?>;">⠀⠀</span> <?= Cache::getBlogCacheColorLabel(Yii::$app->user->getIdentity(), $dataProviderModel->color_code) ?>
                                     <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?= HtmlPurifier::process($dataProviderModel->cache_stock) ?>
                                 </td>
                                 <td>
                                     <?= HtmlPurifier::process($dataProviderModel->des) ?>
@@ -186,20 +191,20 @@ $('#table').yiiGridView(" . json_encode([
                             }
                             ?>
                             <tr class="" style="<?= $displayStyle ?>" id="<?= "row-update-" . $dataProviderModel->id ?>">
-                                <td colspan="8">
+                                <td colspan="9">
                                     <?= $this->render('_form', ['model' => $dataProviderModel]) ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php } else { ?>
                         <tr class="danger">
-                            <td colspan="8">
+                            <td colspan="9">
                                 <?= Yii::t('yii', 'No results found.') ?>
                             </td>
                         </tr>
                     <?php } ?>
                     <tr class="success">
-                        <td colspan="8">
+                        <td colspan="9">
                             <?= $this->render('_form', ['model' => $newModel]) ?>
                         </td>
                     </tr>

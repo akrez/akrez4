@@ -27,22 +27,16 @@ $colorTagId = Html::getInputId($model, 'color_code') . '-' . $model->id;
 
 
 <div class="row">
-    <div class="col-xs-12 col-sm-4">
+    <div class="col-xs-12 col-sm-3">
         <?= $form->field($model, 'guaranty')->textInput() ?>
     </div>
-    <div class="col-xs-12 col-sm-4">
+    <div class="col-xs-12 col-sm-3">
         <?= $form->field($model, 'price')->textInput([
             'class' => 'form-control input-decimal-separator',
             'value' => (mb_strlen($model->price) ? number_format($model->price) : ''),
         ]) ?>
     </div>
-    <div class="col-xs-12 col-sm-4">
-        <?= $form->field($model, 'status')->dropDownList(Package::validStatuses()) ?>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-xs-12 col-sm-4">
+    <div class="col-xs-12 col-sm-3">
         <?=
         $form->field($model, 'color_code')->widget(Select2::class, [
             'data' => Cache::getBlogCacheColor(Yii::$app->user->getIdentity()),
@@ -59,9 +53,17 @@ $colorTagId = Html::getInputId($model, 'color_code') . '-' . $model->id;
             ],
         ]);
         ?>
-
     </div>
-    <div class="col-xs-12 col-sm-8">
+    <div class="col-xs-12 col-sm-3">
+        <?= $form->field($model, 'cache_stock')->textInput() ?>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xs-12 col-sm-3">
+        <?= $form->field($model, 'status')->dropDownList(Package::validStatuses()) ?>
+    </div>
+    <div class="col-xs-12 col-sm-9">
         <?= $form->field($model, 'des')->textInput(['maxlength' => true]) ?>
     </div>
 </div>
