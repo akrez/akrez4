@@ -30,24 +30,18 @@ class Color extends ActiveRecord
      */
     public function rules()
     {
+        if ($this->isNewRecord) {
+            $codeAttributeName = 'code';
+        } else {
+            $codeAttributeName = '!code';
+        }
         return [
             [['title', 'code'], 'required'],
             [['title'], 'string', 'max' => 31],
-            [[($this->isNewRecord ? 'code' : '!code')], 'string', 'max' => 31],
-            [['code',], 'match', 'pattern' => '/#([A-Fa-f0-9]{6})$/'],
-            [['code'], 'unique', 'targetAttribute' => ['code', 'blog_name']],
+            [[$codeAttributeName,], 'string', 'max' => 31],
+            [[$codeAttributeName,], 'match', 'pattern' => '/#([a-f0-9]{6})$/'],
+            [[$codeAttributeName,], 'unique', 'targetAttribute' => ['code', 'blog_name']],
         ];
-    }
-
-    public function beforeValidate()
-    {
-        if (!parent::beforeValidate()) {
-            return false;
-        }
-        if (is_string($this->code) && $this->code) {
-            $this->code = strtolower($this->code);
-        }
-        return parent::beforeValidate();
     }
 
     public static function blogValidQuery($id = null)
