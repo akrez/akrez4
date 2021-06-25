@@ -48,8 +48,6 @@ class ColorController extends Controller
             $updateCacheNeeded = Helper::store($model, $post, [
                 'blog_name' => Yii::$app->user->getId(),
             ]);
-        } elseif ($state == 'remove' && $model) {
-            $updateCacheNeeded = Helper::delete($model);
         }
         if ($updateCacheNeeded) {
             $newModel = new Color();
@@ -57,6 +55,7 @@ class ColorController extends Controller
         }
         //
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-        return $this->render('index', ['state' => $state] + compact('newModel', 'searchModel', 'model', 'dataProvider'));
+        $colorRawList = Color::getRawList();
+        return $this->render('index', ['state' => $state, 'colorRawList' => $colorRawList] + compact('newModel', 'searchModel', 'model', 'dataProvider'));
     }
 }

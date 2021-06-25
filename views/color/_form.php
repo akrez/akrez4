@@ -17,35 +17,27 @@ $form = ActiveForm::begin([
         ],
     ]
 ]);
-$codeTagId = Html::getInputId($model, 'code') . '-' . $model->id;
+$codeTagId = Html::getInputId($model, 'code') . '-' . ($model->isNewrecord ? '1' : '0') . '-' . (str_replace('#', '', $model->code)) . '-' . $model->id;
 ?>
 
 
 
 <div class="row">
     <div class="col-sm-3">
-        <?= $form->field($model, 'title')->textInput() ?>
-    </div>
-    <div class="col-sm-3">
         <?= $form->field($model, 'code', [])->widget(ColorInput::class, [
             'options' => [
                 'id' => $codeTagId,
-                'dir' => 'rtl',
+                'dir' => 'ltr',
+                'disabled' => !$model->isNewRecord,
+                'class' => 'font-family-monospace',
             ],
         ])->label(false); ?>
     </div>
     <div class="col-sm-3">
-        <?= Html::submitButton($model->isNewRecord ? ' <span class="glyphicon glyphicon-plus"></span> ' . Yii::t('app', 'Create') : ' <span class="glyphicon glyphicon-pencil"></span> ' . Yii::t('app', 'Update'), ['class' => 'btn btn-block btn-social ' . ($model->isNewRecord ? 'btn-success' : 'btn-primary')]); ?>
+        <?= $form->field($model, 'title')->textInput() ?>
     </div>
     <div class="col-sm-3">
-        <?php
-        if (!$model->isNewRecord) :
-            echo Html::a(' <span class="glyphicon glyphicon-trash"></span> ' . Yii::t('app', 'Remove'), Url::to([0 => 'color/index', 'state' => 'remove', 'id' => $model->id]), [
-                'class' => 'btn btn-danger btn-block btn-social',
-                'data-confirm' => Yii::t('yii', 'Are you sure you want to delete this item?'),
-            ]);
-        endif;
-        ?>
+        <?= Html::submitButton($model->isNewRecord ? ' <span class="glyphicon glyphicon-plus"></span> ' . Yii::t('app', 'Create') : ' <span class="glyphicon glyphicon-pencil"></span> ' . Yii::t('app', 'Update'), ['class' => 'btn btn-block btn-social ' . ($model->isNewRecord ? 'btn-success' : 'btn-primary')]); ?>
     </div>
 </div>
 <?php ActiveForm::end(); ?>

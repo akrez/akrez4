@@ -35,6 +35,15 @@ $this->registerCss("
     direction: ltr;
     text-align: right;
 }
+.input-group-html5 .input-group-addon + .form-control {
+    border-width: 0.8px !important;
+}
+div.help-block:empty {
+    margin: 0;
+}
+.form-group {
+    margin-bottom: 0;
+}
 ");
 
 $this->registerJs("
@@ -106,65 +115,43 @@ $('#table').yiiGridView(" . json_encode([
             <div class="ajax-splash-show splash-style"></div>
             <div class="panel-heading"><?= Yii::t('app', 'Colors') ?></div>
             <table id="table" class="table table-bordered table-striped">
-                <thead>
-                    <tr class="info">
-                        <th><?= $modelClass->getAttributeLabel('title') ?></th>
-                        <th><?= $modelClass->getAttributeLabel('code') ?></th>
-                        <th></th>
-                    </tr>
-                    <tr id="table-filters" class="info">
-                        <th><?= Html::activeInput('text', $searchModel, 'title', ['class' => 'form-control']) ?></th>
-                        <th><?= Html::activeInput('text', $searchModel, 'code', ['class' => 'form-control']) ?></th>
-                        <th></th>
-                    </tr>
-                </thead>
                 <tbody>
-                    <?php if ($dataProvider->getModels()) { ?>
-                        <?php
-                        foreach ($dataProvider->getModels() as $dataProviderModelKey => $dataProviderModel) :
-                            $displayState = '';
-                            if ($model && $model->id == $dataProviderModel->id) {
-                                $displayState = $state;
-                                $dataProviderModel = $model;
-                            }
-                        ?>
-                            <tr class="active">
-                                <td class="td-ltr">
-                                    <span class=""><?= HtmlPurifier::process($dataProviderModel->title) ?></span>
-                                </td>
-                                <td class="td-ltr">
-                                    <span class="font-family-monospace"><?= $dataProviderModel->code ?></span>
-                                    <span class="color-class" style="background-color: <?= $dataProviderModel->code ?>;">⠀⠀</span>
-                                </td>
-                                <td>
-                                    <?= Html::button(Yii::t('app', 'Update'), ['class' => 'btn btn-block' . ($displayState == 'update' ? ' btn-warning ' : ' btn-default '), 'toggle' => "#row-update-" . $dataProviderModel->id]) ?>
-                                </td>
-                            </tr>
-                            <?php
-                            $displayStyle = 'display: none;';
-                            if ($model && $model->id == $dataProviderModel->id) {
-                                $dataProviderModel = $model;
-                                $displayStyle = 'display: table-row;';
-                            }
-                            ?>
-                            <tr class="" style="<?= $displayStyle ?>" id="<?= "row-update-" . $dataProviderModel->id ?>">
-                                <td colspan="8">
-                                    <?= $this->render('_form', ['model' => $dataProviderModel]) ?>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php } else { ?>
-                        <tr class="danger">
-                            <td colspan="8">
-                                <?= Yii::t('yii', 'No results found.') ?>
-                            </td>
-                        </tr>
-                    <?php } ?>
                     <tr class="success">
-                        <td colspan="3">
+                        <td >
                             <?= $this->render('_form', ['model' => $newModel]) ?>
                         </td>
                     </tr>
+                    <?php
+                    foreach ($dataProvider->getModels() as $dataProviderModelKey => $dataProviderModel) :
+                        if ($model && $model->id == $dataProviderModel->id && !$model->isNewRecord) {
+                            $dataProviderModel = $model;
+                        }
+                        if (isset($colorRawList[$dataProviderModel->code])) {
+                            unset($colorRawList[$dataProviderModel->code]);
+                        }
+                    ?>
+                        <tr style="display: table-row;">
+                            <td >
+                                <?= $this->render('_form', ['model' => $dataProviderModel]) ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                    <?php
+                    foreach ($colorRawList as $colorRawCode => $colorRawTitle) :
+                        if ($model && $model->code == $colorRawCode && $model->isNewRecord) {
+                            $dataProviderModel = $model;
+                        } else {
+                            $dataProviderModel = new Color();
+                            $dataProviderModel->title = $colorRawTitle;
+                            $dataProviderModel->code = $colorRawCode;
+                        }
+                    ?>
+                        <tr class="success" style="display: table-row;">
+                            <td >
+                                <?= $this->render('_form', ['model' => $dataProviderModel]) ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
                 </tbody>
             </table>
         </div>
