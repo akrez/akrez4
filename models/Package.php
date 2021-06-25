@@ -129,6 +129,7 @@ class Package extends ActiveRecord
             'product_id' => $this->product_id,
             'blog_name' => $this->blog_name,
             'guaranty' => $this->guaranty,
+            'color_code' => $this->color_code,
             'des' => $this->des,
         ];
     }
