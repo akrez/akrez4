@@ -55,14 +55,19 @@ class Cache extends Component
 
     public static function updateBlogCacheColor($blog)
     {
-        $blog->cache_color = Color::blogValidQuery()->select(['code', 'title'])->all();
-        $blog->cache_color = ArrayHelper::map($blog->cache_color, 'code', 'title');
+        $blog->cache_color = Color::getList();
         $blog->save();
     }
 
     public static function getBlogCacheColor(Blog $blog)
     {
         return (array) $blog->cache_color;
+    }
+
+    public static function getBlogCacheColorLabel(Blog $blog, $item)
+    {
+        $list = self::getBlogCacheColor($blog);
+        return (isset($list[$item]) ? $list[$item] : $item);
     }
 
     public static function getBlogCacheCategory($blog)

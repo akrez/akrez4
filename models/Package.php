@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\components\Cache;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\helpers\Json;
@@ -41,7 +42,7 @@ class Package extends ActiveRecord
     {
         return [
             [['status'], 'in', 'range' => array_keys(self::validStatuses())],
-            [['color_code'], 'in', 'range' => array_keys(Color::getList())],
+            [['color_code'], 'in', 'range' => array_keys(Cache::getBlogCacheColor(Yii::$app->user->getIdentity()))],
             [['price', 'status', 'guaranty'], 'required'],
             [['price'], 'number', 'numberPattern' => '/^\s*[-+]?[0-9,]*[.]?[0-9]+([eE][-+]?[0-9]+)?\s*$/'],
             [['guaranty', 'des'], 'safe'],
@@ -63,7 +64,7 @@ class Package extends ActiveRecord
             $caption[] = $package->des;
         }
         if ($package->color_code) {
-            $caption[] = Color::getLabel($package->color_code);
+            $caption[] = Cache::getBlogCacheColorLabel(Yii::$app->user->getIdentity(), $package->color_code);
         }
         $caption[] = '<b>' . Yii::$app->formatter->asPrice($package->price) . '</b>';
 

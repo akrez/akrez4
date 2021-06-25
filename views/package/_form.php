@@ -1,5 +1,6 @@
 <?php
 
+use app\components\Cache;
 use app\models\Color;
 use app\models\Package;
 use kartik\select2\Select2;
@@ -44,7 +45,7 @@ $colorTagId = Html::getInputId($model, 'color_code') . '-' . $model->id;
     <div class="col-xs-12 col-sm-4">
         <?=
         $form->field($model, 'color_code')->widget(Select2::class, [
-            'data' => Color::getList(),
+            'data' => Cache::getBlogCacheColor(Yii::$app->user->getIdentity()),
             'options' => [
                 'placeholder' => '',
                 'id' => $colorTagId,

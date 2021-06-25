@@ -2,7 +2,7 @@
 
 namespace app\models;
 
-use app\components\Cache;
+use yii\helpers\ArrayHelper;
 use Yii;
 
 /**
@@ -58,15 +58,11 @@ class Color extends ActiveRecord
         return $query;
     }
 
-    public static function getLabel($item)
-    {
-        $list = self::getList();
-        return (isset($list[$item]) ? $list[$item] : null);
-    }
-
     public static function getList()
     {
-        return Cache::getBlogCacheColor(Yii::$app->user->getIdentity());
+        $list = Color::blogValidQuery()->select(['code', 'title'])->all();
+        $list = ArrayHelper::map($list, 'code', 'title');
+        return $list;
     }
 
     public static function getRawList()

@@ -1,6 +1,7 @@
 <?php
 
 use app\components\Alert;
+use app\components\Cache;
 use app\models\Color;
 use app\models\Package;
 use yii\grid\GridViewAsset;
@@ -152,7 +153,7 @@ $('#table').yiiGridView(" . json_encode([
                                 </td>
                                 <td>
                                     <?php if ($dataProviderModel->color_code) : ?>
-                                        <span class="color-class" style="background-color: <?= $dataProviderModel->color_code ?>;">⠀⠀</span> <?= Color::getLabel($dataProviderModel->color_code) ?>
+                                        <span class="color-class" style="background-color: <?= $dataProviderModel->color_code ?>;">⠀⠀</span> <?= Cache::getBlogCacheColorLabel(Yii::$app->user->getIdentity(), $dataProviderModel->color_code) ?>
                                     <?php endif; ?>
                                 </td>
                                 <td>
