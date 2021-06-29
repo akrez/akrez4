@@ -45,9 +45,6 @@ class Customer extends ActiveRecord implements IdentityInterface
         return '{{%customer}}';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function rules()
     {
         return [
@@ -291,6 +288,7 @@ class Customer extends ActiveRecord implements IdentityInterface
             'mobile' => $this->mobile,
         ];
     }
+
     public static function validStatuses()
     {
         return [
