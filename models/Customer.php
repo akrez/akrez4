@@ -2,24 +2,31 @@
 
 namespace app\models;
 
-use app\components\Email;
-use Exception;
+use app\components\Cache;
+use app\components\Helper;
 use Yii;
+use yii\helpers\ArrayHelper;
+use yii\helpers\Html;
+use yii\helpers\Json;
 use yii\web\IdentityInterface;
 
 /**
- * This is the model class for table "{{%Customer}}".
+ * This is the model class for table "customer".
  *
  * @property int $id
- * @property string $status
- * @property int|null $created_at
  * @property int|null $updated_at
+ * @property int|null $created_at
+ * @property int $status
  * @property string|null $token
  * @property string|null $password_hash
+ * @property string|null $verify_token
+ * @property int|null $verify_at
  * @property string|null $reset_token
  * @property int|null $reset_at
- * @property string|null $email
+ * @property string|null $mobile
+ * @property string|null $name
  * @property string $blog_name
+ * @property string|null $params
  *
  * @property Blog $blogName
  */
@@ -30,6 +37,8 @@ class Customer extends ActiveRecord implements IdentityInterface
 
     public $password;
     public $_customer;
+    //
+    public $cache_addresses; #TODO
 
     public static function tableName()
     {
@@ -41,35 +50,44 @@ class Customer extends ActiveRecord implements IdentityInterface
      */
     public function rules()
     {
-
         return [
             //signup
             [['!blog_name',], 'required', 'on' => 'signup',],
-            [['email',], 'required', 'on' => 'signup',],
-            [['email',], 'unique', 'targetAttribute' => ['email', 'blog_name'], 'message' => Yii::t('yii', '{attribute} "{value}" has already been taken.'), 'on' => 'signup',],
-            [['email',], 'email', 'on' => 'signup',],
+            [['mobile',], 'required', 'on' => 'signup',],
+            [['mobile',], 'unique', 'targetAttribute' => ['mobile', 'blog_name'], 'message' => Yii::t('yii', '{attribute} "{value}" has already been taken.'), 'on' => 'signup',],
+            [['mobile',], 'match', 'pattern' => '/^09[0-9]{9}$/', 'on' => 'signup',],
             [['password',], 'required', 'on' => 'signup',],
             [['password',], 'minLenValidation', 'params' => ['min' => 6,], 'on' => 'signup',],
             //signin
             [['!blog_name',], 'required', 'on' => 'signin',],
-            [['email',], 'required', 'on' => 'signin',],
-            [['email',], 'email', 'on' => 'signin',],
+            [['mobile',], 'required', 'on' => 'signin',],
+            [['mobile',], 'match', 'pattern' => '/^09[0-9]{9}$/', 'on' => 'signin',],
             [['password',], 'required', 'on' => 'signin',],
-            [['password',], 'passwordValidation', 'on' => 'signin',],
+            [['password',], 'signinValidation', 'on' => 'signin',],
             [['password',], 'minLenValidation', 'params' => ['min' => 6,], 'on' => 'signin',],
             //resetPasswordRequest
             [['!blog_name',], 'required', 'on' => 'resetPasswordRequest',],
-            [['email',], 'required', 'on' => 'resetPasswordRequest',],
-            [['email',], 'findValidCustomerByEmailValidation', 'on' => 'resetPasswordRequest',],
-            [['email',], 'email', 'on' => 'resetPasswordRequest',],
+            [['mobile',], 'required', 'on' => 'resetPasswordRequest',],
+            [['mobile',], 'resetPasswordRequestValidation', 'on' => 'resetPasswordRequest',],
+            [['mobile',], 'match', 'pattern' => '/^09[0-9]{9}$/', 'on' => 'resetPasswordRequest',],
             //resetPassword
             [['!blog_name',], 'required', 'on' => 'resetPassword',],
-            [['email',], 'required', 'on' => 'resetPassword',],
-            [['email',], 'findValidCustomerByEmailResetTokenValidation', 'on' => 'resetPassword',],
-            [['email',], 'email', 'on' => 'resetPassword',],
+            [['mobile',], 'required', 'on' => 'resetPassword',],
+            [['mobile',], 'match', 'pattern' => '/^09[0-9]{9}$/', 'on' => 'resetPassword',],
             [['password',], 'required', 'on' => 'resetPassword',],
             [['password',], 'minLenValidation', 'params' => ['min' => 6,], 'on' => 'resetPassword',],
+            [['reset_token',], 'resetPasswordValidation', 'on' => 'resetPassword',],
             [['reset_token',], 'required', 'on' => 'resetPassword',],
+            //verify
+            [['mobile',], 'required', 'on' => 'verify',],
+            [['mobile',], 'match', 'pattern' => '/^09[0-9]{9}$/', 'on' => 'verify',],
+            [['verify_token',], 'verifyValidation', 'on' => 'verify',],
+            [['verify_token',], 'required', 'on' => 'verify',],
+            //verifyRequest
+            [['!blog_name',], 'required', 'on' => 'verifyRequest',],
+            [['mobile',], 'required', 'on' => 'verifyRequest',],
+            [['mobile',], 'verifyRequestValidation', 'on' => 'verifyRequest',],
+            [['mobile',], 'match', 'pattern' => '/^09[0-9]{9}$/', 'on' => 'verifyRequest',],
         ];
     }
 
@@ -77,12 +95,12 @@ class Customer extends ActiveRecord implements IdentityInterface
 
     public static function findIdentity($id)
     {
-        return static::find()->where(['id' => $id])->andWhere(['status' => [Status::STATUS_UNVERIFIED, Status::STATUS_ACTIVE, Status::STATUS_DISABLE]])->one();
+        return static::find()->where(['id' => $id])->andWhere(['status' => array_keys(Customer::validStatuses())])->one();
     }
 
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        return static::find()->where(['token' => $token])->andWhere(['status' => [Status::STATUS_UNVERIFIED, Status::STATUS_ACTIVE, Status::STATUS_DISABLE]])->one();
+        return static::find()->where(['token' => $token])->andWhere(['status' => array_keys(Customer::validStatuses())])->one();
     }
 
     public function getId()
@@ -102,10 +120,34 @@ class Customer extends ActiveRecord implements IdentityInterface
 
     /////
 
-    public function passwordValidation($attribute, $params)
+    public function afterFind()
+    {
+        parent::afterFind();
+        $arrayParams = (array) Json::decode($this->params) + [
+            'cache_addresses' => [],
+        ];
+        $this->cache_addresses = $arrayParams['cache_addresses'];
+    }
+
+    public function beforeSave($insert)
+    {
+        if (!parent::beforeSave($insert)) {
+            return false;
+        }
+        $this->params = [
+            'cache_addresses' => (array) $this->cache_addresses,
+        ];
+        $this->params = Json::encode($this->params);
+        return true;
+    }
+
+    /////
+
+    public function signinValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $customer = Customer::findValidCustomerByEmail($this->email, $this->blog_name);
+            $customer = self::blogValidQuery($this->blog_name, $this->mobile, false)
+                ->one();
             if ($customer && $customer->validatePassword($this->password)) {
                 return $this->_customer = $customer;
             }
@@ -114,10 +156,11 @@ class Customer extends ActiveRecord implements IdentityInterface
         return $this->_customer = null;
     }
 
-    public function findValidCustomerByEmailValidation($attribute, $params)
+    public function resetPasswordRequestValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $customer = Customer::findValidCustomerByEmail($this->email, $this->blog_name);
+            $customer = self::blogValidQuery($this->blog_name, $this->mobile, false)
+                ->one();
             if ($customer) {
                 return $this->_customer = $customer;
             }
@@ -126,10 +169,41 @@ class Customer extends ActiveRecord implements IdentityInterface
         return $this->_customer = null;
     }
 
-    public function findValidCustomerByEmailResetTokenValidation($attribute, $params)
+    public function verifyRequestValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $customer = Customer::findValidCustomerByEmailResetToken($this->email, $this->reset_token, $this->blog_name);
+            $customer = self::blogValidQuery($this->blog_name, $this->mobile)
+                ->one();
+            if ($customer) {
+                return $this->_customer = $customer;
+            }
+            $this->addError($attribute, Yii::t('yii', '{attribute} is invalid.', ['attribute' => $this->getAttributeLabel($attribute)]));
+        }
+        return $this->_customer = null;
+    }
+
+    public function resetPasswordValidation($attribute, $params)
+    {
+        if (!$this->hasErrors()) {
+            $customer = self::blogValidQuery($this->blog_name, $this->mobile, false)
+                ->andWhere(['reset_token' => $this->reset_token])
+                ->andWhere(['>', 'reset_at', time() - self::TIMEOUT_RESET])
+                ->one();
+            if ($customer) {
+                return $this->_customer = $customer;
+            }
+            $this->addError($attribute, Yii::t('yii', '{attribute} is invalid.', ['attribute' => $this->getAttributeLabel($attribute)]));
+        }
+        return $this->_customer = null;
+    }
+
+    public function verifyValidation($attribute, $params)
+    {
+        if (!$this->hasErrors()) {
+            $customer = self::blogValidQuery($this->blog_name, $this->mobile)
+                ->andWhere(['verify_token' => $this->verify_token])
+                ->andWhere(['>', 'verify_at', time() - self::TIMEOUT_RESET])
+                ->one();
             if ($customer) {
                 return $this->_customer = $customer;
             }
@@ -161,42 +235,40 @@ class Customer extends ActiveRecord implements IdentityInterface
 
     public function setAuthKey()
     {
-        return $this->token = preg_replace("/[^a-z0-9A-Z]+/i", "", Yii::$app->security->generateRandomString());
+        return $this->token = Yii::$app->security->generateRandomString();
     }
 
-    public function setResetToken()
+    public function setVerifyToken($setNull = false)
     {
-        if (empty($this->reset_token) || time() - self::TIMEOUT_RESET > $this->reset_at) {
-            $this->reset_token = self::generateResetToken();
+        if ($setNull === true) {
+            $this->verify_token = null;
+            $this->verify_at = null;
+        } else {
+            if (empty($this->verify_token) || time() - self::TIMEOUT_RESET > $this->verify_at) {
+                $this->verify_token = self::generateToken('verify_token');
+            }
+            $this->verify_at = time();
         }
-        $this->reset_at = time();
     }
 
-    public static function findValidCustomerByEmail($email, $blogName)
+    public function setResetToken($setNull = false)
     {
-        return self::find()
-            ->where(['status' => [Status::STATUS_UNVERIFIED, Status::STATUS_ACTIVE, Status::STATUS_DISABLE]])
-            ->andWhere(['blog_name' => $blogName])
-            ->andWhere(['email' => $email])
-            ->one();
+        if ($setNull === true) {
+            $this->reset_token = null;
+            $this->reset_at = null;
+        } else {
+            if (empty($this->reset_token) || time() - self::TIMEOUT_RESET > $this->reset_at) {
+                $this->reset_token = self::generateToken('reset_token');
+            }
+            $this->reset_at = time();
+        }
     }
 
-    public static function findValidCustomerByEmailResetToken($email, $resetToken, $blogName)
-    {
-        return self::find()
-            ->where(['status' => [Status::STATUS_UNVERIFIED, Status::STATUS_ACTIVE, Status::STATUS_DISABLE]])
-            ->andWhere(['blog_name' => $blogName])
-            ->andWhere(['email' => $email])
-            ->andWhere(['reset_token' => $resetToken])
-            ->andWhere(['>', 'reset_at', time() - self::TIMEOUT_RESET])
-            ->one();
-    }
-
-    public static function generateResetToken()
+    public static function generateToken($attribute)
     {
         do {
-            $rand = rand(100000, 999999);
-            $model = self::find()->where(['reset_token' => $rand])->one();
+            $rand = mt_rand(100000, 999999);
+            $model = self::find()->where([$attribute => $rand])->one();
         } while ($model != null);
         return $rand;
     }
@@ -215,113 +287,24 @@ class Customer extends ActiveRecord implements IdentityInterface
     {
         return [
             'id' => $this->id,
-            'updated_at' => $this->updated_at,
             'created_at' => $this->created_at,
-            'email' => $this->email,
-            'status' => $this->status,
-            'blog_name' => $this->blog_name,
-            'token' => null,
+            'mobile' => $this->mobile,
         ];
     }
-
-    public function toArrayWithToken(array $fields = [], array $expand = [], $recursive = true)
-    {
-        $array = $this->toArray($fields, $expand, $recursive);
-        $array['token'] = $this->token;
-        return $array;
-    }
-
-    public function response($includeToken = false)
+    public static function validStatuses()
     {
         return [
-            'customer' => $includeToken ? $this->toArrayWithToken() : $this->toArray(),
-            'errors' => $this->errors,
+            Status::STATUS_ACTIVE => Yii::t('app', 'Active'),
+            Status::STATUS_DISABLE => Yii::t('app', 'Disable'),
         ];
     }
 
-    /////
-
-    public static function signup($input, $blogName)
+    public static function blogValidQuery($blogName, $mobile, $justUnverifiedStatus = true)
     {
-        try {
-            $signup = new Customer(['scenario' => 'signup']);
-            $signup->load($input, '');
-            $signup->status = Status::STATUS_UNVERIFIED;
-            $signup->blog_name = $blogName;
-            $signup->setAuthKey();
-            $signup->setPasswordHash($signup->password);
-            $signup->save();
-            return $signup;
-        } catch (Exception $e) {
-            return null;
-        }
-    }
-
-    public static function signin($input, $blogName)
-    {
-        try {
-            $signin = new Customer(['scenario' => 'signin']);
-            $signin->load($input, '');
-            $signin->blog_name = $blogName;
-            $signin->validate();
-            return $signin;
-        } catch (Exception $e) {
-            return null;
-        }
-    }
-
-    public function signout()
-    {
-        try {
-            $this->setAuthKey();
-            $this->save(false);
-            return $this;
-        } catch (Exception $e) {
-            return null;
-        }
-    }
-
-    public static function resetPasswordRequest($input, $blogName)
-    {
-        try {
-            $resetPasswordRequest = new Customer(['scenario' => 'resetPasswordRequest']);
-            $resetPasswordRequest->load($input, '');
-            $resetPasswordRequest->blog_name = $blogName;
-            if ($resetPasswordRequest->validate()) {
-                $blog = $resetPasswordRequest->getCustomer();
-                $blog->setResetToken();
-                if ($blog->save(false)) {
-                    Email::customerResetPasswordRequest($blog, Yii::$app->user->getIdentity());
-                } else {
-                    return null;
-                }
-            }
-            return $resetPasswordRequest;
-        } catch (Exception $e) {
-            return null;
-        }
-    }
-
-    public static function resetPassword($input, $blogName)
-    {
-        try {
-            $resetPassword = new Customer(['scenario' => 'resetPassword']);
-            $resetPassword->load($input, '');
-            $resetPassword->blog_name = $blogName;
-            if ($resetPassword->validate()) {
-                $blog = $resetPassword->getCustomer();
-                $blog->reset_token = null;
-                $blog->reset_at = null;
-                $blog->status = Status::STATUS_ACTIVE;
-                $blog->setPasswordHash($resetPassword->password);
-                if ($blog->save(false)) {
-                    return $resetPassword;
-                }
-                return null;
-            }
-            return $resetPassword;
-        } catch (Exception $e) {
-            return null;
-        }
+        $statuses = ($justUnverifiedStatus ? Status::STATUS_UNVERIFIED : array_keys(self::validStatuses()));
+        return Customer::find()
+            ->where(['blog_name' =>  $blogName])
+            ->andWhere(['mobile' => $mobile])
+            ->andWhere(['status' => $statuses]);
     }
 }
