@@ -5,6 +5,7 @@ namespace app\controllers;
 use app\models\LogApi;
 use Yii;
 use yii\web\Controller as BaseController;
+use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 
@@ -30,5 +31,11 @@ class Api extends BaseController
     {
         @LogApi::log(['response_http_code' => 403]);
         throw new ForbiddenHttpException(Yii::t('yii', 'You are not allowed to perform this action.'));
+    }
+
+    public static function exceptionBadRequestHttp()
+    {
+        @LogApi::log(['response_http_code' => 400]);
+        throw new BadRequestHttpException(Yii::t('yii', 'Unable to verify your data submission.'));
     }
 }
