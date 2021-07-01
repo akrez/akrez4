@@ -22,6 +22,7 @@ use app\models\Product;
 use app\models\Province;
 use app\models\Search;
 use app\models\Status;
+use Throwable;
 use Yii;
 use yii\helpers\ArrayHelper;
 use yii\web\Response;
@@ -380,9 +381,17 @@ class Api1Controller extends Api
     {
         $blog = self::blog();
         //
-        $signup = Customer::signup(Yii::$app->request->post(), $blog->name);
-        if ($signup == null) {
-            throw new BadRequestHttpException();
+        $signup = new Customer(['scenario' => 'signup']);
+        try {
+            $signup->load(\Yii::$app->request->post(), '');
+            $signup->blog_name = $blog->name;
+            $signup->status = Status::STATUS_UNVERIFIED;
+            $signup->setAuthKey();
+            $signup->setVerifyToken();
+            $signup->setPasswordHash($signup->password);
+            $signup->save();
+        } catch (Throwable $e) {
+            Api::exceptionBadRequestHttp();
         }
         if ($signup->hasErrors()) {
             return $signup->response();
@@ -398,7 +407,7 @@ class Api1Controller extends Api
         }
         $signout = $signout->signout();
         if ($signout == null) {
-            throw new BadRequestHttpException();
+            Api::exceptionBadRequestHttp();
         }
         return $signout->response();
     }
@@ -409,7 +418,7 @@ class Api1Controller extends Api
         //
         $signin = Customer::signin(Yii::$app->request->post(), $blog->name);
         if ($signin == null) {
-            throw new BadRequestHttpException();
+            Api::exceptionBadRequestHttp();
         }
         if ($user = $signin->getCustomer()) {
             return $user->response(true);
@@ -423,7 +432,7 @@ class Api1Controller extends Api
         //
         $resetPasswordRequest = Customer::resetPasswordRequest(Yii::$app->request->post(), $blog->name);
         if ($resetPasswordRequest == null) {
-            throw new BadRequestHttpException();
+            Api::exceptionBadRequestHttp();
         }
         return $resetPasswordRequest->response();
     }
@@ -434,7 +443,7 @@ class Api1Controller extends Api
         //
         $resetPassword = Customer::resetPassword(Yii::$app->request->post(), $blog->name);
         if ($resetPassword == null) {
-            throw new BadRequestHttpException();
+            Api::exceptionBadRequestHttp();
         }
         return $resetPassword->response();
     }
