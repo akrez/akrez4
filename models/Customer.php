@@ -76,6 +76,7 @@ class Customer extends ActiveRecord implements IdentityInterface
             [['reset_token',], 'resetPasswordValidation', 'on' => 'resetPassword',],
             [['reset_token',], 'required', 'on' => 'resetPassword',],
             //verify
+            [['!blog_name',], 'required', 'on' => 'resetPassword',],
             [['mobile',], 'required', 'on' => 'verify',],
             [['mobile',], 'match', 'pattern' => '/^09[0-9]{9}$/', 'on' => 'verify',],
             [['verify_token',], 'verifyValidation', 'on' => 'verify',],
