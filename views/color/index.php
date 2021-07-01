@@ -55,25 +55,20 @@ function applyFilter() {
 ]) . ");
 }
 $(document).on('click','.btn[toggle]',function() {
-
     var btn = $(this);
     var isHidden = $(btn.attr('toggle')).is(':hidden');    
-
     $('.btn[toggle]').each(function(i) {
         var toggleBtn = $(this);
         $(toggleBtn.attr('toggle')).hide();
         toggleBtn.addClass('btn-default');
         toggleBtn.removeClass('btn-warning');
     });
-
     if(isHidden) {
         $(btn.attr('toggle')).show();
         btn.addClass('btn-warning');
         btn.removeClass('btn-default');
     }
-
 });
-
 $(document).on('pjax:beforeSend', function(xhr, options) {
     $('.ajax-splash-show').css('display','inline-block');
     $('.ajax-splash-hide').css('display','none');
