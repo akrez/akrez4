@@ -2,6 +2,7 @@
 
 namespace app\components;
 
+use app\models\Customer;
 use Exception;
 use Yii;
 use yii\base\Component;
@@ -32,6 +33,12 @@ class Sms extends Component
     {
         $title = Yii::t('app', 'ResetPasswordRequest');
         return self::send($blog->mobile, Yii::$app->name . "\n" . $title . ': ' . $blog->reset_token);
+    }
+
+    public static function customerVerifyRequest(Customer $customer, $blog)
+    {
+        $title = Yii::t('app', 'VerifyRequest');
+        return self::send($blog->mobile, $blog->title . "\n" . $title . ': ' . $customer->verify_token);
     }
 
     public static function customerResetPasswordRequest($customer, $blog)
