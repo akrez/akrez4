@@ -35,7 +35,7 @@ class Sms extends Component
         return self::send($blog->mobile, Yii::$app->name . "\n" . $title . ': ' . $blog->reset_token);
     }
 
-    public static function customerVerifyRequest(Customer $customer, $blog)
+    public static function customerVerifyRequest($customer, $blog)
     {
         $title = Yii::t('app', 'VerifyRequest');
         return self::send($blog->mobile, $blog->title . "\n" . $title . ': ' . $customer->verify_token);
