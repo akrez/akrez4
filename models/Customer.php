@@ -281,15 +281,24 @@ class Customer extends ActiveRecord implements IdentityInterface
         return $this->_customer;
     }
 
-    public function toArray(array $fields = [], array $expand = [], $recursive = true)
+    public function toArray(array $fields = [], array $expand = [], $recursive = true, $includeToken = false)
     {
         return [
             'id' => $this->id,
             'created_at' => $this->created_at,
             'mobile' => $this->mobile,
+            'status' => $this->status,
+            'token' => ($includeToken ? $this->token : null),
         ];
     }
 
+    public function response($includeToken = false)
+    {
+        return [
+            'customer' => $this->toArray([], [], true, $includeToken),
+            'errors' => $this->errors,
+        ];
+    }
     public static function validStatuses()
     {
         return [
