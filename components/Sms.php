@@ -25,25 +25,25 @@ class Sms extends Component
 
     public static function verifyRequest($blog)
     {
-        $title = Yii::t('app', 'VerifyRequest');
+        $title = $blog->getAttributeLabel('verify_token');
         return self::send($blog->mobile, Yii::$app->name . "\n" . $title . ': ' . $blog->verify_token);
     }
 
     public static function resetPasswordRequest($blog)
     {
-        $title = Yii::t('app', 'ResetPasswordRequest');
+        $title = $blog->getAttributeLabel('reset_token');
         return self::send($blog->mobile, Yii::$app->name . "\n" . $title . ': ' . $blog->reset_token);
     }
 
     public static function customerVerifyRequest($customer, $blog)
     {
-        $title = Yii::t('app', 'VerifyRequest');
-        return self::send($blog->mobile, $blog->title . "\n" . $title . ': ' . $customer->verify_token);
+        $title = $customer->getAttributeLabel('verify_token');
+        return self::send($customer->mobile, $blog->title . "\n" . $title . ': ' . $customer->verify_token);
     }
 
     public static function customerResetPasswordRequest($customer, $blog)
     {
-        $title = Yii::t('app', 'ResetPasswordRequest');
-        return self::send($blog->mobile, $blog->title . "\n" . $title . ': ' . $customer->reset_token);
+        $title = $customer->getAttributeLabel('reset_token');
+        return self::send($customer->mobile, $blog->title . "\n" . $title . ': ' . $customer->reset_token);
     }
 }
