@@ -7,6 +7,7 @@ use app\models\ProductField;
 use app\components\SingleSort;
 use yii\web\BadRequestHttpException;
 use app\components\Cache;
+use app\components\Sms;
 use app\models\Blog;
 use app\models\Category;
 use app\models\Color;
@@ -130,7 +131,7 @@ class Api1Controller extends Api
                         'roles' => ['@'],
                     ],
                     [
-                        'actions' => ['signin', 'signup', 'reset-password-request', 'reset-password',],
+                        'actions' => ['signin', 'signup', 'verify-request', 'verify', 'reset-password-request', 'reset-password',],
                         'allow' => true,
                         'verbs' => ['POST'],
                         'roles' => ['?'],
@@ -387,7 +388,6 @@ class Api1Controller extends Api
             $signup->blog_name = $blog->name;
             $signup->status = Status::STATUS_UNVERIFIED;
             $signup->setAuthKey();
-            $signup->setVerifyToken();
             $signup->setPasswordHash($signup->password);
             $signup->save();
         } catch (Throwable $e) {
@@ -396,7 +396,51 @@ class Api1Controller extends Api
         if ($signup->hasErrors()) {
             return $signup->response();
         }
-        return $signup->response(true);
+        return $signup->response();
+    }
+
+    public function actionVerifyRequest()
+    {
+        $blog = self::blog();
+        //
+        $verifyRequest = new Customer(['scenario' => 'verifyRequest']);
+        try {
+            $verifyRequest->load(\Yii::$app->request->post(), '');
+            $verifyRequest->blog_name = $blog->name;
+            if ($verifyRequest->validate()) {
+                $user = $verifyRequest->getCustomer();
+                $user->setAttributeToken('verify_token', 'verify_at');
+                if ($user->save(false)) {
+                    Sms::customerVerifyRequest($user, $blog);
+                    return $user->response();
+                }
+            }
+        } catch (Throwable $e) {
+            Api::exceptionBadRequestHttp();
+        }
+        return $verifyRequest->response();
+    }
+
+    public function actionVerify()
+    {
+        $blog = self::blog();
+        //
+        $verify = new Customer(['scenario' => 'verify']);
+        try {
+            $verify->load(\Yii::$app->request->post(), '');
+            $verify->blog_name = $blog->name;
+            if ($verify->validate()) {
+                $user = $verify->getCustomer();
+                $user->setAttributeToken('verify_token', 'verify_at', true);
+                $user->status = Status::STATUS_ACTIVE;
+                if ($user->save(false)) {
+                    return $user->response();
+                }
+            }
+        } catch (Throwable $e) {
+            Api::exceptionBadRequestHttp();
+        }
+        return $verify->response();
     }
 
     public function actionSignout()
@@ -405,23 +449,27 @@ class Api1Controller extends Api
         if (!$signout) {
             Api::exceptionNotFoundHttp();
         }
-        $signout = $signout->signout();
-        if ($signout == null) {
-            Api::exceptionBadRequestHttp();
+        $signout->setAuthKey();
+        if ($signout->save(false)) {
+            return $signout->response();
         }
-        return $signout->response();
+        Api::exceptionBadRequestHttp();
     }
 
     public function actionSignin()
     {
         $blog = self::blog();
         //
-        $signin = Customer::signin(Yii::$app->request->post(), $blog->name);
-        if ($signin == null) {
+        $signin = new Customer(['scenario' => 'signin']);
+        try {
+            $signin->load(\Yii::$app->request->post(), '');
+            $signin->blog_name = $blog->name;
+            $signin->validate();
+            if ($user = $signin->getCustomer()) {
+                return $user->response(true);
+            }
+        } catch (Throwable $e) {
             Api::exceptionBadRequestHttp();
-        }
-        if ($user = $signin->getCustomer()) {
-            return $user->response(true);
         }
         return $signin->response();
     }
@@ -430,8 +478,19 @@ class Api1Controller extends Api
     {
         $blog = self::blog();
         //
-        $resetPasswordRequest = Customer::resetPasswordRequest(Yii::$app->request->post(), $blog->name);
-        if ($resetPasswordRequest == null) {
+        $resetPasswordRequest = new Customer(['scenario' => 'resetPasswordRequest']);
+        try {
+            $resetPasswordRequest->load(\Yii::$app->request->post(), '');
+            $resetPasswordRequest->blog_name = $blog->name;
+            if ($resetPasswordRequest->validate()) {
+                $user = $resetPasswordRequest->getCustomer();
+                $user->setAttributeToken('reset_token', 'reset_at');
+                if ($user->save(false)) {
+                    Sms::customerResetPasswordRequest($user, $blog);
+                    return $user->response();
+                }
+            }
+        } catch (Throwable $e) {
             Api::exceptionBadRequestHttp();
         }
         return $resetPasswordRequest->response();
@@ -441,8 +500,19 @@ class Api1Controller extends Api
     {
         $blog = self::blog();
         //
-        $resetPassword = Customer::resetPassword(Yii::$app->request->post(), $blog->name);
-        if ($resetPassword == null) {
+        $resetPassword = new Customer(['scenario' => 'resetPassword']);
+        try {
+            $resetPassword->load(\Yii::$app->request->post(), '');
+            $resetPassword->blog_name = $blog->name;
+            if ($resetPassword->validate()) {
+                $user = $resetPassword->getCustomer();
+                $user->setAttributeToken('reset_token', 'reset_at', true);
+                $user->setPasswordHash($resetPassword->password);
+                if ($user->save(false)) {
+                    return $user->response();
+                }
+            }
+        } catch (Throwable $e) {
             Api::exceptionBadRequestHttp();
         }
         return $resetPassword->response();
