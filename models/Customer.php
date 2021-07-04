@@ -189,9 +189,11 @@ class Customer extends ActiveRecord implements IdentityInterface
 
     public function loginValidation($attribute, $params)
     {
-        $passwordIsValid = Yii::$app->security->validatePassword($this->$attribute, $this->password_hash);
-        if (!$passwordIsValid) {
-            $this->addError($attribute, Yii::t('yii', '{attribute} is invalid.', ['attribute' => $this->getAttributeLabel($attribute)]));
+        if (!$this->hasErrors()) {
+            $passwordIsValid = Yii::$app->security->validatePassword($this->$attribute, $this->password_hash);
+            if (!$passwordIsValid) {
+                $this->addError($attribute, Yii::t('yii', '{attribute} is invalid.', ['attribute' => $this->getAttributeLabel($attribute)]));
+            }
         }
     }
 
@@ -295,6 +297,9 @@ class Customer extends ActiveRecord implements IdentityInterface
         }
     }
 
+    /**
+     * @return Customer
+     **/
     public function getCustomer()
     {
         return $this->_customer;

@@ -131,7 +131,7 @@ class Api1Controller extends Api
                         'roles' => ['@'],
                     ],
                     [
-                        'actions' => ['signin', 'signup', 'verify-request', 'verify', 'reset-password-request', 'reset-password',],
+                        'actions' => ['signin', 'signup', 'verify-request', 'verify', 'reset-password-request', 'reset-password', 'login'],
                         'allow' => true,
                         'verbs' => ['POST'],
                         'roles' => ['?'],
@@ -376,6 +376,36 @@ class Api1Controller extends Api
             Api::exceptionNotFoundHttp();
         }
         return $page->body;
+    }
+
+    public function actionLogin()
+    {
+        $post = \Yii::$app->request->post();
+        $blog = self::blog();
+        //
+        $signup = Customer::signup($blog->name, $post);
+        if ($signup == null) {
+            Api::exceptionBadRequestHttp();
+        }
+        //
+        $login = $signup->getCustomer();
+        //
+        if (!$signup->hasErrors()) {
+            return $signup->response('verify-request');
+        } elseif (!$login) {
+            return $signup->response('login');
+        }
+        //
+        $login->setScenario('login');
+        $login->load($post, '');
+        if ($login->validate()) {
+            return $login->response('index', true);
+        }
+        $signup->addErrors($login->errors);
+        if ($login->status == Customer::SIGNUP_STATUS) {
+            return $signup->response('verify-request');
+        }
+        return $signup->response('login');
     }
 
     public function actionSignup()
