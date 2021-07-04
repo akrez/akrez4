@@ -62,8 +62,15 @@ class Customer extends ActiveRecord implements IdentityInterface
             [['mobile',], 'required', 'on' => 'signin',],
             [['mobile',], 'match', 'pattern' => '/^09[0-9]{9}$/', 'on' => 'signin',],
             [['password',], 'required', 'on' => 'signin',],
-            [['password',], 'string', 'min' => 6, 'strict' => false, 'on' => 'resetPassword',],
+            [['password',], 'string', 'min' => 6, 'strict' => false, 'on' => 'signin',],
             [['password',], 'signinValidation', 'on' => 'signin',],
+            //login
+            [['!blog_name',], 'required', 'on' => 'login',],
+            [['!status',], 'required', 'on' => 'login',],
+            [['!status',], 'in', 'range' => self::validStatusesKey(), 'on' => 'login',],
+            [['password',], 'required', 'on' => 'login',],
+            [['password',], 'string', 'min' => 6, 'strict' => false, 'on' => 'login',],
+            [['password',], 'loginValidation', 'on' => 'login',],
             //resetPasswordRequest
             [['!blog_name',], 'required', 'on' => 'resetPasswordRequest',],
             [['mobile',], 'required', 'on' => 'resetPasswordRequest',],
@@ -165,12 +172,27 @@ class Customer extends ActiveRecord implements IdentityInterface
         if (!$this->hasErrors()) {
             $customer = self::blogValidQuery($this->blog_name, $this->mobile, self::validStatusesKey())
                 ->one();
-            if ($customer && $customer->validatePassword($this->password)) {
-                return $this->_customer = $customer;
+            if ($customer) {
+                $customer->setScenario('login');
+                $customer->password = $this->password;
+                if ($customer->validate()) {
+                    $customer->setScenario($this->getScenario());
+                    return $this->_customer = $customer;
+                }
+                $this->addErrors($customer->errors);
+            } else {
+                $this->addError($attribute, Yii::t('yii', '{attribute} is invalid.', ['attribute' => $this->getAttributeLabel($attribute)]));
             }
-            $this->addError($attribute, Yii::t('yii', '{attribute} is invalid.', ['attribute' => $this->getAttributeLabel($attribute)]));
         }
         return $this->_customer = null;
+    }
+
+    public function loginValidation($attribute, $params)
+    {
+        $passwordIsValid = Yii::$app->security->validatePassword($this->$attribute, $this->password_hash);
+        if (!$passwordIsValid) {
+            $this->addError($attribute, Yii::t('yii', '{attribute} is invalid.', ['attribute' => $this->getAttributeLabel($attribute)]));
+        }
     }
 
     public function resetPasswordRequestValidation($attribute, $params)
@@ -271,11 +293,6 @@ class Customer extends ActiveRecord implements IdentityInterface
             }
             $this->$attributeAt = time();
         }
-    }
-
-    public function validatePassword($password)
-    {
-        return Yii::$app->security->validatePassword($password, $this->password_hash);
     }
 
     public function getCustomer()
