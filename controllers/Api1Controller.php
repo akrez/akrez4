@@ -463,7 +463,7 @@ class Api1Controller extends Api
             $signin->blog_name = $blog->name;
             $signin->validate();
             if ($user = $signin->getCustomer()) {
-                return $user->responseWithToken();
+                return $user->response(null, true);
             }
         } catch (Throwable $e) {
             Api::exceptionBadRequestHttp();

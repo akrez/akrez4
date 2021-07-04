@@ -34,7 +34,8 @@ use yii\web\IdentityInterface;
 class Customer extends ActiveRecord implements IdentityInterface
 {
 
-    const TIMEOUT_RESET = 900;
+    const TIMEOUT_RESET = 300;
+    const SIGNUP_STATUS = Status::STATUS_UNVERIFIED;
 
     public $password;
     public $_customer;
@@ -278,22 +279,13 @@ class Customer extends ActiveRecord implements IdentityInterface
         ];
     }
 
-    public function response($includeToken = false, $data = [])
+    public function response($action = null, $includeToken = false)
     {
         return [
             'customer' => $this->toArray([], [], true, $includeToken),
             'errors' => $this->errors,
-        ] + $data;
-    }
-
-    public function responseWithAction($action)
-    {
-        return $this->response(false, ['action' => strval($action)]);
-    }
-
-    public function responseWithToken()
-    {
-        return $this->response(true);
+            'action' => $action,
+        ];
     }
 
     public static function validStatuses()
