@@ -231,6 +231,22 @@ class Customer extends ActiveRecord implements IdentityInterface
 
     /////
 
+    public static function signup($blogName, $data)
+    {
+        try {
+            $signup = new Customer(['scenario' => 'signup']);
+            $signup->load($data, '');
+            $signup->blog_name = $blogName;
+            $signup->status = self::SIGNUP_STATUS;
+            $signup->setAuthKey();
+            $signup->setPasswordHash($signup->password);
+            $signup->save();
+            return $signup;
+        } catch (Throwable $e) {
+        }
+        return null;
+    }
+
     public function setPasswordHash($password)
     {
         $this->password_hash = Yii::$app->security->generatePasswordHash($password);

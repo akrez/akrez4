@@ -382,15 +382,8 @@ class Api1Controller extends Api
     {
         $blog = self::blog();
         //
-        $signup = new Customer(['scenario' => 'signup']);
-        try {
-            $signup->load(\Yii::$app->request->post(), '');
-            $signup->blog_name = $blog->name;
-            $signup->status = Status::STATUS_UNVERIFIED;
-            $signup->setAuthKey();
-            $signup->setPasswordHash($signup->password);
-            $signup->save();
-        } catch (Throwable $e) {
+        $signup = Customer::signup($blog->name, \Yii::$app->request->post());
+        if ($signup == null) {
             Api::exceptionBadRequestHttp();
         }
         return $signup->response();
