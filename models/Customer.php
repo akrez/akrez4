@@ -33,7 +33,7 @@ use yii\web\IdentityInterface;
 class Customer extends ActiveRecord implements IdentityInterface
 {
 
-    const TIMEOUT_RESET = 120;
+    const TIMEOUT_RESET = 900;
 
     public $password;
     public $_customer;
@@ -50,18 +50,18 @@ class Customer extends ActiveRecord implements IdentityInterface
         return [
             //signup
             [['!blog_name',], 'required', 'on' => 'signup',],
-            [['mobile',], 'required', 'on' => 'signup',],
-            [['mobile',], 'unique', 'targetAttribute' => ['mobile', 'blog_name'], 'message' => Yii::t('yii', '{attribute} "{value}" has already been taken.'), 'on' => 'signup',],
-            [['mobile',], 'match', 'pattern' => '/^09[0-9]{9}$/', 'on' => 'signup',],
             [['password',], 'required', 'on' => 'signup',],
-            [['password',], 'minLenValidation', 'params' => ['min' => 6,], 'on' => 'signup',],
+            [['password',], 'string', 'min' => 6, 'strict' => false, 'on' => 'signup',],
+            [['mobile',], 'required', 'on' => 'signup',],
+            [['mobile',], 'match', 'pattern' => '/^09[0-9]{9}$/', 'on' => 'signup',],
+            [['mobile',], 'signupValidation', 'on' => 'signup',],
             //signin
             [['!blog_name',], 'required', 'on' => 'signin',],
             [['mobile',], 'required', 'on' => 'signin',],
             [['mobile',], 'match', 'pattern' => '/^09[0-9]{9}$/', 'on' => 'signin',],
             [['password',], 'required', 'on' => 'signin',],
+            [['password',], 'string', 'min' => 6, 'strict' => false, 'on' => 'resetPassword',],
             [['password',], 'signinValidation', 'on' => 'signin',],
-            [['password',], 'minLenValidation', 'params' => ['min' => 6,], 'on' => 'signin',],
             //resetPasswordRequest
             [['!blog_name',], 'required', 'on' => 'resetPasswordRequest',],
             [['mobile',], 'required', 'on' => 'resetPasswordRequest',],
@@ -72,7 +72,7 @@ class Customer extends ActiveRecord implements IdentityInterface
             [['mobile',], 'required', 'on' => 'resetPassword',],
             [['mobile',], 'match', 'pattern' => '/^09[0-9]{9}$/', 'on' => 'resetPassword',],
             [['password',], 'required', 'on' => 'resetPassword',],
-            [['password',], 'minLenValidation', 'params' => ['min' => 6,], 'on' => 'resetPassword',],
+            [['password',], 'string', 'min' => 6, 'strict' => false, 'on' => 'resetPassword',],
             [['reset_token',], 'resetPasswordValidation', 'on' => 'resetPassword',],
             [['reset_token',], 'required', 'on' => 'resetPassword',],
             //verify
@@ -141,10 +141,27 @@ class Customer extends ActiveRecord implements IdentityInterface
 
     /////
 
+    public function signupValidation($attribute, $params)
+    {
+        $customer = null;
+        if (!$this->hasErrors()) {
+            $customer = self::blogValidQuery($this->blog_name, $this->mobile, null)
+                ->one();
+            if ($customer) {
+                $message = Yii::t('yii', '{attribute} "{value}" has already been taken.', [
+                    'attribute' => $this->getAttributeLabel($attribute),
+                    'value' => $this->$attribute,
+                ]);
+                $this->addError($attribute, $message);
+            }
+        }
+        return $this->_customer = $customer;
+    }
+
     public function signinValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $customer = self::blogValidQuery($this->blog_name, $this->mobile, false)
+            $customer = self::blogValidQuery($this->blog_name, $this->mobile)
                 ->one();
             if ($customer && $customer->validatePassword($this->password)) {
                 return $this->_customer = $customer;
@@ -157,7 +174,7 @@ class Customer extends ActiveRecord implements IdentityInterface
     public function resetPasswordRequestValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $customer = self::blogValidQuery($this->blog_name, $this->mobile, false)
+            $customer = self::blogValidQuery($this->blog_name, $this->mobile)
                 ->one();
             if ($customer) {
                 return $this->_customer = $customer;
@@ -170,7 +187,7 @@ class Customer extends ActiveRecord implements IdentityInterface
     public function verifyRequestValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $customer = self::blogValidQuery($this->blog_name, $this->mobile)
+            $customer = self::blogValidQuery($this->blog_name, $this->mobile, 0)
                 ->one();
             if ($customer) {
                 return $this->_customer = $customer;
@@ -183,7 +200,7 @@ class Customer extends ActiveRecord implements IdentityInterface
     public function resetPasswordValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $customer = self::blogValidQuery($this->blog_name, $this->mobile, false)
+            $customer = self::blogValidQuery($this->blog_name, $this->mobile)
                 ->andWhere(['reset_token' => $this->reset_token])
                 ->andWhere(['>', 'reset_at', time() - self::TIMEOUT_RESET])
                 ->one();
@@ -198,7 +215,7 @@ class Customer extends ActiveRecord implements IdentityInterface
     public function verifyValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $customer = self::blogValidQuery($this->blog_name, $this->mobile)
+            $customer = self::blogValidQuery($this->blog_name, $this->mobile, 0)
                 ->andWhere(['verify_token' => $this->verify_token])
                 ->andWhere(['>', 'verify_at', time() - self::TIMEOUT_RESET])
                 ->one();
@@ -208,22 +225,6 @@ class Customer extends ActiveRecord implements IdentityInterface
             $this->addError($attribute, Yii::t('yii', '{attribute} is invalid.', ['attribute' => $this->getAttributeLabel($attribute)]));
         }
         return $this->_customer = null;
-    }
-
-    public function minLenValidation($attribute, $params, $validator)
-    {
-        $min = $params['min'];
-        if (strlen($this->$attribute) < $min) {
-            $this->addError($attribute, Yii::t('yii', '{attribute} must be no less than {min}.', ['min' => $min, 'attribute' => $this->getAttributeLabel($attribute)]));
-        }
-    }
-
-    public function maxLenValidation($attribute, $params, $validator)
-    {
-        $max = $params['max'];
-        if ($max < strlen($this->$attribute)) {
-            $this->addError($attribute, Yii::t('yii', '{attribute} must be no greater than {max}.', ['max' => $max, 'attribute' => $this->getAttributeLabel($attribute)]));
-        }
     }
 
     public function setPasswordHash($password)
@@ -236,39 +237,20 @@ class Customer extends ActiveRecord implements IdentityInterface
         return $this->token = Yii::$app->security->generateRandomString();
     }
 
-    public function setVerifyToken($setNull = false)
+    public function setAttributeToken($attribute, $attributeAt, $setNull = false)
     {
         if ($setNull === true) {
-            $this->verify_token = null;
-            $this->verify_at = null;
+            $this->$attribute = null;
+            $this->$attributeAt = null;
         } else {
-            if (empty($this->verify_token) || time() - self::TIMEOUT_RESET > $this->verify_at) {
-                $this->verify_token = self::generateToken('verify_token');
+            if (empty($this->$attribute) || time() - self::TIMEOUT_RESET > $this->$attributeAt) {
+                do {
+                    $this->$attribute = mt_rand(100000, 999999);
+                    $model = self::find()->where([$attribute => $this->$attribute])->one();
+                } while ($model != null);
             }
-            $this->verify_at = time();
+            $this->$attributeAt = time();
         }
-    }
-
-    public function setResetToken($setNull = false)
-    {
-        if ($setNull === true) {
-            $this->reset_token = null;
-            $this->reset_at = null;
-        } else {
-            if (empty($this->reset_token) || time() - self::TIMEOUT_RESET > $this->reset_at) {
-                $this->reset_token = self::generateToken('reset_token');
-            }
-            $this->reset_at = time();
-        }
-    }
-
-    public static function generateToken($attribute)
-    {
-        do {
-            $rand = mt_rand(100000, 999999);
-            $model = self::find()->where([$attribute => $rand])->one();
-        } while ($model != null);
-        return $rand;
     }
 
     public function validatePassword($password)
@@ -286,6 +268,7 @@ class Customer extends ActiveRecord implements IdentityInterface
         return [
             'id' => $this->id,
             'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
             'mobile' => $this->mobile,
             'status' => $this->status,
             'token' => ($includeToken ? $this->token : null),
@@ -307,12 +290,14 @@ class Customer extends ActiveRecord implements IdentityInterface
         ];
     }
 
-    public static function blogValidQuery($blogName, $mobile, $justUnverifiedStatus = true)
+    public static function blogValidQuery($blogName, $mobile, $statusMode = 21)
     {
-        $statuses = ($justUnverifiedStatus ? Status::STATUS_UNVERIFIED : array_keys(self::validStatuses()));
-        return Customer::find()
-            ->where(['blog_name' =>  $blogName])
-            ->andWhere(['mobile' => $mobile])
-            ->andWhere(['status' => $statuses]);
+        $query = Customer::find()->where(['blog_name' =>  $blogName])->andWhere(['mobile' => $mobile]);
+        if ($statusMode === 21) {
+            $query = $query->andWhere(['status' => array_keys(self::validStatuses())]);
+        } elseif ($statusMode === 0) {
+            $query = $query->andWhere(['status' => Status::STATUS_UNVERIFIED]);
+        }
+        return $query;
     }
 }
