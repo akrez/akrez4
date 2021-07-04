@@ -393,9 +393,6 @@ class Api1Controller extends Api
         } catch (Throwable $e) {
             Api::exceptionBadRequestHttp();
         }
-        if ($signup->hasErrors()) {
-            return $signup->response();
-        }
         return $signup->response();
     }
 
@@ -466,7 +463,7 @@ class Api1Controller extends Api
             $signin->blog_name = $blog->name;
             $signin->validate();
             if ($user = $signin->getCustomer()) {
-                return $user->response(true);
+                return $user->responseWithToken();
             }
         } catch (Throwable $e) {
             Api::exceptionBadRequestHttp();

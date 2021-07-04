@@ -4,6 +4,7 @@ namespace app\models;
 
 use app\components\Cache;
 use app\components\Helper;
+use Throwable;
 use Yii;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
@@ -227,6 +228,8 @@ class Customer extends ActiveRecord implements IdentityInterface
         return $this->_customer = null;
     }
 
+    /////
+
     public function setPasswordHash($password)
     {
         $this->password_hash = Yii::$app->security->generatePasswordHash($password);
@@ -275,12 +278,22 @@ class Customer extends ActiveRecord implements IdentityInterface
         ];
     }
 
-    public function response($includeToken = false)
+    public function response($includeToken = false, $data = [])
     {
         return [
             'customer' => $this->toArray([], [], true, $includeToken),
             'errors' => $this->errors,
-        ];
+        ] + $data;
+    }
+
+    public function responseWithAction($action)
+    {
+        return $this->response(false, ['action' => strval($action)]);
+    }
+
+    public function responseWithToken()
+    {
+        return $this->response(true);
     }
 
     public static function validStatuses()
