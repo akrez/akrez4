@@ -57,13 +57,6 @@ class Customer extends ActiveRecord implements IdentityInterface
             [['mobile',], 'required', 'on' => 'signup',],
             [['mobile',], 'match', 'pattern' => '/^09[0-9]{9}$/', 'on' => 'signup',],
             [['mobile',], 'signupValidation', 'on' => 'signup',],
-            //signin
-            [['!blog_name',], 'required', 'on' => 'signin',],
-            [['mobile',], 'required', 'on' => 'signin',],
-            [['mobile',], 'match', 'pattern' => '/^09[0-9]{9}$/', 'on' => 'signin',],
-            [['password',], 'required', 'on' => 'signin',],
-            [['password',], 'string', 'min' => 6, 'strict' => false, 'on' => 'signin',],
-            [['password',], 'signinValidation', 'on' => 'signin',],
             //login
             [['!blog_name',], 'required', 'on' => 'login',],
             [['!status',], 'required', 'on' => 'login',],
@@ -165,26 +158,6 @@ class Customer extends ActiveRecord implements IdentityInterface
             }
         }
         return $this->_customer = $customer;
-    }
-
-    public function signinValidation($attribute, $params)
-    {
-        if (!$this->hasErrors()) {
-            $customer = self::blogValidQuery($this->blog_name, $this->mobile, self::validStatusesKey())
-                ->one();
-            if ($customer) {
-                $customer->setScenario('login');
-                $customer->password = $this->password;
-                if ($customer->validate()) {
-                    $customer->setScenario($this->getScenario());
-                    return $this->_customer = $customer;
-                }
-                $this->addErrors($customer->errors);
-            } else {
-                $this->addError($attribute, Yii::t('yii', '{attribute} is invalid.', ['attribute' => $this->getAttributeLabel($attribute)]));
-            }
-        }
-        return $this->_customer = null;
     }
 
     public function loginValidation($attribute, $params)
@@ -317,13 +290,19 @@ class Customer extends ActiveRecord implements IdentityInterface
         ];
     }
 
-    public function response($action = null, $includeToken = false)
+    public function response($action = null, $status = null, $includeToken = false)
     {
-        return [
+        $response = [
             'customer' => $this->toArray([], [], true, $includeToken),
             'errors' => $this->errors,
-            'action' => $action,
         ];
+        if ($action !== null) {
+            $response['action'] = $action;
+        }
+        if ($status !== null) {
+            $response['status'] = $status;
+        }
+        return $response;
     }
 
     public static function validStatuses()

@@ -131,7 +131,7 @@ class Api1Controller extends Api
                         'roles' => ['@'],
                     ],
                     [
-                        'actions' => ['signin', 'signup', 'verify-request', 'verify', 'reset-password-request', 'reset-password', 'login'],
+                        'actions' => ['login', 'verify-request', 'verify', 'reset-password-request', 'reset-password'],
                         'allow' => true,
                         'verbs' => ['POST'],
                         'roles' => ['?'],
@@ -388,35 +388,26 @@ class Api1Controller extends Api
             Api::exceptionBadRequestHttp();
         }
         //
-        $login = $signup->getCustomer();
-        //
         if (!$signup->hasErrors()) {
-            return $signup->response('verify-request');
-        } elseif (!$login) {
-            return $signup->response('login');
+            return $signup->response('verify-request', true);
         }
+        //
+        $login = $signup->getCustomer();
+        if (!$login) {
+            return $signup->response('login', false);
+        }
+        $signup->clearErrors();
         //
         $login->setScenario('login');
         $login->load($post, '');
         if ($login->validate()) {
-            return $login->response('index', true);
+            return $login->response('index', true, true);
         }
-        $signup->addErrors($login->errors);
+        $signup->addErrors(['password' => $login->getErrorSummary(true)]);
         if ($login->status == Customer::SIGNUP_STATUS) {
-            return $signup->response('verify-request');
+            return $signup->response('verify-request', false);
         }
-        return $signup->response('login');
-    }
-
-    public function actionSignup()
-    {
-        $blog = self::blog();
-        //
-        $signup = Customer::signup($blog->name, \Yii::$app->request->post());
-        if ($signup == null) {
-            Api::exceptionBadRequestHttp();
-        }
-        return $signup->response();
+        return $signup->response('login', false);
     }
 
     public function actionVerifyRequest()
@@ -474,24 +465,6 @@ class Api1Controller extends Api
             return $signout->response();
         }
         Api::exceptionBadRequestHttp();
-    }
-
-    public function actionSignin()
-    {
-        $blog = self::blog();
-        //
-        $signin = new Customer(['scenario' => 'signin']);
-        try {
-            $signin->load(\Yii::$app->request->post(), '');
-            $signin->blog_name = $blog->name;
-            $signin->validate();
-            if ($user = $signin->getCustomer()) {
-                return $user->response(null, true);
-            }
-        } catch (Throwable $e) {
-            Api::exceptionBadRequestHttp();
-        }
-        return $signin->response();
     }
 
     public function actionResetPasswordRequest()
