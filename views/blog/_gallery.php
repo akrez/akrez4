@@ -27,7 +27,8 @@ $this->registerCss("
         background-position-y: center;
     }
 ");
-$id = $dataProviderModel->id;
+$id = $dataProviderModel->name;
+$actionUrl = 'blog/profile';
 $buttonSelector = "gallery-button-" . $id;
 $modeSelector = "gallery-mode-" . $id;
 $formSelector = "gallery-form-" . $id;
@@ -37,7 +38,7 @@ $formSelector = "gallery-form-" . $id;
 
     <?php
     $form = ActiveForm::begin([
-        'action' => Url::current(['product/index', 'id' => $id, 'state' => 'galleryUpload', 'parent_id' => $dataProviderModel->category_id]),
+        'action' => Url::current([$actionUrl, 'state' => 'galleryUpload']),
         'method' => 'post',
         'options' => [
             'data-pjax' => true,
@@ -58,7 +59,7 @@ $formSelector = "gallery-form-" . $id;
         <div class="col-sm-12">
             <?php
             echo $form
-                ->field($dataProviderModel, 'picture')
+                ->field($dataProviderModel, 'image')
                 ->fileInput([
                     'id' => $buttonSelector,
                     'class' => "gallery-file-input",
@@ -73,15 +74,15 @@ $formSelector = "gallery-form-" . $id;
     <div class='row'>
         <?php foreach ($dataProviderModel->galleries as $gallery) : ?>
             <div class="col-sm-3 pb15">
-                <div class="thumbnail akrez-container" style="<?= $dataProviderModel->image == $gallery->name ? 'border-color: #e89929; box-shadow: 0 1px 2px #f2b968;' : '' ?>">
-                    <div class="akrez-text" style="background-image: url('<?= Gallery::getImageUrl('product', $gallery->name) ?>');">
+                <div class="thumbnail akrez-container" style="<?= $dataProviderModel->logo == $gallery->name ? 'border-color: #e89929; box-shadow: 0 1px 2px #f2b968;' : '' ?>">
+                    <div class="akrez-text" style="background-image: url('<?= Gallery::getImageUrl(Gallery::TYPE_LOGO, $gallery->name) ?>');">
                         <div style="top: 5px; position: absolute; right: 5px;">
-                            <a class="btn btn-sm btn-warning btn-social" <?= $dataProviderModel->image == $gallery->name ? 'disabled' : '' ?> href="<?= Url::current([0 => 'product/index', 'state' => 'galleryDefault', 'name' => $gallery->name, 'id' => $dataProviderModel->id, 'parent_id' => $dataProviderModel->category_id]) ?>">
+                            <a class="btn btn-sm btn-warning btn-social" <?= $dataProviderModel->logo == $gallery->name ? 'disabled' : '' ?> href="<?= Url::current([0 => $actionUrl, 'state' => 'galleryDefault', 'name' => $gallery->name]) ?>">
                                 <span class="glyphicon glyphicon-star"></span><?= Yii::t('app', 'Default') ?>
                             </a>
                         </div>
                         <div style="bottom: 5px; position: absolute; right: 5px;">
-                            <a class="btn btn-sm btn-danger btn-social" href="<?= Url::current([0 => 'product/index', 'state' => 'galleryDelete', 'name' => $gallery->name, 'id' => $dataProviderModel->id, 'parent_id' => $dataProviderModel->category_id]) ?>" data-confirm="<?= Yii::t('yii', 'Are you sure you want to delete this item?') ?>" role="button">
+                            <a class="btn btn-sm btn-danger btn-social" href="<?= Url::current([0 => $actionUrl, 'state' => 'galleryDelete', 'name' => $gallery->name]) ?>" data-confirm="<?= Yii::t('yii', 'Are you sure you want to delete this item?') ?>" role="button">
                                 <span class="glyphicon glyphicon-trash"></span> <?= Yii::t('yii', 'Delete') ?>
                             </a>
                         </div>
