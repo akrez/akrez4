@@ -34,7 +34,7 @@ use yii\web\IdentityInterface;
  * @property Category[] $categories
  * @property Customer[] $customers
  * @property Field[] $fields
- * @property Gallery $logo0
+ * @property Gallery[] $galleries
  * @property Package[] $packages
  * @property Page[] $pages
  * @property ProductField[] $productFields
@@ -531,5 +531,17 @@ class Blog extends ActiveRecord implements IdentityInterface
             'has_page' => Cache::getCachePages($this),
             'color' => Cache::getBlogCacheColor($this),
         ];
+    }
+
+    /**
+     * Gets query for [[Gallery]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getGalleries()
+    {
+        return $this->hasMany(Gallery::class, ['blog_name' => 'name'])
+            ->andWhere(['type' => Gallery::TYPE_LOGO])
+            ->andWhere(['blog_name' => $this->name]);
     }
 }
