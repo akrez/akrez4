@@ -435,10 +435,11 @@ class Api1Controller extends Api
     public function actionVerify()
     {
         $blog = self::blog();
+        $post = \Yii::$app->request->post();
         //
         $verify = new Customer(['scenario' => 'verify']);
         try {
-            $verify->load(\Yii::$app->request->post(), '');
+            $verify->load($post, '');
             $verify->blog_name = $blog->name;
             if ($verify->validate()) {
                 $user = $verify->getCustomer();
