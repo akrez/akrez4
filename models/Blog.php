@@ -29,7 +29,7 @@ use yii\web\IdentityInterface;
  * @property string|null $mobile
  * @property string|null $telegram_bot_token
  * @property string|null $language
- * @property string|null $params { "address":"", "phone":"", "mobile":"", "instagram":"", "telegram":"", "facebook":"", "twitter":"", "slug":"", "des":"" }
+ * @property string|null $params
  *
  * @property Category[] $categories
  * @property Customer[] $customers
@@ -52,6 +52,8 @@ class Blog extends ActiveRecord implements IdentityInterface
     public $address;
     public $phone;
     public $instagram;
+    public $whatsapp;
+    public $telegram_user;
     public $telegram;
     public $facebook;
     public $twitter;
@@ -74,19 +76,27 @@ class Blog extends ActiveRecord implements IdentityInterface
     {
         return [
             [['title',], 'string', 'max' => 60, 'on' => 'profile',],
-            [['des',], 'string', 'on' => 'profile',],
             [['slug',], 'string', 'max' => 160, 'on' => 'profile',],
-            [['twitter',], 'match', 'pattern' => '/^[A-Za-z0-9_\.]{1,15}$/', 'on' => 'profile',],
-            [['facebook',], 'match', 'pattern' => '/^[A-Za-z0-9_\.]{5,}$/i', 'on' => 'profile',],
-            [['telegram',], 'match', 'pattern' => '/^[A-Za-z0-9_\.]+$/i', 'on' => 'profile',],
-            [['instagram',], 'match', 'pattern' => '/^[A-Za-z0-9_\.]{5,}$/i', 'on' => 'profile',],
+            [['status',], 'in', 'range' => array_keys(self::validStatuses())],
+
+            [['des',], 'string', 'max' => 320, 'on' => 'profile',],
+            [['language',], 'in', 'range' => array_keys(Language::getList())],
+
+            [['instagram',],      'match', 'pattern' => '/^[A-Za-z0-9_\.]+$/', 'on' => 'profile',],
+            [['whatsapp',],       'match', 'pattern' => '/^[A-Za-z0-9_\.]+$/', 'on' => 'profile',],
+            [['facebook',],       'match', 'pattern' => '/^[A-Za-z0-9_\.]+$/', 'on' => 'profile',],
+            [['twitter',],        'match', 'pattern' => '/^[A-Za-z0-9_\.]+$/', 'on' => 'profile',],
+            [['telegram',],       'match', 'pattern' => '/^[A-Za-z0-9_\.]+$/', 'on' => 'profile',],
+            [['telegram_user',],  'match', 'pattern' => '/^[A-Za-z0-9_\.]+$/', 'on' => 'profile',],
+            [['telegram_bot_token'], 'string', 'max' => 63],
+
             [['email',], 'email', 'on' => 'profile',],
             [['phone',], 'match', 'pattern' => '/^[0-9+]+$/', 'on' => 'profile',],
             [['address',], 'string', 'max' => 2048, 'on' => 'profile',],
-            [['password',], 'minLenValidation', 'params' => ['min' => 6,], 'on' => 'profile',],
+
+            [['password',], 'string', 'strict' => false, 'min' => 6, 'on' => 'profile',],
             [['image',], 'file', 'on' => 'profile',],
-            [['language',], 'in', 'range' => array_keys(Language::getList())],
-            [['telegram_bot_token'], 'string', 'max' => 63],
+
             //
             [['name',], 'required', 'on' => 'signup',],
             [['name',], 'unique', 'on' => 'signup',],
@@ -95,7 +105,7 @@ class Blog extends ActiveRecord implements IdentityInterface
             [['mobile',], 'unique', 'on' => 'signup',],
             [['mobile',], 'match', 'pattern' => '/^09[0-9]{9}$/', 'on' => 'signup',],
             [['password',], 'required', 'on' => 'signup',],
-            [['password',], 'minLenValidation', 'params' => ['min' => 6,], 'on' => 'signup',],
+            [['password',], 'string', 'strict' => false, 'min' => 6, 'on' => 'signup',],
             [['captcha',], 'required', 'on' => 'signup',],
             [['captcha',], 'captcha', 'on' => 'signup',],
             //
@@ -103,7 +113,7 @@ class Blog extends ActiveRecord implements IdentityInterface
             [['name',], 'match', 'pattern' => '/^[a-z]+$/', 'on' => 'signin',],
             [['password',], 'required', 'on' => 'signin',],
             [['password',], 'signinValidation', 'on' => 'signin',],
-            [['password',], 'minLenValidation', 'params' => ['min' => 6,], 'on' => 'signin',],
+            [['password',], 'string', 'strict' => false, 'min' => 6, 'on' => 'signin',],
             [['captcha',], 'required', 'on' => 'signin',],
             [['captcha',], 'captcha', 'on' => 'signin',],
             //
@@ -118,7 +128,7 @@ class Blog extends ActiveRecord implements IdentityInterface
             [['mobile',], 'required', 'on' => 'resetPassword',],
             [['mobile',], 'match', 'pattern' => '/^09[0-9]{9}$/', 'on' => 'resetPassword',],
             [['password',], 'required', 'on' => 'resetPassword',],
-            [['password',], 'minLenValidation', 'params' => ['min' => 6,], 'on' => 'resetPassword',],
+            [['password',], 'string', 'strict' => false, 'min' => 6, 'on' => 'resetPassword',],
             [['reset_token',], 'resetPasswordValidation', 'on' => 'resetPassword',],
             [['reset_token',], 'required', 'on' => 'resetPassword',],
             [['captcha',], 'required', 'on' => 'resetPassword',],
@@ -147,7 +157,7 @@ class Blog extends ActiveRecord implements IdentityInterface
             ],
             //
             'password' => [
-                ['minLenValidation', 'params' => ['min' => 6]],
+                ['string', 'strict' => false, 'min' => 6, 'params' => ['min' => 6]],
             ],
             //
             'des' => [
@@ -157,16 +167,22 @@ class Blog extends ActiveRecord implements IdentityInterface
                 ['string', 'max' => 160],
             ],
             'twitter' => [
-                ['match', 'pattern' => '/^[A-Za-z0-9_\.]{1,15}$/'],
+                ['match', 'pattern' => '/^[A-Za-z0-9_\.]+$/i'],
             ],
             'facebook' => [
-                ['match', 'pattern' => '/^[A-Za-z0-9_\.]{5,}$/i'],
+                ['match', 'pattern' => '/^[A-Za-z0-9_\.]+$/i'],
             ],
             'telegram' => [
                 ['match', 'pattern' => '/^[A-Za-z0-9_\.]+$/i'],
             ],
             'instagram' => [
-                ['match', 'pattern' => '/^[A-Za-z0-9_\.]{5,}$/i'],
+                ['match', 'pattern' => '/^[A-Za-z0-9_\.]+$/i'],
+            ],
+            'whatsapp' => [
+                ['match', 'pattern' => '/^[A-Za-z0-9_\.]+$/i'],
+            ],
+            'telegram_user' => [
+                ['match', 'pattern' => '/^[A-Za-z0-9_\.]+$/i'],
             ],
             'mobile' => [
                 ['match', 'pattern' => '/^09[0-9]{9}$/'],
@@ -199,6 +215,8 @@ class Blog extends ActiveRecord implements IdentityInterface
                 'facebook' => [],
                 'telegram' => [],
                 'instagram' => [],
+                'whatsapp' => [],
+                'telegram_user' => [],
                 'email' => [],
                 'phone' => [],
                 'address' => [],
@@ -250,6 +268,8 @@ class Blog extends ActiveRecord implements IdentityInterface
             'facebook' => null,
             'telegram' => null,
             'instagram' => null,
+            'whatsapp' => null,
+            'telegram_user' => null,
             'phone' => null,
             'address' => null,
             //
@@ -260,6 +280,8 @@ class Blog extends ActiveRecord implements IdentityInterface
         $this->des = $arrayParams['des'];
         $this->slug = $arrayParams['slug'];
         $this->instagram = $arrayParams['instagram'];
+        $this->whatsapp = $arrayParams['whatsapp'];
+        $this->telegram_user = $arrayParams['telegram_user'];
         $this->telegram = $arrayParams['telegram'];
         $this->facebook = $arrayParams['facebook'];
         $this->twitter = $arrayParams['twitter'];
@@ -280,6 +302,8 @@ class Blog extends ActiveRecord implements IdentityInterface
             'des' => $this->des,
             'slug' => $this->slug,
             'instagram' => $this->instagram,
+            'whatsapp' => $this->whatsapp,
+            'telegram_user' => $this->telegram_user,
             'telegram' => $this->telegram,
             'facebook' => $this->facebook,
             'twitter' => $this->twitter,
@@ -384,22 +408,6 @@ class Blog extends ActiveRecord implements IdentityInterface
     }
 
     /////
-
-    public function minLenValidation($attribute, $params, $validator)
-    {
-        $min = $params['min'];
-        if (strlen($this->$attribute) < $min) {
-            $this->addError($attribute, Yii::t('yii', '{attribute} must be no less than {min}.', ['min' => $min, 'attribute' => $this->getAttributeLabel($attribute)]));
-        }
-    }
-
-    public function maxLenValidation($attribute, $params, $validator)
-    {
-        $max = $params['max'];
-        if ($max < strlen($this->$attribute)) {
-            $this->addError($attribute, Yii::t('yii', '{attribute} must be no greater than {max}.', ['max' => $max, 'attribute' => $this->getAttributeLabel($attribute)]));
-        }
-    }
 
     public function setDefaultLanguage()
     {
@@ -525,6 +533,8 @@ class Blog extends ActiveRecord implements IdentityInterface
             'phone' => $this->phone,
             'mobile' => $this->mobile,
             'instagram' => $this->instagram,
+            'whatsapp' => $this->whatsapp,
+            'telegram_user' => $this->telegram_user,
             'telegram' => $this->telegram,
             'address' => $this->address,
             'twitter' => $this->twitter,
