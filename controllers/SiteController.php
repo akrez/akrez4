@@ -32,7 +32,7 @@ class SiteController extends Controller
                 'roles' => ['?'],
             ],
             [
-                'actions' => ['blog', 'profile', 'signout'],
+                'actions' => ['signout'],
                 'allow' => true,
                 'verbs' => ['POST', 'GET'],
                 'roles' => ['@'],
@@ -55,36 +55,6 @@ class SiteController extends Controller
     public function actionIndex()
     {
         return $this->render('index');
-    }
-
-    public function actionBlog()
-    {
-        $createdDateFrom = Jdf::jdate('Y-m-d H:i:s', strtotime(-30 . " days"));
-
-        $logApiFilterModel = new LogApi();
-        $logApiFilterModel->load(Yii::$app->request->get());
-        $logApiFilterModel->blog_name = Blog::print('name');
-        $logApiFilterModel->created_date_from = $createdDateFrom;
-        $logApiFilterModel->response_http_code = 200;
-
-        $dates = [];
-        for ($d = 0; $d <= 29; $d++) {
-            $pastDaysTimeStamp = strtotime(($d - 29) . " days");
-            $dates[] = Jdf::jdate('Y-m-d', $pastDaysTimeStamp);
-        }
-
-        return $this->render('blog', [
-            'dates' => $dates,
-            'groupedDatas' => $logApiFilterModel->statQueryGrouped()->asArray()->all(),
-            'dataProvider' => new ActiveDataProvider([
-                'query' => $logApiFilterModel->statQuery(),
-                'sort' => ['defaultOrder' => ['id' => SORT_DESC]]
-            ]),
-            'list' => [
-                'categories' => Cache::getBlogCacheCategory(Yii::$app->user->getIdentity()),
-            ],
-            'logApiFilterModel' => $logApiFilterModel,
-        ]);
     }
 
     public function actionSignin()
@@ -132,41 +102,6 @@ class SiteController extends Controller
                 }
             }
             return $this->render('signup', ['model' => $signup]);
-        } catch (Exception $e) {
-            throw new BadRequestHttpException();
-        }
-    }
-
-    public function actionProfile()
-    {
-        try {
-            $profile = \Yii::$app->user->getIdentity();
-            $profile->scenario = 'profile';
-            if ($profile->image = UploadedFile::getInstance($profile, 'image')) {
-                $logo = $profile->logo;
-                $gallery = Gallery::upload($profile->image->tempName, Gallery::TYPE_LOGO);
-                if ($gallery->hasErrors()) {
-                    $profile->addErrors(['image' => $gallery->getErrorSummary(true)]);
-                } else {
-                    $profile->logo = $gallery->name;
-                    if ($profile->save()) {
-                        if ($oldGallery = Gallery::findOne($logo)) {
-                            $oldGallery->delete();
-                            Yii::$app->session->setFlash('success', Yii::t('app', 'alertUpdateSuccessfull'));
-                            return $this->refresh();
-                        }
-                    }
-                }
-            } elseif ($profile->load(\Yii::$app->request->post())) {
-                if ($profile->password) {
-                    $profile->setPasswordHash($profile->password);
-                }
-                if ($profile->save()) {
-                    Yii::$app->session->setFlash('success', Yii::t('app', 'alertUpdateSuccessfull'));
-                    return $this->refresh();
-                }
-            }
-            return $this->render('profile', ['model' => $profile]);
         } catch (Exception $e) {
             throw new BadRequestHttpException();
         }
