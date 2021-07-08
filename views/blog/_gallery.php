@@ -78,7 +78,7 @@ $formSelector = "gallery-form-" . $id;
                     <div class="akrez-text" style="background-image: url('<?= Gallery::getImageUrl(Gallery::TYPE_LOGO, $gallery->name) ?>');">
                         <div style="top: 5px; position: absolute; right: 5px;">
                             <a class="btn btn-sm btn-warning btn-social" <?= $dataProviderModel->logo == $gallery->name ? 'disabled' : '' ?> href="<?= Url::current([0 => $actionUrl, 'state' => 'galleryDefault', 'name' => $gallery->name]) ?>">
-                                <span class="glyphicon glyphicon-star"></span><?= Yii::t('app', 'Default') ?>
+                                <span class="glyphicon glyphicon-star"></span><?= Yii::t('app', 'Choose') ?>
                             </a>
                         </div>
                         <div style="bottom: 5px; position: absolute; right: 5px;">
