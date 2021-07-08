@@ -90,6 +90,9 @@ return [
     'ResetPassword' => 'بازیابی رمز عبور',
     'VerifyRequest' => 'ارسال کد فعال‌سازی',
     'Verify' => 'فعال‌سازی',
+    'Choose' => 'انتخاب',
+    'Choose Logo' => 'انتخاب لوگو',
+    'Change Password' => 'تغییر رمزعبور',
     //
     'Create {name}' => 'ایجاد {name} جدید',
     'Update {name}' => 'ویرایش {name}',
