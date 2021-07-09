@@ -11,16 +11,14 @@ use Yii;
  * @property int|null $updated_at
  * @property string $status
  * @property float $price
- * @property float $package_price
  * @property int $cnt
- * @property string|null $color_code
  * @property int $product_id
  * @property int $customer_id
- * @property int $invoice_id
+ * @property int|null $package_id
  * @property string|null $blog_name
- * @property string|null $params
  *
  * @property Blog $blogName
+ * @property Customer $customer
  * @property Product $product
  */
 class Basket extends ActiveRecord
@@ -39,8 +37,14 @@ class Basket extends ActiveRecord
     public function rules()
     {
         return [
-            [['cnt',], 'integer', 'min' => 1],
-            [['!status', '!price', '!package_price', 'cnt', '!product_id', '!customer_id'], 'required'],
+            [['updated_at', 'cnt', 'product_id', 'package_id', 'customer_id'], 'integer'],
+            [['status', 'price', 'cnt', 'product_id', 'customer_id'], 'required'],
+            [['price'], 'number'],
+            [['status'], 'string', 'max' => 12],
+            [['blog_name'], 'string', 'max' => 31],
+            [['product_id'], 'exist', 'skipOnError' => true, 'targetClass' => Product::class, 'targetAttribute' => ['product_id' => 'id']],
+            [['blog_name'], 'exist', 'skipOnError' => true, 'targetClass' => Blog::class, 'targetAttribute' => ['blog_name' => 'name']],
+            [['customer_id'], 'exist', 'skipOnError' => true, 'targetClass' => Customer::class, 'targetAttribute' => ['customer_id' => 'id']],
         ];
     }
 
@@ -52,6 +56,16 @@ class Basket extends ActiveRecord
     public function getBlogName()
     {
         return $this->hasOne(Blog::class, ['name' => 'blog_name'])->inverseOf('baskets');
+    }
+
+    /**
+     * Gets query for [[Customer]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCustomer()
+    {
+        return $this->hasOne(Customer::class, ['id' => 'customer_id'])->inverseOf('baskets');
     }
 
     /**
