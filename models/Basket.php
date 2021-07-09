@@ -13,6 +13,7 @@ use Yii;
  * @property float $price
  * @property int $cnt
  * @property int $product_id
+ * @property int|null $invoice_id
  * @property int $customer_id
  * @property int $package_id
  * @property string|null $blog_name
