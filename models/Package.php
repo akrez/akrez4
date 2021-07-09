@@ -52,7 +52,12 @@ class Package extends ActiveRecord
 
     public static function findProductPackageQueryForApi($blogName, $productId)
     {
-        return Package::find()->where(['blog_name' => $blogName, 'status' => Status::STATUS_ACTIVE, 'product_id' => $productId]);
+        return self::findPackageQueryForApi($blogName)->andWhere(['product_id' => $productId]);
+    }
+
+    public static function findPackageQueryForApi($blogName)
+    {
+        return Package::find()->where(['blog_name' => $blogName, 'status' => Status::STATUS_ACTIVE]);
     }
 
     public static function printHtmlForTelegram($package, $seprator)
