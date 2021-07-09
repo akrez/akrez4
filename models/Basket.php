@@ -14,11 +14,12 @@ use Yii;
  * @property int $cnt
  * @property int $product_id
  * @property int $customer_id
- * @property int|null $package_id
+ * @property int $package_id
  * @property string|null $blog_name
  *
  * @property Blog $blogName
  * @property Customer $customer
+ * @property Package $package
  * @property Product $product
  */
 class Basket extends ActiveRecord
@@ -37,14 +38,16 @@ class Basket extends ActiveRecord
     public function rules()
     {
         return [
-            [['updated_at', 'cnt', 'product_id', 'package_id', 'customer_id'], 'integer'],
-            [['status', 'price', 'cnt', 'product_id', 'customer_id'], 'required'],
-            [['price'], 'number'],
-            [['status'], 'string', 'max' => 12],
-            [['blog_name'], 'string', 'max' => 31],
-            [['product_id'], 'exist', 'skipOnError' => true, 'targetClass' => Product::class, 'targetAttribute' => ['product_id' => 'id']],
-            [['blog_name'], 'exist', 'skipOnError' => true, 'targetClass' => Blog::class, 'targetAttribute' => ['blog_name' => 'name']],
-            [['customer_id'], 'exist', 'skipOnError' => true, 'targetClass' => Customer::class, 'targetAttribute' => ['customer_id' => 'id']],
+            [['cnt'], 'integer', 'min' => 1],
+            [['!status', '!price', 'cnt', '!product_id', '!package_id', '!customer_id', '!blog_name'], 'required'],
+        ];
+    }
+
+    public static function validStatuses()
+    {
+        return [
+            Status::STATUS_ACTIVE => Yii::t('app', 'Active'),
+            Status::STATUS_DISABLE => Yii::t('app', 'Disable'),
         ];
     }
 
@@ -66,6 +69,16 @@ class Basket extends ActiveRecord
     public function getCustomer()
     {
         return $this->hasOne(Customer::class, ['id' => 'customer_id'])->inverseOf('baskets');
+    }
+
+    /**
+     * Gets query for [[Package]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPackage()
+    {
+        return $this->hasOne(Package::class, ['id' => 'package_id'])->inverseOf('baskets');
     }
 
     /**
