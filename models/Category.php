@@ -129,7 +129,12 @@ class Category extends ActiveRecord
 
     public static function findCategoryForApi($blogName, $id)
     {
-        return Category::find()->where(['AND', ['id' => $id, 'blog_name' => $blogName, 'status' => Status::STATUS_ACTIVE,]])->one();
+        return Category::findCategoryQueryForApi($blogName)->andWhere(['id' => $id])->one();
+    }
+
+    public static function findCategoryQueryForApi($blogName)
+    {
+        return Category::find()->where(['AND', ['blog_name' => $blogName, 'status' => Status::STATUS_ACTIVE,]]);
     }
 
     public function toArray(array $fields = [], array $expand = [], $recursive = true)
