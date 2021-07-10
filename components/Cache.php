@@ -48,7 +48,7 @@ class Cache extends Component
 
     public static function updateBlogCacheCategory($blog)
     {
-        $blog->cache_category = Category::blogValidQuery()->select(['id', 'title'])->andWhere(['status' => Status::STATUS_ACTIVE])->all();
+        $blog->cache_category = Category::findCategoryQueryForApi($blog->name)->select(['id', 'title'])->all();
         $blog->cache_category = ArrayHelper::map($blog->cache_category, 'id', 'title');
         $blog->save();
     }
