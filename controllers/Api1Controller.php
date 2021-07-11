@@ -8,6 +8,7 @@ use app\components\SingleSort;
 use yii\web\BadRequestHttpException;
 use app\components\Cache;
 use app\components\Sms;
+use app\models\Basket;
 use app\models\Blog;
 use app\models\Category;
 use app\models\Color;
@@ -31,6 +32,7 @@ use yii\web\Response;
 class Api1Controller extends Api
 {
     private static $_blog = false;
+    private static $_customer = false;
 
     public function init()
     {
@@ -91,6 +93,24 @@ class Api1Controller extends Api
         }
 
         return self::$_blog;
+    }
+
+    /**
+     * @return Customer|null
+     */
+    public static function customer()
+    {
+        if (self::$_customer !== false) {
+            return self::$_customer;
+        }
+
+        self::$_customer = null;
+
+        if (Yii::$app->customerApi->getIdentity()) {
+            self::$_customer = Yii::$app->customerApi->getIdentity();
+        }
+
+        return self::$_customer;
     }
 
     public static function categories()
@@ -376,6 +396,32 @@ class Api1Controller extends Api
             Api::exceptionNotFoundHttp();
         }
         return $page->body;
+    }
+
+    public static function actionBasketAdd($add = true)
+    {
+        $blog = self::blog();
+        $customer = self::customer();
+        $post = \Yii::$app->request->post();
+        //
+        $basket = new Basket();
+        $basket->load($post, '');
+        $basket->blog_name = $blog->name;
+        $basket->customer_id = $customer->id;
+        $basket->status = Status::STATUS_ACTIVE;
+        if ($basket->validate()) {
+            $basketHandler = Basket::findDuplicateForApi($blog->name, $customer->id, $basket->package_id);
+            if ($basketHandler) {
+                $basketHandler->cnt = $basket->cnt + ($add ? $basketHandler->cnt : 0);
+                $basket = $basketHandler;
+            }
+            $basket->save(false);
+        }
+        return [
+            'package' => ($basket->_package ? $basket->_package->toArray() : null),
+            'basket' => $basket->toArray(),
+            'errors' => $basket->errors,
+        ];
     }
 
     public function actionLogin()
