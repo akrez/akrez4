@@ -83,6 +83,7 @@ class Basket extends ActiveRecord
             ->where(['blog_name' => $blogName])
             ->andWhere(['customer_id' => $customerId])
             ->andWhere(['package_id' => $packageId])
+            ->andWhere(['invoice_id' => null])
             ->one();
     }
 
