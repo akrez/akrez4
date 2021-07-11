@@ -25,6 +25,8 @@ use Yii;
  */
 class Basket extends ActiveRecord
 {
+    public $_package;
+
     /**
      * {@inheritdoc}
      */
@@ -40,7 +42,9 @@ class Basket extends ActiveRecord
     {
         return [
             [['cnt'], 'integer', 'min' => 1],
-            [['!status', '!price', 'cnt', '!product_id', '!package_id', '!customer_id', '!blog_name'], 'required'],
+            [['package_id'], 'integer'],
+            [['cnt', 'package_id'], 'required'],
+            [['package_id'], 'packageValidation'],
         ];
     }
 
@@ -52,6 +56,36 @@ class Basket extends ActiveRecord
         ];
     }
 
+    public function packageValidation($attribute, $params)
+    {
+        if (!$this->hasErrors()) {
+            $this->_package  = Package::findPackageQueryForApi($this->blog_name)
+                ->andWhere(['id' => $this->package_id])
+                ->andWhere([
+                    'product_id' => Product::findProductQueryForApi($this->blog_name)->select('id')
+                        ->andWhere([
+                            'category_id' => Category::findCategoryQueryForApi($this->blog_name)->select('id')
+                        ])
+                ])
+                ->one();
+            if ($this->_package) {
+                $this->product_id = $this->package->product_id;
+                $this->price = $this->package->price;
+            } else {
+                $this->addError($attribute, Yii::t('yii', '{attribute} is invalid.', ['attribute' => $this->getAttributeLabel($attribute)]));
+            }
+        }
+    }
+
+    public static function findDuplicateForApi($blogName, $customerId, $packageId)
+    {
+        return self::find()
+            ->where(['blog_name' => $blogName])
+            ->andWhere(['customer_id' => $customerId])
+            ->andWhere(['package_id' => $packageId])
+            ->one();
+    }
+
     /**
      * Gets query for [[BlogName]].
      *
@@ -59,7 +93,7 @@ class Basket extends ActiveRecord
      */
     public function getBlogName()
     {
-        return $this->hasOne(Blog::class, ['name' => 'blog_name'])->inverseOf('baskets');
+        return $this->hasOne(Blog::class, ['name' => 'blog_name']);
     }
 
     /**
@@ -69,7 +103,7 @@ class Basket extends ActiveRecord
      */
     public function getCustomer()
     {
-        return $this->hasOne(Customer::class, ['id' => 'customer_id'])->inverseOf('baskets');
+        return $this->hasOne(Customer::class, ['id' => 'customer_id']);
     }
 
     /**
@@ -79,7 +113,7 @@ class Basket extends ActiveRecord
      */
     public function getPackage()
     {
-        return $this->hasOne(Package::class, ['id' => 'package_id'])->inverseOf('baskets');
+        return $this->hasOne(Package::class, ['id' => 'package_id']);
     }
 
     /**
@@ -89,6 +123,6 @@ class Basket extends ActiveRecord
      */
     public function getProduct()
     {
-        return $this->hasOne(Product::class, ['id' => 'product_id'])->inverseOf('baskets');
+        return $this->hasOne(Product::class, ['id' => 'product_id']);
     }
 }
