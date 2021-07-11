@@ -87,6 +87,20 @@ class Basket extends ActiveRecord
             ->one();
     }
 
+    public function toArray(array $fields = [], array $expand = [], $recursive = true)
+    {
+        return [
+            'updated_at' => $this->updated_at,
+            'status' => $this->status,
+            'price' => $this->price,
+            'cnt' => $this->cnt,
+            'product_id' => $this->product_id,
+            'package_id' => $this->package_id,
+            'customer_id' => $this->customer_id,
+            'invoice_id' => $this->invoice_id,
+        ];
+    }
+
     /**
      * Gets query for [[BlogName]].
      *
