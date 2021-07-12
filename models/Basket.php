@@ -56,18 +56,22 @@ class Basket extends ActiveRecord
         ];
     }
 
+    public static function findPackageBasketQueryForApi($blogName, $packageId)
+    {
+        return Package::findPackageQueryForApi($blogName)
+            ->andWhere(['id' => $packageId])
+            ->andWhere([
+                'product_id' => Product::findProductQueryForApi($blogName)->select('id')
+                    ->andWhere([
+                        'category_id' => Category::findCategoryQueryForApi($blogName)->select('id')
+                    ])
+            ]);
+    }
+
     public function packageValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $this->_package  = Package::findPackageQueryForApi($this->blog_name)
-                ->andWhere(['id' => $this->package_id])
-                ->andWhere([
-                    'product_id' => Product::findProductQueryForApi($this->blog_name)->select('id')
-                        ->andWhere([
-                            'category_id' => Category::findCategoryQueryForApi($this->blog_name)->select('id')
-                        ])
-                ])
-                ->one();
+            $this->_package = self::findPackageBasketQueryForApi($this->blog_name, $this->package_id)->one();
             if ($this->_package) {
                 $this->product_id = $this->package->product_id;
                 $this->price = $this->package->price;
