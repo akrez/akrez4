@@ -60,6 +60,18 @@ class Package extends ActiveRecord
         return Package::find()->where(['blog_name' => $blogName, 'status' => Status::STATUS_ACTIVE]);
     }
 
+    public static function findPackageBasketQueryForApi($blogName, $packageId)
+    {
+        return Package::findPackageQueryForApi($blogName)
+            ->andWhere(['id' => $packageId])
+            ->andWhere([
+                'product_id' => Product::findProductQueryForApi($blogName)->select('id')
+                    ->andWhere([
+                        'category_id' => Category::findCategoryQueryForApi($blogName)->select('id')
+                    ])
+            ]);
+    }
+
     public static function printHtmlForTelegram($package, $seprator)
     {
         $caption = [];
