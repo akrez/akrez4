@@ -57,7 +57,10 @@ class Telegram extends Model
             if ($packageId == -1) {
                 $packages = [];
             } else {
-                $packages = Package::findProductPackageQueryForApi($blog->name, $product->id)->andFilterWhere(['id' => $packageId])->all();
+                $packages = Package::findPackageQueryForApi($blog->name)
+                    ->andWhere(['product_id' =>  $product->id])
+                    ->andFilterWhere(['id' => $packageId])
+                    ->all();
             }
             foreach ($packages as $package) {
                 $caption[] = Package::printHtmlForTelegram($package, "\n");

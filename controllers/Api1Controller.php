@@ -374,7 +374,9 @@ class Api1Controller extends Api
 
         $images = Gallery::findProductGalleryQueryForApi($blog->name, $product['id'])->indexBy('name')->all();
 
-        $packages = Package::findProductPackageQueryForApi($blog->name, $product['id'])->all();
+        $packages = Package::findPackageQueryForApi($blog->name)
+            ->andWhere(['product_id' => $product['id']])
+            ->all();
 
         LogApi::setData(['model_category_id' => $product['category_id']]);
 
