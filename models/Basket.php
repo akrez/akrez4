@@ -59,7 +59,9 @@ class Basket extends ActiveRecord
     public function packageValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $this->_package = Package::findPackageBasketQueryForApi($this->blog_name, $this->package_id)->one();
+            $this->_package = Package::findPackageBasketQueryForApi($this->blog_name)
+                ->andWhere(['id' => $this->package_id])
+                ->one();
             if ($this->_package) {
                 $this->product_id = $this->package->product_id;
                 $this->price = $this->package->price;

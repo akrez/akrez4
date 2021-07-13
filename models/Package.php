@@ -50,20 +50,14 @@ class Package extends ActiveRecord
         ];
     }
 
-    public static function findProductPackageQueryForApi($blogName, $productId)
-    {
-        return self::findPackageQueryForApi($blogName)->andWhere(['product_id' => $productId]);
-    }
-
     public static function findPackageQueryForApi($blogName)
     {
         return Package::find()->where(['blog_name' => $blogName, 'status' => Status::STATUS_ACTIVE]);
     }
 
-    public static function findPackageBasketQueryForApi($blogName, $packageId)
+    public static function findPackageBasketQueryForApi($blogName)
     {
         return Package::findPackageQueryForApi($blogName)
-            ->andWhere(['id' => $packageId])
             ->andWhere([
                 'product_id' => Product::findProductQueryForApi($blogName)->select('id')
                     ->andWhere([
