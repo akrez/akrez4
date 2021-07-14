@@ -67,6 +67,7 @@ class Model extends BaseModel
             'updated_at' => 'تاریخ ویرایش',
             'created_at' => 'تاریخ ایجاد',
             'product_id' => 'محصول',
+            'package_id' => 'شرایط فروش',
             'cache_stock' => 'موجودی انبار',
             'category_id' => 'دسته‌بندی',
             'reset_token' => 'کد بازیابی رمز عبور',
