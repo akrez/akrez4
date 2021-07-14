@@ -56,10 +56,15 @@ class Basket extends ActiveRecord
         ];
     }
 
+    public static function findBasketQueryForApi($blogName)
+    {
+        return Basket::find()->where(['AND', ['blog_name' => $blogName, 'status' => Status::STATUS_ACTIVE,]]);
+    }
+
     public function packageValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $this->_package = Package::findPackageBasketQueryForApi($this->blog_name)
+            $this->_package = Package::findPackageFullQueryForApi($this->blog_name)
                 ->andWhere(['id' => $this->package_id])
                 ->one();
             if ($this->_package) {
@@ -92,6 +97,13 @@ class Basket extends ActiveRecord
             'package_id' => $this->package_id,
             'customer_id' => $this->customer_id,
             'invoice_id' => $this->invoice_id,
+        ];
+    }
+
+    public function response()
+    {
+        return $this->toArray() + [
+            'errors' => $this->errors,
         ];
     }
 

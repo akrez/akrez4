@@ -55,7 +55,7 @@ class Package extends ActiveRecord
         return Package::find()->where(['blog_name' => $blogName, 'status' => Status::STATUS_ACTIVE]);
     }
 
-    public static function findPackageBasketQueryForApi($blogName)
+    public static function findPackageFullQueryForApi($blogName)
     {
         return Package::findPackageQueryForApi($blogName)
             ->andWhere([
