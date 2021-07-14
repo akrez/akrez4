@@ -9,11 +9,9 @@ use Yii;
  *
  * @property int $id
  * @property int|null $updated_at
- * @property string $status
+ * @property int|null $created_at
  * @property float $price
  * @property int $cnt
- * @property int $product_id
- * @property int|null $invoice_id
  * @property int $customer_id
  * @property int $package_id
  * @property string|null $blog_name
@@ -48,30 +46,50 @@ class Basket extends ActiveRecord
         ];
     }
 
-    public static function validStatuses()
+    public static function findBasketQueryForApi($blogName, $customerId)
     {
-        return [
-            Status::STATUS_ACTIVE => Yii::t('app', 'Active'),
-            Status::STATUS_DISABLE => Yii::t('app', 'Disable'),
-        ];
+        return Basket::find()->where(['blog_name' => $blogName])->andWhere(['customer_id' => $customerId]);
     }
 
-    public static function findBasketQueryForApi($blogName)
+    public static $getBasketPackagesCache = [];
+    public static function getBasketPackages($blogName, $packageIds)
     {
-        return Basket::find()->where(['AND', ['blog_name' => $blogName, 'status' => Status::STATUS_ACTIVE,]]);
+        if (!is_array($packageIds)) {
+            $packageIds = [$packageIds];
+        }
+
+        $result = [];
+        $cacheUpdated = false;
+        foreach ($packageIds as $packageId) {
+            if (!isset(self::$getBasketPackagesCache[$packageId])) {
+                self::$getBasketPackagesCache[$packageId] = null;
+                if (!$cacheUpdated) {
+                    self::$getBasketPackagesCache = Package::findPackageFullQueryForApi($blogName)
+                        ->andWhere(['id' => $packageIds])
+                        ->indexBy('id')
+                        ->all() + self::$getBasketPackagesCache;
+                    $cacheUpdated = true;
+                }
+            }
+            $result[$packageId] = self::$getBasketPackagesCache[$packageId];
+        }
+
+        return $result;
     }
 
     public function packageValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $this->_package = Package::findPackageFullQueryForApi($this->blog_name)
-                ->andWhere(['id' => $this->package_id])
-                ->one();
-            if ($this->_package) {
-                $this->product_id = $this->package->product_id;
-                $this->price = $this->package->price;
+            $packages = self::getBasketPackages($this->blog_name, $this->package_id);
+            if (isset($packages[$this->package_id]) && $packages[$this->package_id]) {
+                $this->_package = $packages[$this->package_id];
+                if ($this->cnt <= $this->_package->cache_stock) {
+                    $this->price = $this->package->price;
+                } else {
+                    $this->addError($attribute, Yii::t('app', 'Inventory left in stock is less than the specified amount'));
+                }
             } else {
-                $this->addError($attribute, Yii::t('yii', '{attribute} is invalid.', ['attribute' => $this->getAttributeLabel($attribute)]));
+                $this->addError($attribute, Yii::t('app', 'Unfortunately the product is not available at the moment'));
             }
         }
     }
@@ -82,7 +100,6 @@ class Basket extends ActiveRecord
             ->where(['blog_name' => $blogName])
             ->andWhere(['customer_id' => $customerId])
             ->andWhere(['package_id' => $packageId])
-            ->andWhere(['invoice_id' => null])
             ->one();
     }
 
@@ -90,13 +107,10 @@ class Basket extends ActiveRecord
     {
         return [
             'updated_at' => $this->updated_at,
-            'status' => $this->status,
             'price' => $this->price,
             'cnt' => $this->cnt,
-            'product_id' => $this->product_id,
             'package_id' => $this->package_id,
             'customer_id' => $this->customer_id,
-            'invoice_id' => $this->invoice_id,
         ];
     }
 
