@@ -426,6 +426,43 @@ class Api1Controller extends Api
         ];
     }
 
+    public static function actionBasket()
+    {
+        $blog = self::blog();
+        $customer = self::customer();
+        //
+        $packages = [];
+        $products = [];
+
+        $basketModels = Basket::findBasketQueryForApi($blog->name)
+            ->where(['invoice_id' => null])
+            ->andWhere(['customer_id' => $customer->id])
+            ->andWhere(['package_id' => Package::findPackageFullQueryForApi($blog->name)->select('id')])
+            ->all();
+
+        $baskets = [];
+        $packageIds = [];
+        $productIds = [];
+        foreach ($basketModels as $basketModel) {
+            $baskets[] = $basketModel->response();
+            $packageIds[] = $basketModel->package_id;
+            $productIds[] = $basketModel->product_id;
+        }
+
+        if (!empty($baskets)) {
+            $packages = Package::find()->where(['id' => $packageIds])->indexBy('id')->all();
+            $packages = ArrayHelper::toArray($packages);
+            $products = Product::find()->where(['id' => $productIds])->indexBy('id')->all();
+            $products = ArrayHelper::toArray($products);
+        }
+
+        return [
+            'baskets' => $baskets,
+            'packages' => $packages,
+            'products' => $products,
+        ];
+    }
+
     public function actionLogin()
     {
         $post = \Yii::$app->request->post();
