@@ -410,7 +410,6 @@ class Api1Controller extends Api
         $basket->load($post, '');
         $basket->blog_name = $blog->name;
         $basket->customer_id = $customer->id;
-        $basket->status = Status::STATUS_ACTIVE;
         if ($basket->validate()) {
             $basketHandler = Basket::findDuplicateForApi($blog->name, $customer->id, $basket->package_id);
             if ($basketHandler) {
@@ -431,30 +430,28 @@ class Api1Controller extends Api
         $blog = self::blog();
         $customer = self::customer();
         //
+        $baskets = [];
         $packages = [];
         $products = [];
 
-        $basketModels = Basket::findBasketQueryForApi($blog->name)
-            ->where(['invoice_id' => null])
-            ->andWhere(['customer_id' => $customer->id])
-            ->andWhere(['package_id' => Package::findPackageFullQueryForApi($blog->name)->select('id')])
-            ->all();
+        $basketModels = Basket::findBasketQueryForApi($blog->name, $customer->id)->all();
 
-        $baskets = [];
-        $packageIds = [];
+        $packageIds = ArrayHelper::getColumn($basketModels, 'package_id');
+
+        Basket::getBasketPackages($blog->name, $packageIds);
+
         $productIds = [];
         foreach ($basketModels as $basketModel) {
+            $basketModel->validate();
             $baskets[] = $basketModel->response();
-            $packageIds[] = $basketModel->package_id;
-            $productIds[] = $basketModel->product_id;
+            if ($basketModel->_package) {
+                $packages[] = $basketModel->_package;
+                $productIds[] = $basketModel->_package->product_id;
+            }
         }
 
-        if (!empty($baskets)) {
-            $packages = Package::find()->where(['id' => $packageIds])->indexBy('id')->all();
-            $packages = ArrayHelper::toArray($packages);
-            $products = Product::find()->where(['id' => $productIds])->indexBy('id')->all();
-            $products = ArrayHelper::toArray($products);
-        }
+        $products = Product::find()->where(['id' => $productIds])->indexBy('id')->all();
+        $products = ArrayHelper::toArray($products);
 
         return [
             'baskets' => $baskets,
