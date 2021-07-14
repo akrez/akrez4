@@ -126,4 +126,7 @@ return [
     'image_mode_none' => 'عادی',
     'image_mode_square_inbound' => 'کوچکنمایی مربعی',
     'image_mode_square_outbound' => 'بزرگنمایی مربعی',
+    //
+    'Inventory left in stock is less than the specified amount' => 'موجودی باقی مانده در انبار، کمتر از مقدار تعیین شده است',
+    'Unfortunately the product is not available at the moment' => 'متاسفانه در حال حاضر محصول موجود نیست',
 ];
