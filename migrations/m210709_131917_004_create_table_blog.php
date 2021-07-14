@@ -34,7 +34,7 @@ class m210709_131917_004_create_table_blog extends Migration
                 'mobile' => $this->string(15),
                 'language' => $this->string(8),
                 'telegram_bot_token' => $this->string(63),
-                'params' => $this->text()->comment('{ "address":"", "phone":"", "mobile":"", "instagram":"", "telegram":"", "facebook":"", "twitter":"", "slug":"", "des":"" }'),
+                'params' => $this->text(),
             ],
             $tableOptions
         );
