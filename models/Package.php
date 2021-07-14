@@ -52,7 +52,7 @@ class Package extends ActiveRecord
 
     public static function findPackageQueryForApi($blogName)
     {
-        return Package::find()->where(['blog_name' => $blogName, 'status' => Status::STATUS_ACTIVE]);
+        return Package::find()->where(['blog_name' => $blogName])->andWhere(['status' => Status::STATUS_ACTIVE]);
     }
 
     public static function findPackageFullQueryForApi($blogName)
@@ -138,6 +138,7 @@ class Package extends ActiveRecord
             'id' => $this->id,
             'updated_at' => $this->updated_at,
             'status' => $this->status,
+            'stock' => intval($this->cache_stock),
             'price' => $this->price,
             'product_id' => $this->product_id,
             'blog_name' => $this->blog_name,
