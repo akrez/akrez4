@@ -145,7 +145,7 @@ class Api1Controller extends Api
                         'roles' => ['?', '@'],
                     ],
                     [
-                        'actions' => ['signout', 'profile',  'basket', 'basket-add', 'basket-remove', 'invoice', 'invoice-add', 'invoice-view', 'invoice-remove',],
+                        'actions' => ['signout', 'profile',  'basket', 'basket-add', 'basket-delete', 'invoice', 'invoice-add', 'invoice-view', 'invoice-remove',],
                         'allow' => true,
                         'verbs' => ['POST'],
                         'roles' => ['@'],
@@ -457,6 +457,22 @@ class Api1Controller extends Api
             'baskets' => $baskets,
             'packages' => $packages,
             'products' => $products,
+        ];
+    }
+
+    public static function actionBasketDelete($package_id)
+    {
+        $blog = self::blog();
+        $customer = self::customer();
+        //
+        $status = false;
+        $basket = Basket::findDuplicateForApi($blog->name, $customer->id, $package_id);
+        if ($basket) {
+            $status = $basket->delete();
+        }
+
+        return [
+            'status' => $status,
         ];
     }
 
