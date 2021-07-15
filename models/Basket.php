@@ -25,6 +25,7 @@ use Yii;
 class Basket extends ActiveRecord
 {
     public $_package;
+    public $hasNewPrice;
 
     /**
      * {@inheritdoc}
@@ -52,47 +53,23 @@ class Basket extends ActiveRecord
         return Basket::find()->where(['blog_name' => $blogName])->andWhere(['customer_id' => $customerId]);
     }
 
-    public static $getBasketPackagesCache = [];
-    public static function getBasketPackages($blogName, $packageIds)
-    {
-        if (!is_array($packageIds)) {
-            $packageIds = [$packageIds];
-        }
-
-        $result = [];
-        $cacheUpdated = false;
-        foreach ($packageIds as $packageId) {
-            if (!isset(self::$getBasketPackagesCache[$packageId])) {
-                self::$getBasketPackagesCache[$packageId] = null;
-                if (!$cacheUpdated) {
-                    self::$getBasketPackagesCache = Package::findPackageFullQueryForApi($blogName)
-                        ->andWhere(['id' => $packageIds])
-                        ->indexBy('id')
-                        ->all() + self::$getBasketPackagesCache;
-                    $cacheUpdated = true;
-                }
-            }
-            $result[$packageId] = self::$getBasketPackagesCache[$packageId];
-        }
-
-        return $result;
-    }
-
     public function packageValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $packages = self::getBasketPackages($this->blog_name, $this->package_id);
+            $packages = Package::getFullPackagesForApiWithCache($this->blog_name, $this->package_id);
             if (isset($packages[$this->package_id]) && $packages[$this->package_id]) {
+                $this->hasNewPrice = false;
                 $this->_package = $packages[$this->package_id];
                 if ($this->cnt <= $this->_package->cache_stock) {
-                    if ($this->price != $this->package->price) {
+                    if ($this->price != $this->_package->price) {
                         if (mb_strlen($this->price)) {
                             $this->price_last = $this->price;
                         } else {
-                            $this->price_last = $this->package->price;
+                            $this->price_last = $this->_package->price;
                         }
+                        $this->price = $this->_package->price;
+                        $this->hasNewPrice = true;
                     }
-                    $this->price = $this->package->price;
                 } else {
                     $this->addError($attribute, Yii::t('app', 'Inventory left in stock is less than the specified amount'));
                 }
