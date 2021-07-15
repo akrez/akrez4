@@ -420,8 +420,7 @@ class Api1Controller extends Api
         $basket->save();
         return [
             'package' => ($basket->_package ? $basket->_package->toArray() : null),
-            'basket' => $basket->toArray(),
-            'errors' => $basket->errors,
+            'basket' => $basket->response(),
         ];
     }
 
@@ -439,14 +438,16 @@ class Api1Controller extends Api
         ])->all();
         //
         $packageIds = ArrayHelper::getColumn($basketModels, 'package_id');
-        Basket::getBasketPackages($blog->name, $packageIds);
+        Package::getFullPackagesForApiWithCache($blog->name, $packageIds);
 
         $productIds = [];
         foreach ($basketModels as $basketModel) {
-            $basketModel->validate();
-            $baskets[] = $basketModel->response();
+            if ($basketModel->validate() && $basketModel->hasNewPrice) {
+                $basketModel->save();
+            }
+            $baskets[$basketModel->id] = $basketModel->response();
             if ($basketModel->_package) {
-                $packages[] = $basketModel->_package;
+                $packages[$basketModel->_package->id] = $basketModel->_package;
                 $productIds[] = $basketModel->_package->product_id;
             }
         }
