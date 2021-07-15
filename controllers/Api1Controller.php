@@ -416,8 +416,8 @@ class Api1Controller extends Api
                 $basketHandler->cnt = $basket->cnt + ($add ? $basketHandler->cnt : 0);
                 $basket = $basketHandler;
             }
-            $basket->save(false);
         }
+        $basket->save();
         return [
             'package' => ($basket->_package ? $basket->_package->toArray() : null),
             'basket' => $basket->toArray(),
@@ -433,11 +433,12 @@ class Api1Controller extends Api
         $baskets = [];
         $packages = [];
         $products = [];
-
-        $basketModels = Basket::findBasketQueryForApi($blog->name, $customer->id)->all();
-
+        //
+        $basketModels = Basket::findBasketQueryForApi($blog->name, $customer->id)->andWhere([
+            'package_id' => Package::findPackageFullQueryForApi($blog->name)->select('id')
+        ])->all();
+        //
         $packageIds = ArrayHelper::getColumn($basketModels, 'package_id');
-
         Basket::getBasketPackages($blog->name, $packageIds);
 
         $productIds = [];

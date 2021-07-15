@@ -11,6 +11,7 @@ use Yii;
  * @property int|null $updated_at
  * @property int|null $created_at
  * @property float $price
+ * @property float $price_last
  * @property int $cnt
  * @property int $customer_id
  * @property int $package_id
@@ -84,6 +85,13 @@ class Basket extends ActiveRecord
             if (isset($packages[$this->package_id]) && $packages[$this->package_id]) {
                 $this->_package = $packages[$this->package_id];
                 if ($this->cnt <= $this->_package->cache_stock) {
+                    if ($this->price != $this->package->price) {
+                        if (mb_strlen($this->price)) {
+                            $this->price_last = $this->price;
+                        } else {
+                            $this->price_last = $this->package->price;
+                        }
+                    }
                     $this->price = $this->package->price;
                 } else {
                     $this->addError($attribute, Yii::t('app', 'Inventory left in stock is less than the specified amount'));
@@ -96,9 +104,7 @@ class Basket extends ActiveRecord
 
     public static function findDuplicateForApi($blogName, $customerId, $packageId)
     {
-        return self::find()
-            ->where(['blog_name' => $blogName])
-            ->andWhere(['customer_id' => $customerId])
+        return self::findBasketQueryForApi($blogName, $customerId)
             ->andWhere(['package_id' => $packageId])
             ->one();
     }
@@ -108,6 +114,7 @@ class Basket extends ActiveRecord
         return [
             'updated_at' => $this->updated_at,
             'price' => $this->price,
+            'price_last' => $this->price_last,
             'cnt' => $this->cnt,
             'package_id' => $this->package_id,
             'customer_id' => $this->customer_id,
