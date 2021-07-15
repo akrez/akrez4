@@ -18,6 +18,7 @@ class m210709_131918_012_create_table_basket extends Migration
                 'updated_at' => $this->integer(),
                 'created_at' => $this->integer(),
                 'price' => $this->double()->notNull(),
+                'price_last' => $this->double()->notNull(),
                 'cnt' => $this->integer()->notNull(),
                 'package_id' => $this->integer(),
                 'customer_id' => $this->integer(),
