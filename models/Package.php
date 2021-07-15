@@ -132,6 +132,37 @@ class Package extends ActiveRecord
         return $query;
     }
 
+    private static $getFullPackagesForApiWithCache = [];
+    public static function getFullPackagesForApiWithCache($blogName, $packageIds)
+    {
+        if (!is_array($packageIds)) {
+            $packageIds = [$packageIds];
+        }
+
+        $packageIdsNotSet = [];
+        foreach ($packageIds as $packageId) {
+            if (!isset(self::$getFullPackagesForApiWithCache[$packageId])) {
+                $packageIdsNotSet[] = $packageId;
+            }
+        }
+        if ($packageIdsNotSet) {
+            self::$getFullPackagesForApiWithCache = Package::findPackageFullQueryForApi($blogName)
+                ->andWhere(['id' => $packageIdsNotSet])
+                ->indexBy('id')
+                ->all() + self::$getFullPackagesForApiWithCache;
+        }
+
+        $result = [];
+        foreach ($packageIds as $packageId) {
+            if (!isset(self::$getFullPackagesForApiWithCache[$packageId])) {
+                self::$getFullPackagesForApiWithCache[$packageId] = null;
+            }
+            $result[$packageId] = self::$getFullPackagesForApiWithCache[$packageId];
+        }
+
+        return $result;
+    }
+
     public function toArray(array $fields = [], array $expand = [], $recursive = true)
     {
         return [
