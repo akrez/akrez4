@@ -101,7 +101,7 @@ class Category extends ActiveRecord
         $this->save();
     }
 
-    public static function batchSave($lines)
+    public static function batchSave($lines, $blogModel)
     {
         $errors = [];
         $transaction = Yii::$app->db->beginTransaction();
@@ -109,7 +109,8 @@ class Category extends ActiveRecord
             $category = new Category();
             $category->title = $line;
             $category->status = Status::STATUS_DISABLE;
-            $category->blog_name = Yii::$app->user->getIdentity()->name;
+            $category->blog_name = $blogModel->name;
+            $category->cache_parents_active_status = ($blogModel->status == Status::STATUS_ACTIVE);
             if (!$category->save()) {
                 $errors = array_merge($errors, $category->getErrorSummary(true));
             }
