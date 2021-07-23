@@ -127,4 +127,8 @@ class Cache extends Component
     {
         $category->updatePrice();
     }
+
+    public static function updateCacheParentsActiveStatus($entity)
+    {
+    }
 }
