@@ -48,6 +48,14 @@ class Basket extends ActiveRecord
         ];
     }
 
+    public static function blogValidQuery($id = null)
+    {
+        $query = Basket::find();
+        $query->andWhere(['blog_name' => Yii::$app->user->getId(),]);
+        $query->andFilterWhere(['id' => $id]);
+        return $query;
+    }
+
     public static function findBasketQueryForApi($blogName, $customerId)
     {
         return Basket::find()->where(['blog_name' => $blogName])->andWhere(['customer_id' => $customerId]);
