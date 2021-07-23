@@ -6,6 +6,7 @@ use Yii;
 
 class Status extends Model
 {
+    const STATUS_NOTACTIVE = -1;
     const STATUS_UNVERIFIED = 0;
     const STATUS_ACTIVE = 1;
     const STATUS_DISABLE = 2;
@@ -15,6 +16,7 @@ class Status extends Model
     public static function getList()
     {
         return [
+            self::STATUS_NOTACTIVE => Yii::t('app', 'Notactive'),
             self::STATUS_UNVERIFIED => Yii::t('app', 'Unverified'),
             self::STATUS_ACTIVE => Yii::t('app', 'Active'),
             self::STATUS_DISABLE => Yii::t('app', 'Disable'),
@@ -26,6 +28,8 @@ class Status extends Model
     public static function getLabel($item)
     {
         switch ($item) {
+            case self::STATUS_NOTACTIVE:
+                return Yii::t('app', 'Notactive');
             case self::STATUS_UNVERIFIED:
                 return Yii::t('app', 'Unverified');
             case self::STATUS_ACTIVE:
