@@ -2,9 +2,10 @@
 
 namespace app\components;
 
+use app\models\Basket;
 use app\models\Blog;
 use app\models\Category;
-use app\models\Page;
+use app\models\Package;
 use app\models\Product;
 use app\models\ProductField;
 use app\models\Status;
@@ -130,5 +131,88 @@ class Cache extends Component
 
     public static function updateCacheParentsActiveStatus($entity)
     {
+        //blogName
+        if ($entity instanceof Blog) {
+            $blogName = $entity->name;
+        } else {
+            $blogName = $entity->blog_name;
+        }
+
+        //
+        $whereCategory = null;
+        if ($entity instanceof Blog) {
+            $whereBlog = Blog::blogValidQuery($blogName)->select('name');
+            $whereCategory = Category::blogValidQuery()->select('id');
+        }
+        if ($whereCategory) {
+            Category::updateAll(['cache_parents_active_status' => Status::STATUS_NOTACTIVE], ['id' => $whereCategory]);
+            Category::updateAll(['cache_parents_active_status' => Status::STATUS_ACTIVE], [
+                'AND',
+                [
+                    'id' => $whereCategory,
+                    'blog_name' => $whereBlog->andWhere(['status' => Status::STATUS_ACTIVE,])
+                ],
+            ]);
+        }
+        //
+        $whereProduct = null;
+        if ($whereCategory) {
+            $whereProduct = Product::blogValidQuery()->select('id')->andWhere(['category_id' => $whereCategory,]);
+        } elseif ($entity instanceof Category) {
+            $whereCategory = Category::blogValidQuery()->select('id')->andWhere(['id' => $entity->id,]);
+            $whereProduct = Product::blogValidQuery()->select('id')->andWhere(['category_id' => $entity->id,]);
+        }
+        if ($whereProduct) {
+            Product::updateAll(['cache_parents_active_status' => Status::STATUS_NOTACTIVE], ['id' => $whereProduct]);
+            Product::updateAll(['cache_parents_active_status' => Status::STATUS_ACTIVE], [
+                'AND',
+                [
+                    'id' => $whereProduct,
+                    'category_id' => (clone $whereCategory)
+                        ->andWhere(['status' => Status::STATUS_ACTIVE,])
+                        ->andWhere(['cache_parents_active_status' => Status::STATUS_ACTIVE,])
+                ],
+            ]);
+        }
+        //
+        $wherePackage = null;
+        if ($whereProduct) {
+            $wherePackage = Package::blogValidQuery()->select('id')->andWhere(['product_id' => $whereProduct,]);
+        } elseif ($entity instanceof Product) {
+            $whereProduct = Product::blogValidQuery()->select('id')->andWhere(['id' => $entity->id,]);
+            $wherePackage = Package::blogValidQuery()->select('id')->andWhere(['product_id' => $entity->id,]);
+        }
+        if ($wherePackage) {
+            Package::updateAll(['cache_parents_active_status' => Status::STATUS_NOTACTIVE], ['id' => $wherePackage]);
+            Package::updateAll(['cache_parents_active_status' => Status::STATUS_ACTIVE], [
+                'AND',
+                [
+                    'id' => $wherePackage,
+                    'product_id' => (clone $whereProduct)
+                    ->andWhere(['status' => Status::STATUS_ACTIVE,])
+                    ->andWhere(['cache_parents_active_status' => Status::STATUS_ACTIVE,])
+                ],
+            ]);
+        }
+        //
+        $whereBasket = null;
+        if ($wherePackage) {
+            $whereBasket = Basket::blogValidQuery()->select('id')->andWhere(['package_id' => $wherePackage,]);
+        } elseif ($entity instanceof Package) {
+            $wherePackage = Package::blogValidQuery()->select('id')->andWhere(['id' => $entity->id,]);
+            $whereBasket = Basket::blogValidQuery()->select('id')->andWhere(['package_id' => $entity->id,]);
+        }
+        if ($whereBasket) {
+            Basket::updateAll(['cache_parents_active_status' => Status::STATUS_NOTACTIVE], ['id' => $whereBasket]);
+            Basket::updateAll(['cache_parents_active_status' => Status::STATUS_ACTIVE], [
+                'AND',
+                [
+                    'id' => $whereBasket,
+                    'package_id' => (clone $wherePackage)
+                        ->andWhere(['status' => Status::STATUS_ACTIVE,])
+                        ->andWhere(['cache_parents_active_status' => Status::STATUS_ACTIVE,])
+                ],
+            ]);
+        }
     }
 }
