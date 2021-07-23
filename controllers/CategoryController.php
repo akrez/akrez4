@@ -31,6 +31,7 @@ class CategoryController extends Controller
         $post = Yii::$app->request->post();
         $state = Yii::$app->request->get('state', '');
         $updateCacheNeeded = null;
+        $oldStatus = null;
         $textAreaModel = new TextArea();
         //
         $model = null;
@@ -44,7 +45,7 @@ class CategoryController extends Controller
             ]);
         } elseif ($state == 'batchSave' && $textAreaModel->load($post)) {
             $lines = $textAreaModel->explodeLines();
-            $errors = Category::batchSave($lines, $id);
+            $errors = Category::batchSave($lines, Yii::$app->user->getIdentity());
             if ($errors) {
                 $textAreaModel->addErrors(['values' => $errors]);
                 $textAreaModel->setValues($lines);
@@ -66,6 +67,9 @@ class CategoryController extends Controller
         }
         if ($updateCacheNeeded) {
             Cache::updateBlogCacheCategory(Yii::$app->user->getIdentity());
+            if ($oldStatus !== null && $oldStatus != $model->status) {
+                Cache::updateCacheParentsActiveStatus($model);
+            }
         }
         //
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams, null);

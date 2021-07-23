@@ -9,6 +9,7 @@ use app\models\PackageSearch;
 use app\models\Product;
 use app\models\Category;
 use app\models\ProductSearch;
+use app\models\Status;
 use Yii;
 
 class PackageController extends Controller
@@ -33,6 +34,7 @@ class PackageController extends Controller
         $post = Yii::$app->request->post();
         $state = Yii::$app->request->get('state', '');
         $updateCacheNeeded = null;
+        $oldStatus = null;
         //
         if ($id) {
             $model = Helper::findOrFail(Package::blogValidQuery($id)->andWhere(['id' => $id])->andWhere(['product_id' => $parent_id]));
@@ -48,8 +50,10 @@ class PackageController extends Controller
             $updateCacheNeeded = Helper::store($newModel, $post, [
                 'product_id' => $parent_id,
                 'blog_name' => $parentModel->blog_name,
+                'cache_parents_active_status' => ($parentModel->status == Status::STATUS_ACTIVE && $parentModel->cache_parents_active_status == Status::STATUS_ACTIVE),
             ]);
         } elseif ($state == 'update' && $model) {
+            $oldStatus = $model->status;
             $updateCacheNeeded = Helper::store($model, $post, [
                 'product_id' => $parent_id,
                 'blog_name' => $parentModel->blog_name,
@@ -63,6 +67,9 @@ class PackageController extends Controller
             $category = Category::blogValidQuery()->where(['id' => $parentModel->category_id])->one();
             if ($category) {
                 Cache::updateCategoryPrice($category);
+            }
+            if ($oldStatus !== null && $oldStatus != $model->status) {
+                Cache::updateCacheParentsActiveStatus($model);
             }
         }
         //

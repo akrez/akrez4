@@ -37,6 +37,7 @@ class ProductController extends Controller
         $post = Yii::$app->request->post();
         $state = Yii::$app->request->get('state', '');
         $updateCacheNeeded = false;
+        $oldStatus = null;
         $textAreaFields = new TextArea();
         $textAreaProducts = new TextArea();
         //
@@ -55,6 +56,7 @@ class ProductController extends Controller
                 $textAreaProducts = new TextArea();
             }
         } elseif ($state == 'update' && $model) {
+            $oldStatus = $model->status;
             $updateCacheNeeded = Helper::store($model, $post, [
                 'blog_name' => Yii::$app->user->getId(),
             ]);
@@ -119,6 +121,9 @@ class ProductController extends Controller
         }
         if ($updateCacheNeeded) {
             Cache::updateCategoryCacheOptions($parentModel);
+            if ($oldStatus !== null && $oldStatus != $model->status) {
+                Cache::updateCacheParentsActiveStatus($model);
+            }
         }
         //
         $autoCompleteSource = array_keys(Cache::getCategoryCacheOptions($parentModel));

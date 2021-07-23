@@ -63,12 +63,16 @@ class BlogController extends Controller
         $post = Yii::$app->request->post();
         $state = Yii::$app->request->get('state', 'update');
         $updateCacheNeeded = false;
+        $oldStatus = null;
         //
         $model = \Yii::$app->user->getIdentity();
         $model->setScenario('profile');
         //
-        if ($state == 'update' && $model->load($post)) {
-            $updateCacheNeeded = $model->save();
+        if ($state == 'update') {
+            $oldStatus = $model->status;
+            if ($model->load($post)) {
+                $updateCacheNeeded = $model->save();
+            }
         } elseif ($state == 'password' && $model->load($post)) {
             if ($model->password) {
                 $model->setPasswordHash($model->password);
@@ -117,6 +121,9 @@ class BlogController extends Controller
 
         if ($updateCacheNeeded) {
             Yii::$app->session->setFlash('success', Yii::t('app', 'alertUpdateSuccessfull'));
+            if ($oldStatus !== null && $oldStatus != $model->status) {
+                Cache::updateCacheParentsActiveStatus($model);
+            }
         }
 
         return $this->render('profile', [
