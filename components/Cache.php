@@ -2,7 +2,7 @@
 
 namespace app\components;
 
-use app\models\Basket;
+use app\models\Cart;
 use app\models\Blog;
 use app\models\Category;
 use app\models\Package;
@@ -195,19 +195,19 @@ class Cache extends Component
             ]);
         }
         //
-        $whereBasket = null;
+        $whereCart = null;
         if ($wherePackage) {
-            $whereBasket = Basket::blogValidQuery()->select('id')->andWhere(['package_id' => $wherePackage,]);
+            $whereCart = Cart::blogValidQuery()->select('id')->andWhere(['package_id' => $wherePackage,]);
         } elseif ($entity instanceof Package) {
             $wherePackage = Package::blogValidQuery()->select('id')->andWhere(['id' => $entity->id,]);
-            $whereBasket = Basket::blogValidQuery()->select('id')->andWhere(['package_id' => $entity->id,]);
+            $whereCart = Cart::blogValidQuery()->select('id')->andWhere(['package_id' => $entity->id,]);
         }
-        if ($whereBasket) {
-            Basket::updateAll(['cache_parents_active_status' => Status::STATUS_NOTACTIVE], ['id' => $whereBasket]);
-            Basket::updateAll(['cache_parents_active_status' => Status::STATUS_ACTIVE], [
+        if ($whereCart) {
+            Cart::updateAll(['cache_parents_active_status' => Status::STATUS_NOTACTIVE], ['id' => $whereCart]);
+            Cart::updateAll(['cache_parents_active_status' => Status::STATUS_ACTIVE], [
                 'AND',
                 [
-                    'id' => $whereBasket,
+                    'id' => $whereCart,
                     'package_id' => (clone $wherePackage)
                         ->andWhere(['status' => Status::STATUS_ACTIVE,])
                         ->andWhere(['cache_parents_active_status' => Status::STATUS_ACTIVE,])

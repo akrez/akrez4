@@ -57,13 +57,7 @@ class Package extends ActiveRecord
 
     public static function findPackageFullQueryForApi($blogName)
     {
-        return Package::findPackageQueryForApi($blogName)
-            ->andWhere([
-                'product_id' => Product::findProductQueryForApi($blogName)->select('id')
-                    ->andWhere([
-                        'category_id' => Category::findCategoryQueryForApi($blogName)->select('id')
-                    ])
-            ]);
+        return Package::findPackageQueryForApi($blogName)->andWhere(['cache_parents_active_status' => Status::STATUS_ACTIVE]);
     }
 
     public static function printHtmlForTelegram($package, $seprator)
@@ -130,37 +124,6 @@ class Package extends ActiveRecord
         $query->andWhere(['blog_name' => Yii::$app->user->getId(),]);
         $query->andFilterWhere(['id' => $id]);
         return $query;
-    }
-
-    private static $getFullPackagesForApiWithCache = [];
-    public static function getFullPackagesForApiWithCache($blogName, $packageIds)
-    {
-        if (!is_array($packageIds)) {
-            $packageIds = [$packageIds];
-        }
-
-        $packageIdsNotSet = [];
-        foreach ($packageIds as $packageId) {
-            if (!isset(self::$getFullPackagesForApiWithCache[$packageId])) {
-                $packageIdsNotSet[] = $packageId;
-            }
-        }
-        if ($packageIdsNotSet) {
-            self::$getFullPackagesForApiWithCache = Package::findPackageFullQueryForApi($blogName)
-                ->andWhere(['id' => $packageIdsNotSet])
-                ->indexBy('id')
-                ->all() + self::$getFullPackagesForApiWithCache;
-        }
-
-        $result = [];
-        foreach ($packageIds as $packageId) {
-            if (!isset(self::$getFullPackagesForApiWithCache[$packageId])) {
-                self::$getFullPackagesForApiWithCache[$packageId] = null;
-            }
-            $result[$packageId] = self::$getFullPackagesForApiWithCache[$packageId];
-        }
-
-        return $result;
     }
 
     public function toArray(array $fields = [], array $expand = [], $recursive = true)

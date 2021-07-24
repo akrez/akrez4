@@ -8,7 +8,7 @@ use app\components\SingleSort;
 use yii\web\BadRequestHttpException;
 use app\components\Cache;
 use app\components\Sms;
-use app\models\Basket;
+use app\models\Cart;
 use app\models\Blog;
 use app\models\Category;
 use app\models\Color;
@@ -145,7 +145,7 @@ class Api1Controller extends Api
                         'roles' => ['?', '@'],
                     ],
                     [
-                        'actions' => ['signout', 'profile',  'basket', 'basket-add', 'basket-delete', 'invoice', 'invoice-add', 'invoice-view', 'invoice-remove',],
+                        'actions' => ['signout', 'profile',  'cart', 'cart-add', 'cart-delete', 'invoice', 'invoice-add', 'invoice-view', 'invoice-remove',],
                         'allow' => true,
                         'verbs' => ['POST'],
                         'roles' => ['@'],
@@ -374,7 +374,7 @@ class Api1Controller extends Api
 
         $images = Gallery::findProductGalleryQueryForApi($blog->name, $product['id'])->indexBy('name')->all();
 
-        $packages = Package::findPackageQueryForApi($blog->name)
+        $packages = Package::findPackageFullQueryForApi($blog->name)
             ->andWhere(['product_id' => $product['id']])
             ->all();
 
@@ -400,78 +400,78 @@ class Api1Controller extends Api
         return $page->body;
     }
 
-    public static function actionBasketAdd($add = true)
+    public static function actionCartAdd($package_id, $cnt = 1, $add = true)
     {
         $blog = self::blog();
         $customer = self::customer();
-        $post = \Yii::$app->request->post();
         //
-        $basket = new Basket();
-        $basket->load($post, '');
-        $basket->blog_name = $blog->name;
-        $basket->customer_id = $customer->id;
-        if ($basket->validate()) {
-            $basketHandler = Basket::findDuplicateForApi($blog->name, $customer->id, $basket->package_id);
-            if ($basketHandler) {
-                $basketHandler->cnt = $basket->cnt + ($add ? $basketHandler->cnt : 0);
-                $basket = $basketHandler;
-            }
-            $basket->cache_parents_active_status = Cache::calcCacheParentsActiveStatus($basket->_package);
+        $package = Package::findPackageFullQueryForApi($blog->name)->andWhere(['id' => $package_id])->one();
+        if (!$package) {
+            Api::exceptionNotFoundHttp();
         }
-        $basket->save();
+
+        $cart = Cart::findCartQueryForApi($blog->name, $customer->id)->one();
+        if (empty($cart)) {
+            $cart = new Cart();
+            $cart->price_initial = $package->price;
+            $cart->cnt = 0;
+            $cart->package_id = $package->id;
+            $cart->customer_id = $customer->id;
+            $cart->blog_name = $blog->name;
+            $cart->cache_parents_active_status = Cache::calcCacheParentsActiveStatus($package);
+        }
+
+        $cnt = (int) $cnt;
+        $cart->cnt = ($add ? $cart->cnt + $cnt : $cnt);
+
+        $cart->save();
         return [
-            'package' => ($basket->_package ? $basket->_package->toArray() : null),
-            'basket' => $basket->response(),
+            'package' => $package,
+            'cart' => $cart->response(),
         ];
     }
 
-    public static function actionBasket()
+    public static function actionCart()
     {
         $blog = self::blog();
         $customer = self::customer();
         //
-        $baskets = [];
+        $carts = [];
         $packages = [];
         $products = [];
         //
-        $basketModels = Basket::findBasketQueryForApi($blog->name, $customer->id)->andWhere([
-            'package_id' => Package::findPackageFullQueryForApi($blog->name)->select('id')
-        ])->all();
+        $cartModels = Cart::findCartFullQueryForApi($blog->name, $customer->id)->indexBy('id')->all();
         //
-        $packageIds = ArrayHelper::getColumn($basketModels, 'package_id');
-        Package::getFullPackagesForApiWithCache($blog->name, $packageIds);
+        if ($cartModels) {
 
-        $productIds = [];
-        foreach ($basketModels as $basketModel) {
-            if ($basketModel->validate() && $basketModel->hasNewPrice) {
-                $basketModel->save();
+            $packageIds = [];
+            foreach ($cartModels as $cartModelId => $cartModel) {
+                $carts[$cartModelId] = $cartModel->response();
+                $packageIds[$cartModel->package_id] = $cartModel->package_id;
             }
-            $baskets[$basketModel->id] = $basketModel->response();
-            if ($basketModel->_package) {
-                $packages[$basketModel->_package->id] = $basketModel->_package;
-                $productIds[] = $basketModel->_package->product_id;
-            }
+            $packagesQuery = Package::findPackageFullQueryForApi($blog->name)->where(['id' => $packageIds])->indexBy('id');
+            $packages = ArrayHelper::toArray($packagesQuery->all());
+            //
+            $productsQuery = Product::findProductFullQueryForApi($blog->name)->where(['id' => $packagesQuery->select('product_id')]);
+            $products = $productsQuery->indexBy('id')->all();
         }
-
-        $products = Product::find()->where(['id' => $productIds])->indexBy('id')->all();
-        $products = ArrayHelper::toArray($products);
-
+        //
         return [
-            'baskets' => $baskets,
+            'carts' => $carts,
             'packages' => $packages,
             'products' => $products,
         ];
     }
 
-    public static function actionBasketDelete($package_id)
+    public static function actionCartDelete($package_id)
     {
         $blog = self::blog();
         $customer = self::customer();
         //
         $status = false;
-        $basket = Basket::findDuplicateForApi($blog->name, $customer->id, $package_id);
-        if ($basket) {
-            $status = $basket->delete();
+        $cart = Cart::findCartQueryForApi($blog->name, $customer->id)->andWhere(['package_id' => $package_id])->one();
+        if ($cart) {
+            $status = $cart->delete();
         }
 
         return [

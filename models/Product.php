@@ -166,6 +166,11 @@ class Product extends ActiveRecord
         return Product::find()->where(['AND', ['blog_name' => $blogName, 'status' => Status::STATUS_ACTIVE,]]);
     }
 
+    public static function findProductFullQueryForApi($blogName)
+    {
+        return Product::findProductQueryForApi($blogName)->andWhere(['cache_parents_active_status' => Status::STATUS_ACTIVE]);
+    }
+
     public function toArray(array $fields = [], array $expand = [], $recursive = true)
     {
         return [

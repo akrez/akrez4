@@ -85,7 +85,7 @@ return [
     'Package' => 'پکیج',
     'ProductGalleries' => 'عکس‌ها',
     'LogoGalleries' => 'لوگو فروشگاه',
-    'Basket' => 'سبد خرید',
+    'Cart' => 'سبد خرید',
     'ResetPasswordRequest' => 'درخواست بازیابی رمز عبور',
     'ResetPassword' => 'بازیابی رمز عبور',
     'VerifyRequest' => 'ارسال کد فعال‌سازی',
