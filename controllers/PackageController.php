@@ -50,7 +50,7 @@ class PackageController extends Controller
             $updateCacheNeeded = Helper::store($newModel, $post, [
                 'product_id' => $parent_id,
                 'blog_name' => $parentModel->blog_name,
-                'cache_parents_active_status' => ($parentModel->status == Status::STATUS_ACTIVE && $parentModel->cache_parents_active_status == Status::STATUS_ACTIVE),
+                'cache_parents_active_status' => Cache::calcCacheParentsActiveStatus($parentModel),
             ]);
         } elseif ($state == 'update' && $model) {
             $oldStatus = $model->status;

@@ -110,7 +110,7 @@ class Category extends ActiveRecord
             $category->title = $line;
             $category->status = Status::STATUS_DISABLE;
             $category->blog_name = $blogModel->name;
-            $category->cache_parents_active_status = ($blogModel->status == Status::STATUS_ACTIVE);
+            $category->cache_parents_active_status = Cache::calcCacheParentsActiveStatus($blogModel);
             if (!$category->save()) {
                 $errors = array_merge($errors, $category->getErrorSummary(true));
             }

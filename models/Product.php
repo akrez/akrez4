@@ -113,7 +113,7 @@ class Product extends ActiveRecord
             $product->blog_name = Yii::$app->user->getIdentity()->name;
             $product->status = Status::STATUS_ACTIVE;
             $product->view = 0;
-            $product->cache_parents_active_status = ($categoryModel->status == Status::STATUS_ACTIVE && $categoryModel->cache_parents_active_status == Status::STATUS_ACTIVE);
+            $product->cache_parents_active_status = Cache::calcCacheParentsActiveStatus($categoryModel);
             if ($product->save()) {
                 $correctLines[] = $line;
             } else {

@@ -416,6 +416,7 @@ class Api1Controller extends Api
                 $basketHandler->cnt = $basket->cnt + ($add ? $basketHandler->cnt : 0);
                 $basket = $basketHandler;
             }
+            $basket->cache_parents_active_status = Cache::calcCacheParentsActiveStatus($basket->_package);
         }
         $basket->save();
         return [
