@@ -189,8 +189,8 @@ class Cache extends Component
                 [
                     'id' => $wherePackage,
                     'product_id' => (clone $whereProduct)
-                    ->andWhere(['status' => Status::STATUS_ACTIVE,])
-                    ->andWhere(['cache_parents_active_status' => Status::STATUS_ACTIVE,])
+                        ->andWhere(['status' => Status::STATUS_ACTIVE,])
+                        ->andWhere(['cache_parents_active_status' => Status::STATUS_ACTIVE,])
                 ],
             ]);
         }
@@ -214,5 +214,16 @@ class Cache extends Component
                 ],
             ]);
         }
+    }
+
+    public static function calcCacheParentsActiveStatus($parentModel)
+    {
+        if (
+            $parentModel->status != Status::STATUS_ACTIVE ||
+            ($parentModel->hasAttribute('cache_parents_active_status') && $parentModel->cache_parents_active_status != Status::STATUS_ACTIVE)
+        ) {
+            return Status::STATUS_NOTACTIVE;
+        }
+        return Status::STATUS_ACTIVE;
     }
 }
