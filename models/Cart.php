@@ -73,8 +73,21 @@ class Cart extends ActiveRecord
         ];
     }
 
-    public function response()
+    public function packageValidation($package)
     {
+        if (0 < $package->cache_stock) {
+            if ($this->cnt <= $package->cache_stock) {
+            } else {
+                $this->addError('cnt', Yii::t('app', 'Unfortunately the product is not available at the moment'));
+            }
+        } else {
+            $this->addError('cnt', Yii::t('app', 'Inventory left in stock is less than the specified amount'));
+        }
+    }
+
+    public function packageValidationResponse($package)
+    {
+        $this->packageValidation($package);
         return $this->toArray() + [
             'errors' => $this->errors,
         ];
