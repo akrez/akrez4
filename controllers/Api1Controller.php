@@ -207,6 +207,7 @@ class Api1Controller extends Api
         $blog = self::blog();
         //
         $sortAttributes = [
+            'view' => Yii::t('app', 'Most Viewed'),
             '-created_at' => Yii::t('app', 'Newest'),
             'created_at' => Yii::t('app', 'Oldest'),
             '-title' => Yii::t('app', 'Title (Desc)'),
@@ -410,7 +411,7 @@ class Api1Controller extends Api
             Api::exceptionNotFoundHttp();
         }
 
-        $cart = Cart::findCartQueryForApi($blog->name, $customer->id)->one();
+        $cart = Cart::findCartQueryForApi($blog->name, $customer->id)->andWhere(['package_id' => $package_id])->one();
         if (empty($cart)) {
             $cart = new Cart();
             $cart->price_initial = $package->price;
@@ -427,40 +428,49 @@ class Api1Controller extends Api
         $cart->save();
         return [
             'package' => $package,
-            'cart' => $cart->response(),
+            'cart' => $cart->packageValidationResponse($package),
         ];
+    }
+
+    public static function cart()
+    {
+        try {
+            $blog = self::blog();
+            $customer = self::customer();
+            //
+            $carts = [];
+            $packages = [];
+            $products = [];
+            //
+            $cartQuery = Cart::findCartFullQueryForApi($blog->name, $customer->id);
+            $cartModels = $cartQuery->all();
+            //
+            if ($cartModels) {
+                $packagesQuery = Package::findPackageFullQueryForApi($blog->name)->where(['id' => (clone $cartQuery)->select('package_id')]);
+                $packages = $packagesQuery->indexBy('id')->all();
+                //
+                $productsQuery = Product::findProductFullQueryForApi($blog->name)->where(['id' => (clone $packagesQuery)->select('product_id')]);
+                $products = $productsQuery->indexBy('id')->all();
+                //
+                foreach ($cartModels as $cartModel) {
+                    $package = $packages[$cartModel->package_id];
+                    $carts[$cartModel->id] = $cartModel->packageValidationResponse($package);
+                }
+            }
+            //
+            return [
+                'carts' => $carts,
+                'packages' => $packages,
+                'products' => $products,
+            ];
+        } catch (Throwable $e) {
+            Api::exceptionBadRequestHttp();
+        }
     }
 
     public static function actionCart()
     {
-        $blog = self::blog();
-        $customer = self::customer();
-        //
-        $carts = [];
-        $packages = [];
-        $products = [];
-        //
-        $cartModels = Cart::findCartFullQueryForApi($blog->name, $customer->id)->indexBy('id')->all();
-        //
-        if ($cartModels) {
-
-            $packageIds = [];
-            foreach ($cartModels as $cartModelId => $cartModel) {
-                $carts[$cartModelId] = $cartModel->response();
-                $packageIds[$cartModel->package_id] = $cartModel->package_id;
-            }
-            $packagesQuery = Package::findPackageFullQueryForApi($blog->name)->where(['id' => $packageIds])->indexBy('id');
-            $packages = ArrayHelper::toArray($packagesQuery->all());
-            //
-            $productsQuery = Product::findProductFullQueryForApi($blog->name)->where(['id' => $packagesQuery->select('product_id')]);
-            $products = $productsQuery->indexBy('id')->all();
-        }
-        //
-        return [
-            'carts' => $carts,
-            'packages' => $packages,
-            'products' => $products,
-        ];
+        return self::cart();
     }
 
     public static function actionCartDelete($package_id)
