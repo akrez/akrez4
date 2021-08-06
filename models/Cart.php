@@ -73,6 +73,45 @@ class Cart extends ActiveRecord
         ];
     }
 
+    public static function cartResponse($blog, $customer, $asCardModel = false)
+    {
+        $valid_carts_count = 0;
+        $carts = [];
+        $packages = [];
+        $products = [];
+        //
+        $cartQuery = Cart::findCartFullQueryForApi($blog->name, $customer->id);
+        $cartModels = $cartQuery->all();
+        //
+        if ($cartModels) {
+            $packagesQuery = Package::findPackageFullQueryForApi($blog->name)->where(['id' => (clone $cartQuery)->select('package_id')]);
+            $packages = $packagesQuery->indexBy('id')->all();
+            //
+            $productsQuery = Product::findProductFullQueryForApi($blog->name)->where(['id' => (clone $packagesQuery)->select('product_id')]);
+            $products = $productsQuery->indexBy('id')->all();
+            //
+            foreach ($cartModels as $cartModel) {
+                $package = $packages[$cartModel->package_id];
+                $carts[$cartModel->id] = $cartModel;
+                $carts[$cartModel->id]->packageValidation($package);
+                if (!$cartModel->errors) {
+                    $valid_carts_count++;
+                }
+
+                if (!$asCardModel) {
+                    $carts[$cartModel->id] = Cart::packageValidationResponse($cartModel, $package);
+                }
+            }
+        }
+        //
+        return [
+            'valid_carts_count' => $valid_carts_count,
+            'carts' => $carts,
+            'packages' => $packages,
+            'products' => $products,
+        ];
+    }
+
     public function packageValidation($package)
     {
         if (0 < $package->cache_stock) {
@@ -85,11 +124,10 @@ class Cart extends ActiveRecord
         }
     }
 
-    public function packageValidationResponse($package)
+    public static function packageValidationResponse($cart, $package)
     {
-        $this->packageValidation($package);
-        return $this->toArray() + [
-            'errors' => $this->errors,
+        return $cart->toArray() + [
+            'errors' => $cart->errors,
         ];
     }
 
