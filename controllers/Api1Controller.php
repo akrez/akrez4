@@ -16,6 +16,8 @@ use app\models\Customer;
 use app\models\Field;
 use app\models\FieldList;
 use app\models\Gallery;
+use app\models\Invoice;
+use app\models\InvoiceItem;
 use app\models\Language;
 use app\models\LogApi;
 use app\models\Package;
@@ -145,7 +147,7 @@ class Api1Controller extends Api
                         'roles' => ['?', '@'],
                     ],
                     [
-                        'actions' => ['signout', 'profile',  'cart', 'cart-add', 'cart-delete', 'invoice', 'invoice-add', 'invoice-view', 'invoice-remove',],
+                        'actions' => ['signout', 'profile',  'cart', 'cart-add', 'cart-delete', 'invoice', 'invoice-add', 'invoice-view', 'invoice-remove', 'order',],
                         'allow' => true,
                         'verbs' => ['POST'],
                         'roles' => ['@'],
@@ -428,49 +430,62 @@ class Api1Controller extends Api
         $cart->save();
         return [
             'package' => $package,
-            'cart' => $cart->packageValidationResponse($package),
+            'cart' => Cart::packageValidationResponse($cart, $package),
         ];
     }
 
-    public static function cart()
+    public static function actionCart()
     {
         try {
             $blog = self::blog();
             $customer = self::customer();
-            //
-            $carts = [];
-            $packages = [];
-            $products = [];
-            //
-            $cartQuery = Cart::findCartFullQueryForApi($blog->name, $customer->id);
-            $cartModels = $cartQuery->all();
-            //
-            if ($cartModels) {
-                $packagesQuery = Package::findPackageFullQueryForApi($blog->name)->where(['id' => (clone $cartQuery)->select('package_id')]);
-                $packages = $packagesQuery->indexBy('id')->all();
-                //
-                $productsQuery = Product::findProductFullQueryForApi($blog->name)->where(['id' => (clone $packagesQuery)->select('product_id')]);
-                $products = $productsQuery->indexBy('id')->all();
-                //
-                foreach ($cartModels as $cartModel) {
-                    $package = $packages[$cartModel->package_id];
-                    $carts[$cartModel->id] = $cartModel->packageValidationResponse($package);
-                }
-            }
-            //
-            return [
-                'carts' => $carts,
-                'packages' => $packages,
-                'products' => $products,
-            ];
+            return Cart::cartResponse($blog, $customer, false);
         } catch (Throwable $e) {
             Api::exceptionBadRequestHttp();
         }
     }
 
-    public static function actionCart()
+    public static function actionOrder()
     {
-        return self::cart();
+        $blog = self::blog();
+        $customer = self::customer();
+        $post = \Yii::$app->request->post();
+
+        $invoice = new Invoice();
+        $invoice->load($post, '');
+        $invoice->blog_name = $blog->name;
+        $invoice->customer_id = $customer->id;
+        if ($invoice->validate()) {
+
+            $carts = Cart::cartResponse($blog, $customer, true);
+            $invoice->valid_carts_count = $carts['valid_carts_count'];
+            $invoice->setScenario('valid_carts_count');
+
+            $transaction = Yii::$app->db->beginTransaction();
+            try {
+                if ($invoice->save()) {
+                    foreach ($carts['carts'] as $cartModel) {
+                        $invoiceItem = InvoiceItem::forge(
+                            $invoice,
+                            $cartModel,
+                            $carts['packages'][$cartModel->package_id],
+                            $carts['products'][$carts['packages'][$cartModel->package_id]->product_id]
+                        );
+                        if ($invoiceItem->save()) {
+                            $cartModel->delete();
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                $transaction->rollBack();
+                Api::exceptionBadRequestHttp();
+            }
+            $transaction->commit();
+        }
+
+        return [
+            'invoice' => $invoice->invoiceResponse(),
+        ];
     }
 
     public static function actionCartDelete($package_id)
