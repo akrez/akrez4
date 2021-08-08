@@ -6,7 +6,7 @@ use app\components\Cache;
 use Yii;
 
 /**
- * This is the model class for table "invoice_item".
+ * This is the model class for table "order_item".
  *
  * @property int $id
  * @property int|null $created_at
@@ -22,13 +22,13 @@ use Yii;
  * @property int|null $customer_id
  * @property int|null $category_id
  * @property string|null $blog_name
- * @property int|null $invoice_id
+ * @property int|null $order_id
  *
  * @property Blog $blogName
  * @property Customer $customer
- * @property Invoice $invoice
+ * @property Order $order
  */
-class InvoiceItem extends ActiveRecord
+class OrderItem extends ActiveRecord
 {
     public $cache_fields;
     public $guaranty;
@@ -39,36 +39,36 @@ class InvoiceItem extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'invoice_item';
+        return 'order_item';
     }
 
-    public static function forge($invoice, $cart, $package, $product)
+    public static function forge($order, $cart, $package, $product)
     {
-        $invoiceItem = new InvoiceItem();
+        $orderItem = new OrderItem();
 
-        $invoiceItem->customer_id = $invoice->customer_id;
-        $invoiceItem->blog_name = $invoice->blog_name;
-        $invoiceItem->invoice_id = $invoice->id;
+        $orderItem->customer_id = $order->customer_id;
+        $orderItem->blog_name = $order->blog_name;
+        $orderItem->order_id = $order->id;
 
-        $invoiceItem->cnt = $cart->cnt;
+        $orderItem->cnt = $cart->cnt;
 
-        $invoiceItem->price = $package->price;
-        $invoiceItem->color_code = $package->color_code;
-        $invoiceItem->package_id = $package->id;
+        $orderItem->price = $package->price;
+        $orderItem->color_code = $package->color_code;
+        $orderItem->package_id = $package->id;
 
-        $invoiceItem->title = $product->title;
-        $invoiceItem->code = $product->code;
-        $invoiceItem->image = $product->image;
-        $invoiceItem->product_id = $product->id;
-        $invoiceItem->category_id = $product->category_id;
+        $orderItem->title = $product->title;
+        $orderItem->code = $product->code;
+        $orderItem->image = $product->image;
+        $orderItem->product_id = $product->id;
+        $orderItem->category_id = $product->category_id;
 
-        $invoiceItem->params = json_encode([
+        $orderItem->params = json_encode([
             'cache_fields' => Cache::getProductCacheField($product),
             'guaranty' => $package->guaranty,
             'des' => $package->des,
         ]);
 
-        return $invoiceItem;
+        return $orderItem;
     }
 
     /**
@@ -92,12 +92,12 @@ class InvoiceItem extends ActiveRecord
     }
 
     /**
-     * Gets query for [[Invoice]].
+     * Gets query for [[Order]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getInvoice()
+    public function getOrder()
     {
-        return $this->hasOne(Invoice::class, ['id' => 'invoice_id']);
+        return $this->hasOne(Order::class, ['id' => 'order_id']);
     }
 }

@@ -69,7 +69,7 @@ return [
     'Colors' => 'رنگ‌ها',
     'Page' => 'صفحه',
     'Pages' => 'صفحات',
-    'Invoices' => 'سفارشات',
+    'Orders' => 'سفارشات',
     'Signin' => 'ورود',
     'Signout' => 'خروج',
     'Signup' => 'ثبت‌نام',

@@ -16,8 +16,8 @@ use app\models\Customer;
 use app\models\Field;
 use app\models\FieldList;
 use app\models\Gallery;
-use app\models\Invoice;
-use app\models\InvoiceItem;
+use app\models\Order;
+use app\models\OrderItem;
 use app\models\Language;
 use app\models\LogApi;
 use app\models\Package;
@@ -147,7 +147,7 @@ class Api1Controller extends Api
                         'roles' => ['?', '@'],
                     ],
                     [
-                        'actions' => ['signout', 'profile',  'cart', 'cart-add', 'cart-delete', 'invoice', 'invoice-add', 'invoice-view', 'invoice-remove', 'order',],
+                        'actions' => ['signout', 'profile',  'cart', 'cart-add', 'cart-delete', 'order', 'order-add', 'order-view', 'order-remove', 'order',],
                         'allow' => true,
                         'verbs' => ['POST'],
                         'roles' => ['@'],
@@ -451,27 +451,27 @@ class Api1Controller extends Api
         $customer = self::customer();
         $post = \Yii::$app->request->post();
 
-        $invoice = new Invoice();
-        $invoice->load($post, '');
-        $invoice->blog_name = $blog->name;
-        $invoice->customer_id = $customer->id;
-        if ($invoice->validate()) {
+        $order = new Order();
+        $order->load($post, '');
+        $order->blog_name = $blog->name;
+        $order->customer_id = $customer->id;
+        if ($order->validate()) {
 
             $carts = Cart::cartResponse($blog, $customer, true);
-            $invoice->valid_carts_count = $carts['valid_carts_count'];
-            $invoice->setScenario('valid_carts_count');
+            $order->valid_carts_count = $carts['valid_carts_count'];
+            $order->setScenario('valid_carts_count');
 
             $transaction = Yii::$app->db->beginTransaction();
             try {
-                if ($invoice->save()) {
+                if ($order->save()) {
                     foreach ($carts['carts'] as $cartModel) {
-                        $invoiceItem = InvoiceItem::forge(
-                            $invoice,
+                        $orderItem = OrderItem::forge(
+                            $order,
                             $cartModel,
                             $carts['packages'][$cartModel->package_id],
                             $carts['products'][$carts['packages'][$cartModel->package_id]->product_id]
                         );
-                        if ($invoiceItem->save()) {
+                        if ($orderItem->save()) {
                             $cartModel->delete();
                         }
                     }
@@ -484,7 +484,7 @@ class Api1Controller extends Api
         }
 
         return [
-            'invoice' => $invoice->invoiceResponse(),
+            'order' => $order->orderResponse(),
         ];
     }
 

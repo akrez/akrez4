@@ -7,7 +7,7 @@ use app\models\Province;
 use yii\helpers\Json;
 
 /**
- * This is the model class for table "invoice".
+ * This is the model class for table "order".
  *
  * @property int $id
  * @property int|null $updated_at
@@ -20,7 +20,7 @@ use yii\helpers\Json;
  * @property string $blog_name
  * @property int $customer_id
  */
-class Invoice extends ActiveRecord
+class Order extends ActiveRecord
 {
     public $postal_code;
     public $province;
@@ -44,7 +44,7 @@ class Invoice extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'invoice';
+        return 'order';
     }
 
     /**
@@ -76,7 +76,7 @@ class Invoice extends ActiveRecord
         }
     }
 
-    public function invoiceResponse()
+    public function orderResponse()
     {
         return $this->toArray() + [
             'errors' => $this->errors,
