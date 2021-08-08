@@ -26,6 +26,7 @@ use Yii;
  * @property int|null $customer_id
  * @property int|null $model_category_id
  * @property string|null $model_parent_id
+ * @property string|null $error_message
  */
 class LogApi extends Log
 {
@@ -123,6 +124,7 @@ class LogApi extends Log
             'customer_id' => Yii::$app->customerApi->getId(),
             'model_category_id' => Yii::$app->request->get('category_id'),
             'model_parent_id' => Yii::$app->request->get('parent_id'),
+            'error_message' => null,
         ];
         $data = Helper::templatedArray($template, self::getData() + $params + $template);
         return static::getDb()->createCommand()->insert(self::tableName(), $data)->execute();

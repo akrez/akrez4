@@ -441,7 +441,7 @@ class Api1Controller extends Api
             $customer = self::customer();
             return Cart::cartResponse($blog, $customer, false);
         } catch (Throwable $e) {
-            Api::exceptionBadRequestHttp();
+            Api::exceptionBadRequestHttp($e);
         }
     }
 
@@ -478,7 +478,7 @@ class Api1Controller extends Api
                 }
             } catch (\Exception $e) {
                 $transaction->rollBack();
-                Api::exceptionBadRequestHttp();
+                Api::exceptionBadRequestHttp($e);
             }
             $transaction->commit();
         }
@@ -553,7 +553,7 @@ class Api1Controller extends Api
                 }
             }
         } catch (Throwable $e) {
-            Api::exceptionBadRequestHttp();
+            Api::exceptionBadRequestHttp($e);
         }
         return $verifyRequest->response();
     }
@@ -576,7 +576,7 @@ class Api1Controller extends Api
                 }
             }
         } catch (Throwable $e) {
-            Api::exceptionBadRequestHttp();
+            Api::exceptionBadRequestHttp($e);
         }
         return $verify->response();
     }
@@ -611,7 +611,7 @@ class Api1Controller extends Api
                 }
             }
         } catch (Throwable $e) {
-            Api::exceptionBadRequestHttp();
+            Api::exceptionBadRequestHttp($e);
         }
         return $resetPasswordRequest->response();
     }
@@ -633,7 +633,7 @@ class Api1Controller extends Api
                 }
             }
         } catch (Throwable $e) {
-            Api::exceptionBadRequestHttp();
+            Api::exceptionBadRequestHttp($e);
         }
         return $resetPassword->response();
     }
