@@ -4,7 +4,7 @@ namespace app\models;
 
 use Yii;
 
-class Province extends Model
+class City extends Model
 {
 
     public static function getList()

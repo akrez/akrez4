@@ -75,7 +75,8 @@ class Cart extends ActiveRecord
 
     public static function cartResponse($blog, $customer, $asCardModel = false)
     {
-        $valid_carts_count = 0;
+        $price = 0;
+        $carts_count = 0;
         $carts = [];
         $packages = [];
         $products = [];
@@ -95,7 +96,8 @@ class Cart extends ActiveRecord
                 $carts[$cartModel->id] = $cartModel;
                 $carts[$cartModel->id]->packageValidation($package);
                 if (!$cartModel->errors) {
-                    $valid_carts_count++;
+                    $price = $price + $package->price;
+                    $carts_count++;
                 }
 
                 if (!$asCardModel) {
@@ -105,7 +107,8 @@ class Cart extends ActiveRecord
         }
         //
         return [
-            'valid_carts_count' => $valid_carts_count,
+            'price' => $price,
+            'carts_count' => $carts_count,
             'carts' => $carts,
             'packages' => $packages,
             'products' => $products,

@@ -24,6 +24,7 @@ class Model extends BaseModel
             'logo' => 'لوگو',
             'slug' => 'شعار',
             'code' => 'کد',
+            'city' => 'استان',
             'phone' => 'تلفن',
             'title' => 'عنوان',
             'image' => 'تصویر',
@@ -46,12 +47,11 @@ class Model extends BaseModel
             'content' => 'متن',
             'special' => 'ویژه',
             'options' => 'گزینه‌ها',
-            'province' => 'استان',
             'field_id' => 'ویژگی‌',
             'taxonomy' => 'دسته‌بندی',
             'guaranty' => 'گارانتی',
             'language' => 'زبان',
-            
+
             'label_no' => 'جایگزین عبارت "خیر"',
             'password' => 'رمز عبور',
             'entity_id' => 'شناسه',
@@ -71,6 +71,7 @@ class Model extends BaseModel
             'cache_stock' => 'موجودی انبار',
             'category_id' => 'دسته‌بندی',
             'reset_token' => 'کد بازیابی رمز عبور',
+            'carts_count' => 'تعداد اقلام',
             'verify_token' => 'کد فعال‌سازی',
             'captcha' => 'کد تأیید',
 

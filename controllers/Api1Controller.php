@@ -23,7 +23,7 @@ use app\models\LogApi;
 use app\models\Package;
 use app\models\Page;
 use app\models\Product;
-use app\models\Province;
+use app\models\City;
 use app\models\Search;
 use app\models\Status;
 use Throwable;
@@ -147,7 +147,7 @@ class Api1Controller extends Api
                         'roles' => ['?', '@'],
                     ],
                     [
-                        'actions' => ['signout', 'profile',  'cart', 'cart-add', 'cart-delete', 'order', 'order-add', 'order-view', 'order-remove', 'order',],
+                        'actions' => ['signout', 'profile',  'cart', 'cart-add', 'cart-delete', 'order-submit', 'order-add', 'order-view', 'order-remove', 'orders',],
                         'allow' => true,
                         'verbs' => ['POST'],
                         'roles' => ['@'],
@@ -177,7 +177,7 @@ class Api1Controller extends Api
             $result[$languageKey] = [
                 'widget' => FieldList::widgetsList(),
                 'opertaion' => FieldList::opertaionsList(),
-                'province' => Province::getList(),
+                'city' => City::getList(),
                 'language' => Language::getList(),
                 'entity_page' => Page::entityPage(),
             ];
@@ -445,7 +445,7 @@ class Api1Controller extends Api
         }
     }
 
-    public static function actionOrder()
+    public static function actionOrderSubmit()
     {
         $blog = self::blog();
         $customer = self::customer();
@@ -457,9 +457,10 @@ class Api1Controller extends Api
         $order->customer_id = $customer->id;
         if ($order->validate()) {
 
+            $order->setScenario('carts_count');
             $carts = Cart::cartResponse($blog, $customer, true);
-            $order->valid_carts_count = $carts['valid_carts_count'];
-            $order->setScenario('valid_carts_count');
+            $order->carts_count = $carts['carts_count'];
+            $order->price = $carts['price'];
 
             $transaction = Yii::$app->db->beginTransaction();
             try {
@@ -485,6 +486,52 @@ class Api1Controller extends Api
 
         return [
             'order' => $order->orderResponse(),
+        ];
+    }
+
+    public function actionOrders()
+    {
+        $page = Yii::$app->request->post('page');
+        $page_size = Yii::$app->request->post('page_size');
+        //
+        $blog = self::blog();
+        $customer = self::customer();
+        //
+        $query = Order::findOrderQueryForApi($blog->name, $customer->id);
+        //
+        $countOfResults = $query->count('id');
+        //
+        $page_size = intval($page_size);
+        if ($page_size == -1) {
+            $page_size = $countOfResults;
+        } elseif ($page_size > 0) {
+            $page_size = $page_size;
+        } else {
+            $page_size = 12;
+        }
+
+        $pagination = new Pagination([
+            'params' => [
+                'page' => $page,
+                'per-page' => $page_size,
+            ],
+            'totalCount' => $countOfResults,
+        ]);
+
+        $orders = $query
+            ->orderBy(['id' => SORT_DESC])
+            ->offset($pagination->offset)
+            ->limit($pagination->limit)
+            ->all();
+
+        return [
+            'orders' => $orders,
+            'pagination' => [
+                'page_count' => $pagination->getPageCount(),
+                'page_size' => $pagination->getPageSize(),
+                'page' => $pagination->getPage(),
+                'total_count' => $countOfResults,
+            ],
         ];
     }
 
