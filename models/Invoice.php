@@ -7,7 +7,7 @@ use app\models\City;
 use yii\helpers\Json;
 
 /**
- * This is the model class for table "order".
+ * This is the model class for table "invoice".
  *
  * @property int $id
  * @property int|null $updated_at
@@ -24,9 +24,9 @@ use yii\helpers\Json;
  *
  * @property Blog $blogName
  * @property Customer $customer
- * @property OrderItem[] $orderItems
+ * @property InvoiceItem[] $invoiceItems
  */
-class Order extends ActiveRecord
+class Invoice extends ActiveRecord
 {
     public $postal_code;
     public $city;
@@ -48,7 +48,7 @@ class Order extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'order';
+        return 'invoice';
     }
 
     /**
@@ -81,16 +81,16 @@ class Order extends ActiveRecord
         }
     }
 
-    public function orderResponse()
+    public function invoiceResponse()
     {
         return $this->toArray() + [
             'errors' => $this->errors,
         ];
     }
 
-    public static function findOrderQueryForApi($blogName, $customerId)
+    public static function findInvoiceQueryForApi($blogName, $customerId)
     {
-        return Order::find()
+        return Invoice::find()
             ->andWhere(['blog_name' => $blogName])
             ->andWhere(['customer_id' => $customerId]);
     }

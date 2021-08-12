@@ -16,8 +16,8 @@ use app\models\Customer;
 use app\models\Field;
 use app\models\FieldList;
 use app\models\Gallery;
-use app\models\Order;
-use app\models\OrderItem;
+use app\models\Invoice;
+use app\models\InvoiceItem;
 use app\models\Language;
 use app\models\LogApi;
 use app\models\Package;
@@ -147,7 +147,7 @@ class Api1Controller extends Api
                         'roles' => ['?', '@'],
                     ],
                     [
-                        'actions' => ['signout', 'profile',  'cart', 'cart-add', 'cart-delete', 'order-submit', 'order-add', 'order-view', 'order-remove', 'orders',],
+                        'actions' => ['signout', 'profile',  'cart', 'cart-add', 'cart-delete', 'invoice-submit', 'invoice-add', 'invoice-view', 'invoice-remove', 'invoices',],
                         'allow' => true,
                         'verbs' => ['POST'],
                         'roles' => ['@'],
@@ -445,34 +445,34 @@ class Api1Controller extends Api
         }
     }
 
-    public static function actionOrderSubmit()
+    public static function actionInvoiceSubmit()
     {
         $blog = self::blog();
         $customer = self::customer();
         $post = \Yii::$app->request->post();
 
-        $order = new Order();
-        $order->load($post, '');
-        $order->blog_name = $blog->name;
-        $order->customer_id = $customer->id;
-        if ($order->validate()) {
+        $invoice = new Invoice();
+        $invoice->load($post, '');
+        $invoice->blog_name = $blog->name;
+        $invoice->customer_id = $customer->id;
+        if ($invoice->validate()) {
 
-            $order->setScenario('carts_count');
+            $invoice->setScenario('carts_count');
             $carts = Cart::cartResponse($blog, $customer, true);
-            $order->carts_count = $carts['carts_count'];
-            $order->price = $carts['price'];
+            $invoice->carts_count = $carts['carts_count'];
+            $invoice->price = $carts['price'];
 
             $transaction = Yii::$app->db->beginTransaction();
             try {
-                if ($order->save()) {
+                if ($invoice->save()) {
                     foreach ($carts['carts'] as $cartModel) {
-                        $orderItem = OrderItem::forge(
-                            $order,
+                        $invoiceItem = InvoiceItem::forge(
+                            $invoice,
                             $cartModel,
                             $carts['packages'][$cartModel->package_id],
                             $carts['products'][$carts['packages'][$cartModel->package_id]->product_id]
                         );
-                        if ($orderItem->save()) {
+                        if ($invoiceItem->save()) {
                             $cartModel->delete();
                         }
                     }
@@ -485,11 +485,11 @@ class Api1Controller extends Api
         }
 
         return [
-            'order' => $order->orderResponse(),
+            'invoice' => $invoice->invoiceResponse(),
         ];
     }
 
-    public function actionOrders()
+    public function actionInvoices()
     {
         $page = Yii::$app->request->post('page');
         $page_size = Yii::$app->request->post('page_size');
@@ -497,7 +497,7 @@ class Api1Controller extends Api
         $blog = self::blog();
         $customer = self::customer();
         //
-        $query = Order::findOrderQueryForApi($blog->name, $customer->id);
+        $query = Invoice::findInvoiceQueryForApi($blog->name, $customer->id);
         //
         $countOfResults = $query->count('id');
         //
@@ -518,14 +518,14 @@ class Api1Controller extends Api
             'totalCount' => $countOfResults,
         ]);
 
-        $orders = $query
+        $invoices = $query
             ->orderBy(['id' => SORT_DESC])
             ->offset($pagination->offset)
             ->limit($pagination->limit)
             ->all();
 
         return [
-            'orders' => $orders,
+            'invoices' => $invoices,
             'pagination' => [
                 'page_count' => $pagination->getPageCount(),
                 'page_size' => $pagination->getPageSize(),
