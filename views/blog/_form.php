@@ -70,6 +70,12 @@ $form = ActiveForm::begin([
 </div>
 
 <div class="row">
+    <div class="col-sm-12">
+        <?= $form->field($model, 'google_site_verification')->textInput() ?>
+    </div>
+</div>
+
+<div class="row">
     <div class="col-sm-3">
         <?= $form->field($model, 'email')->textInput() ?>
     </div>

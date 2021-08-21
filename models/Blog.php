@@ -58,6 +58,7 @@ class Blog extends ActiveRecord implements IdentityInterface
     public $facebook;
     public $twitter;
     public $slug;
+    public $google_site_verification;
     public $des;
     //
     public $cache_color;
@@ -80,6 +81,7 @@ class Blog extends ActiveRecord implements IdentityInterface
             [['status',], 'in', 'range' => array_keys(self::validStatuses())],
 
             [['des',], 'string', 'max' => 320, 'on' => 'profile',],
+            [['google_site_verification',], 'string', 'max' => 320, 'on' => 'profile',],
             [['language',], 'in', 'range' => array_keys(Language::getList())],
 
             [['instagram',],      'match', 'pattern' => '/^[A-Za-z0-9_\.]+$/', 'on' => 'profile',],
@@ -163,6 +165,9 @@ class Blog extends ActiveRecord implements IdentityInterface
             'des' => [
                 ['string'],
             ],
+            'google_site_verification' => [
+                ['string'],
+            ],
             'slug' => [
                 ['string', 'max' => 160],
             ],
@@ -210,6 +215,7 @@ class Blog extends ActiveRecord implements IdentityInterface
             'profile' => [
                 'title' => [],
                 'des' => [],
+                'google_site_verification' => [],
                 'slug' => [],
                 'twitter' => [],
                 'facebook' => [],
@@ -265,6 +271,7 @@ class Blog extends ActiveRecord implements IdentityInterface
             'des' => null,
             'slug' => null,
             'twitter' => null,
+            'google_site_verification' => null,
             'facebook' => null,
             'telegram' => null,
             'instagram' => null,
@@ -285,6 +292,7 @@ class Blog extends ActiveRecord implements IdentityInterface
         $this->telegram = $arrayParams['telegram'];
         $this->facebook = $arrayParams['facebook'];
         $this->twitter = $arrayParams['twitter'];
+        $this->google_site_verification = $arrayParams['google_site_verification'];
         $this->phone = $arrayParams['phone'];
         $this->address = $arrayParams['address'];
         //
@@ -307,6 +315,7 @@ class Blog extends ActiveRecord implements IdentityInterface
             'telegram' => $this->telegram,
             'facebook' => $this->facebook,
             'twitter' => $this->twitter,
+            'google_site_verification' => $this->google_site_verification,
             'phone' => $this->phone,
             'address' => $this->address,
             //
@@ -538,6 +547,7 @@ class Blog extends ActiveRecord implements IdentityInterface
             'telegram' => $this->telegram,
             'address' => $this->address,
             'twitter' => $this->twitter,
+            'google_site_verification' => $this->google_site_verification,
             'has_page' => Cache::getCachePages($this),
             'color' => Cache::getBlogCacheColor($this),
         ];
