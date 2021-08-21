@@ -147,7 +147,7 @@ class Api1Controller extends Api
                         'roles' => ['?', '@'],
                     ],
                     [
-                        'actions' => ['signout', 'profile',  'cart', 'cart-add', 'cart-delete', 'invoice-submit', 'invoice-add', 'invoice-view', 'invoice-remove', 'invoices',],
+                        'actions' => ['signout', 'profile',  'cart', 'cart-add', 'cart-delete', 'invoice-submit', 'invoice-add', 'invoice-view', 'invoice-remove', 'invoices', 'invoice-view',],
                         'allow' => true,
                         'verbs' => ['POST'],
                         'roles' => ['@'],
@@ -532,6 +532,27 @@ class Api1Controller extends Api
                 'page' => $pagination->getPage(),
                 'total_count' => $countOfResults,
             ],
+        ];
+    }
+
+    public function actionInvoiceView($invoice_id)
+    {
+        $blog = self::blog();
+        $customer = self::customer();
+        //
+        $invoice = Invoice::findInvoiceQueryForApi($blog->name, $customer->id)->andWhere(['id' => $invoice_id])->one();
+        if ($invoice) {
+            $invoice = $invoice->toArray();
+        } else {
+            Api::exceptionNotFoundHttp();
+        }
+        //
+        $invoiceItems = InvoiceItem::findInvoiceItemQueryForApi($blog->name, $customer->id)->andWhere(['invoice_id' => $invoice['id']])->all();
+        $invoiceItems = ArrayHelper::toArray($invoiceItems);
+        //
+        return [
+            'invoice' => $invoice,
+            'invoiceItems' => $invoiceItems,
         ];
     }
 
