@@ -4,6 +4,7 @@ namespace app\models;
 
 use app\components\Cache;
 use Yii;
+use yii\helpers\Json;
 
 /**
  * This is the model class for table "invoice_item".
@@ -69,6 +70,51 @@ class InvoiceItem extends ActiveRecord
         ]);
 
         return $invoiceItem;
+    }
+
+    public static function findInvoiceItemQueryForApi($blogName, $customerId)
+    {
+        return InvoiceItem::find()
+            ->andWhere(['blog_name' => $blogName])
+            ->andWhere(['customer_id' => $customerId]);
+    }
+
+    public function afterFind()
+    {
+        parent::afterFind();
+        $arrayParams = (array) Json::decode($this->params) + [
+            'cache_fields' => [],
+            'guaranty' => '',
+            'des' => '',
+        ];
+
+        $this->cache_fields = $arrayParams['cache_fields'];
+        $this->guaranty = $arrayParams['guaranty'];
+        $this->des = $arrayParams['des'];
+    }
+
+    public function toArray(array $fields = [], array $expand = [], $recursive = true)
+    {
+        return [
+            'id' => $this->id,
+            'created_at' => $this->created_at,
+            'title' => $this->title,
+            'code' => $this->code,
+            'image' => $this->image,
+            'price' => $this->price,
+            'color_code' => $this->color_code,
+            'cnt' => $this->cnt,
+            'package_id' => $this->package_id,
+            'product_id' => $this->product_id,
+            'customer_id' => $this->customer_id,
+            'category_id' => $this->category_id,
+            'blog_name' => $this->blog_name,
+            'invoice_id' => $this->invoice_id,
+            //
+            '_fields' => Cache::getProductCacheField($this),
+            'guaranty' =>  $this->guaranty,
+            'des' =>  $this->des,
+        ];
     }
 
     /**
