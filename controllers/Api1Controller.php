@@ -5,7 +5,7 @@ namespace app\controllers;
 use yii\data\Pagination;
 use app\models\ProductField;
 use app\components\SingleSort;
-use yii\web\BadRequestHttpException;
+use app\models\BlogAccount;
 use app\components\Cache;
 use app\components\Sms;
 use app\models\Cart;
@@ -180,6 +180,7 @@ class Api1Controller extends Api
                 'city' => City::getList(),
                 'language' => Language::getList(),
                 'entity_page' => Page::entityPage(),
+                'blog_account_identity_type' => BlogAccount::getTypeList(),
             ];
         }
         return ['constant' => $result];

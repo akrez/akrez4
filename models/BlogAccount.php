@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "blog_account".
@@ -17,16 +18,16 @@ use Yii;
  */
 class BlogAccount extends ActiveRecord
 {
-    const TYPE_SHEBA = 'sheba';
     const TYPE_CARD = 'card';
     const TYPE_ACCOUNT = 'account';
+    const TYPE_SHEBA = 'sheba';
 
     public static function getTypeList()
     {
         return [
-            self::TYPE_SHEBA => Yii::t('app', 'sheba'),
             self::TYPE_CARD => Yii::t('app', 'card number'),
             self::TYPE_ACCOUNT => Yii::t('app', 'account number'),
+            self::TYPE_SHEBA => Yii::t('app', 'sheba number'),
         ];
     }
 
@@ -53,6 +54,22 @@ class BlogAccount extends ActiveRecord
             [['name', 'identity', 'identity_type', 'blog_name'], 'required'],
             [['name', 'identity'], 'string', 'max' => 60],
             [['identity_type'], 'string', 'max' => 15],
+        ];
+    }
+
+    public static function getList()
+    {
+        $list = BlogAccount::blogValidQuery()->all();
+        $list = ArrayHelper::toArray($list);
+        return $list;
+    }
+
+    public function toArray(array $fields = [], array $expand = [], $recursive = true)
+    {
+        return [
+            'name' => $this->name,
+            'identity' => $this->identity,
+            'identity_type' => $this->identity_type,
         ];
     }
 

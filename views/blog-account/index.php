@@ -110,21 +110,61 @@ $('#table').yiiGridView(" . json_encode([
             <div class="ajax-splash-show splash-style"></div>
             <div class="panel-heading"><?= Yii::t('app', 'Blog Account') ?></div>
             <table id="table" class="table table-bordered table-striped">
+                <thead>
+                    <tr class="info">
+                        <th><?= $sort->link('name', ['label' => $modelClass->getAttributeLabel('name')]) ?></th>
+                        <th><?= $sort->link('identity_type', ['label' => $modelClass->getAttributeLabel('identity_type')]) ?></th>
+                        <th><?= $sort->link('identity', ['label' => $modelClass->getAttributeLabel('identity')]) ?></th>
+                        <th></th>
+                    </tr>
+                    <tr id="table-filters" class="info">
+                        <th><?= Html::activeInput('text', $searchModel, 'name', ['class' => 'form-control']) ?></th>
+                        <th><?= Html::activeDropDownList($searchModel, 'identity_type', BlogAccount::getTypeList(), ['class' => 'form-control', 'prompt' => '']) ?></th>
+                        <th><?= Html::activeInput('text', $searchModel, 'identity', ['class' => 'form-control']) ?></th>
+                        <th></th>
+                    </tr>
+                </thead>
                 <tbody>
-                    <?php
-                    foreach ($dataProvider->getModels() as $dataProviderModelKey => $dataProviderModel) :
-                        if ($model && $model->id == $dataProviderModel->id && !$model->isNewRecord) {
-                            $dataProviderModel = $model;
-                        }
-                    ?>
-                        <tr style="display: table-row;">
-                            <td>
-                                <?= $this->render('_form', ['model' => $dataProviderModel]) ?>
+                    <?php if ($dataProvider->getModels()) { ?>
+                        <?php
+                        foreach ($dataProvider->getModels() as $dataProviderModelKey => $dataProviderModel) :
+                            $displayState = '';
+                            $displayStyle = 'display: none;';
+                            if ($model && $model->id == $dataProviderModel->id) {
+                                $displayState = $state;
+                                $displayStyle = 'display: table-row;';
+                                $dataProviderModel = $model;
+                            }
+                        ?>
+                            <tr class="active">
+                                <td>
+                                    <?= HtmlPurifier::process($dataProviderModel->name) ?>
+                                </td>
+                                <td>
+                                    <?= BlogAccount::getTypeLabel($dataProviderModel->identity_type) ?>
+                                </td>
+                                <td>
+                                    <?= HtmlPurifier::process($dataProviderModel->identity) ?>
+                                </td>
+                                <td>
+                                    <?= Html::button(Yii::t('app', 'Update'), ['class' => 'btn btn-block' . ($displayState == 'update' ? ' btn-warning ' : ' btn-default '), 'toggle' => "#row-update-" . $dataProviderModel->id]) ?>
+                                </td>
+                            </tr>
+                            <tr style="<?= $displayStyle ?>" id="<?= "row-update-" . $dataProviderModel->id ?>">
+                                <td colspan="4">
+                                    <?= $this->render('_form', ['model' => $dataProviderModel]) ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php } else { ?>
+                        <tr class="danger">
+                            <td colspan="7">
+                                <?= Yii::t('yii', 'No results found.') ?>
                             </td>
                         </tr>
-                    <?php endforeach; ?>
+                    <?php } ?>
                     <tr class="success">
-                        <td>
+                        <td colspan="4">
                             <?= $this->render('_form', ['model' => $newModel]) ?>
                         </td>
                     </tr>

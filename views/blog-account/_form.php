@@ -33,5 +33,15 @@ $form = ActiveForm::begin([
     <div class="col-sm-3">
         <?= Html::submitButton($model->isNewRecord ? ' <span class="glyphicon glyphicon-plus"></span> ' . Yii::t('app', 'Create') : ' <span class="glyphicon glyphicon-pencil"></span> ' . Yii::t('app', 'Update'), ['class' => 'btn btn-block btn-social ' . ($model->isNewRecord ? 'btn-success' : 'btn-primary')]); ?>
     </div>
+    <div class="col-sm-3">
+        <?php
+        if (!$model->isNewRecord) :
+            echo Html::a(' <span class="glyphicon glyphicon-trash"></span> ' . Yii::t('app', 'Remove'), Url::to([0 => 'blog-account/index', 'state' => 'remove', 'id' => $model->id]), [
+                'class' => 'btn btn-danger btn-block btn-social',
+                'data-confirm' => Yii::t('yii', 'Are you sure you want to delete this item?'),
+            ]);
+        endif;
+        ?>
+    </div>
 </div>
 <?php ActiveForm::end(); ?>

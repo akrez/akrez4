@@ -12,7 +12,7 @@ use yii\web\NotFoundHttpException;
 
 class Api extends BaseController
 {
-    public const CONSTANT_HASH = '2021-08-12-18-10';
+    public const CONSTANT_HASH = '2021-08-26-15-01';
     public const TOKEN_PARAM = '_token';
     public const BLOG_PARAM = '_blog';
 

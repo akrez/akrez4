@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\components\Cache;
 use app\components\Helper;
 use app\models\BlogAccount;
 use app\models\BlogAccountSearch;
@@ -47,10 +48,12 @@ class BlogAccountController extends Controller
             $updateCacheNeeded = Helper::store($model, $post, [
                 'blog_name' => Yii::$app->user->getId(),
             ]);
+        } elseif ($state == 'remove' && $model) {
+            $updateCacheNeeded = Helper::delete($model);
         }
         if ($updateCacheNeeded) {
             $newModel = new BlogAccount();
-            //Cache::updateBlogCacheColor(Yii::$app->user->getIdentity());
+            Cache::updateBlogCacheAccount(Yii::$app->user->getIdentity());
         }
         //
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
