@@ -98,6 +98,7 @@ return [
     'Choose' => 'انتخاب',
     'Choose Logo' => 'انتخاب لوگو',
     'Change Password' => 'تغییر رمزعبور',
+    'Blog Account' => 'اطلاعات شماره حساب',
     //
     'Create {name}' => 'ایجاد {name} جدید',
     'Update {name}' => 'ویرایش {name}',

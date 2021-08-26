@@ -87,6 +87,7 @@ $this->registerJs($format, View::POS_READY);
                             </ul>
                         </li>
                         <li><a href="<?= Url::toRoute(['/color/index']) ?>"><?= Yii::t('app', 'Colors') ?></a></li>
+                        <li><a href="<?= Url::toRoute(['/blog-account/index']) ?>"><?= Yii::t('app', 'Blog Account') ?></a></li>
                     </ul>
                 <?php endif; ?>
 
