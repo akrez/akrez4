@@ -31,6 +31,10 @@ return [
     'About Us' => 'درباره ما',
     'Contact Us' => 'ارتباط با ما',
     //
+    'sheba' => 'شبا',
+    'card number' => 'شماره کارت',
+    'account number' => 'شماره حساب',
+    //
     'widget_between' => 'بازه عددی',
     'widget_bigger' => 'بزرگتر از',
     'widget_smaller' => 'کوچکتر از',
