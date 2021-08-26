@@ -31,7 +31,7 @@ return [
     'About Us' => 'درباره ما',
     'Contact Us' => 'ارتباط با ما',
     //
-    'sheba' => 'شبا',
+    'sheba number' => 'شماره شبا',
     'card number' => 'شماره کارت',
     'account number' => 'شماره حساب',
     //
