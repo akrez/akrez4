@@ -56,6 +56,7 @@ class Model extends BaseModel
             'password' => 'رمز عبور',
             'entity_id' => 'شناسه',
             'garanties' => 'گارانتی‌ها',
+            'identity' => 'شناسه',
             'label_yes' => 'جایگزین عبارت "بله"',
             'parent_id' => 'مرتبط با',
             'price_min' => 'کمترین قیمت',
@@ -73,12 +74,14 @@ class Model extends BaseModel
             'reset_token' => 'کد بازیابی رمز عبور',
             'carts_count' => 'تعداد اقلام',
             'verify_token' => 'کد فعال‌سازی',
+            'identity_type' => 'نوع شناسه',
             'captcha' => 'کد تأیید',
 
             'receive_from' => 'تحویل از',
             'telegram_bot_token' => 'Telegram Bot Token',
 
             'receive_until' => 'تحویل تا',
+            
         ];
     }
 }
