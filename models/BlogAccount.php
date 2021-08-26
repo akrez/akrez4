@@ -56,6 +56,14 @@ class BlogAccount extends ActiveRecord
         ];
     }
 
+    public static function blogValidQuery($id = null)
+    {
+        $query = BlogAccount::find();
+        $query->andWhere(['blog_name' => Yii::$app->user->getId(),]);
+        $query->andFilterWhere(['id' => $id]);
+        return $query;
+    }
+
     /**
      * Gets query for [[BlogName]].
      *
