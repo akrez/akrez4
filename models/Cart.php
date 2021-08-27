@@ -96,8 +96,8 @@ class Cart extends ActiveRecord
                 $carts[$cartModel->id] = $cartModel;
                 $carts[$cartModel->id]->packageValidation($package);
                 if (!$cartModel->errors) {
-                    $price = $price + $package->price;
-                    $carts_count++;
+                    $price = $price + ($package->price * $cartModel->cnt);
+                    $carts_count += $cartModel->cnt;
                 }
 
                 if (!$asCardModel) {
