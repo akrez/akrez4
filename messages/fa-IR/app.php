@@ -111,6 +111,7 @@ return [
     'Add Multiple' => 'افزودن چندین مورد',
     'Back' => 'بازگشت',
     'Search' => 'جستجو',
+    'View' => 'مشاهده',
     //
     'SelectDefaultImage' => 'عکس پیش فرض',
     'UploadNewImage' => 'بارگذاری عکس جدید',

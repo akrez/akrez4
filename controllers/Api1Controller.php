@@ -420,6 +420,7 @@ class Api1Controller extends Api
             $cart->price_initial = $package->price;
             $cart->cnt = 0;
             $cart->package_id = $package->id;
+            $cart->product_id = $package->product_id;
             $cart->customer_id = $customer->id;
             $cart->blog_name = $blog->name;
             $cart->cache_parents_active_status = Cache::calcCacheParentsActiveStatus($package);
@@ -466,6 +467,7 @@ class Api1Controller extends Api
             $invoice->setScenario('carts_count');
             $carts = Cart::cartResponse($blog, $customer, true);
             $invoice->carts_count = $carts['carts_count'];
+            $invoice->pay_status = Status::STATUS_UNVERIFIED;
             $invoice->price = $carts['price'];
 
             $transaction = Yii::$app->db->beginTransaction();

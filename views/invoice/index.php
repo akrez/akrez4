@@ -2,8 +2,10 @@
 
 use app\models\City;
 use app\models\Gallery;
+use app\models\Invoice;
 use yii\helpers\Html;
 use yii\grid\GridView;
+use yii\helpers\Url;
 
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\InvoiceSearch */
@@ -50,16 +52,21 @@ $this->registerCss("
             'filter' => false,
             'format' => 'raw',
             'enableSorting' => false
-        ]
-        // [
-        //     'label' => '',
-        //     'format' => 'raw',
-        //     'value' => function ($model, $key, $index, $grid) {
-        //         return '<a class="btn btn-primary btn-block btn-social" href="' . Blog::url('site/invoice-view', ['id' => $model['id']]) . '" >' .
-        //             '<i class="far fa-eye"></i></i>' .
-        //             Yii::t('app', 'View invoice') .
-        //             '</a>';
-        //     },
-        // ],
+        ],
+        [
+            'attribute' => 'pay_status',
+            'format' => 'status',
+            'filter' => Invoice::validStatuses(),
+        ],
+        [
+            'label' => '',
+            'format' => 'raw',
+            'value' => function ($model, $key, $index, $grid) {
+                return '<a class="btn btn-default btn-block btn-social" href="' . Url::to(['invoice/view', 'id' => $model->id]) . '" >' .
+                    '<span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>' .
+                    Yii::t('app', 'View') .
+                    '</a>';
+            },
+        ],
     ],
 ]); ?>

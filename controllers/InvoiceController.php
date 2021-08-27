@@ -2,6 +2,8 @@
 
 namespace app\controllers;
 
+use app\components\Helper;
+use app\models\CartSearch;
 use app\models\Invoice;
 use app\models\InvoiceSearch;
 use Yii;
@@ -19,7 +21,7 @@ class InvoiceController extends Controller
     {
         return $this->defaultBehaviors([
             [
-                'actions' => ['index',],
+                'actions' => ['index', 'view', 'set-status'],
                 'allow' => true,
                 'verbs' => ['POST', 'GET'],
                 'roles' => ['@'],
@@ -35,6 +37,26 @@ class InvoiceController extends Controller
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
         ]);
+    }
+
+    public function actionView($id)
+    {
+        $invoice = Helper::findOrFail(Invoice::blogValidQuery()->andWhere(['id' => $id]));
+        //
+        $searchModel = new CartSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->get());
+        return $this->render('view', [
+            'invoice' => $invoice,
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
+        ]);
+    }
+
+    public function actionSetStatus($id, $attribute, $status)
+    {
+        $invoice = Helper::findOrFail(Invoice::blogValidQuery()->andWhere(['id' => $id]));
+        $invoice->setStatus($attribute, $status);
+        return $this->redirect(['invoice/view', 'id' => $id]);
     }
 
     /**

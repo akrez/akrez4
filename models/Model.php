@@ -43,6 +43,7 @@ class Model extends BaseModel
             'widgets' => 'فیلترها',
             'address' => 'آدرس',
             'package' => 'شرایط فروش',
+            'user_id' => 'کاربر',
             'blog_id' => 'کاربر',
             'content' => 'متن',
             'special' => 'ویژه',
@@ -70,17 +71,19 @@ class Model extends BaseModel
             'created_at' => 'تاریخ ایجاد',
             'product_id' => 'محصول',
             'package_id' => 'شرایط فروش',
+            'pay_status' => 'وضعیت پرداخت',
             'cache_stock' => 'موجودی انبار',
+            'postal_code' => 'کد پستی',
             'category_id' => 'دسته‌بندی',
             'reset_token' => 'کد بازیابی رمز عبور',
             'carts_count' => 'تعداد اقلام',
             'verify_token' => 'کد فعال‌سازی',
             'identity_type' => 'نوع شناسه',
             'captcha' => 'کد تأیید',
-
+            
             'receive_from' => 'تحویل از',
             'telegram_bot_token' => 'Telegram Bot Token',
-
+            
             'receive_until' => 'تحویل تا',
             'receipt' => 'رسید پرداخت',
             'receipt_file' => 'رسید پرداخت',

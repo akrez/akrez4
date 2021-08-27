@@ -15,11 +15,13 @@ use Yii;
  * @property int|null $package_id
  * @property int|null $customer_id
  * @property string|null $blog_name
+ * @property int $product_id
  * @property int|null $cache_parents_active_status
  *
  * @property Blog $blogName
  * @property Customer $customer
  * @property Package $package
+ * @property Product $product
  */
 class Cart extends ActiveRecord
 {
@@ -162,5 +164,15 @@ class Cart extends ActiveRecord
     public function getPackage()
     {
         return $this->hasOne(Package::class, ['id' => 'package_id']);
+    }
+
+    /**
+     * Gets query for [[Product]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getProduct()
+    {
+        return $this->hasOne(Product::class, ['id' => 'product_id']);
     }
 }

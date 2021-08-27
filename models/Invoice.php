@@ -18,6 +18,7 @@ use yii\helpers\Json;
  * @property string|null $phone
  * @property float $price
  * @property int $carts_count
+ * @property int|null $pay_status
  * @property string|null $params
  * @property string $receipt
  * @property string $blog_name
@@ -26,6 +27,7 @@ use yii\helpers\Json;
  * @property Blog $blogName
  * @property Customer $customer
  * @property InvoiceItem[] $invoiceItems
+ * @property Gallery $gallery
  */
 class Invoice extends ActiveRecord
 {
@@ -69,7 +71,9 @@ class Invoice extends ActiveRecord
             [['address'], 'string', 'on' => [self::SCENARIO_DEFAULT]],
             [['lat',], 'match', 'pattern' => "/^[-]?(([0-8]?[0-9])\.(\d+))|(90(\.0+)?)$/", 'on' => [self::SCENARIO_DEFAULT]],
             [['lng',], 'match', 'pattern' => "/^[-]?((((1[0-7][0-9])|([0-9]?[0-9]))\.(\d+))|180(\.0+)?)$/", 'on' => [self::SCENARIO_DEFAULT]],
-            [['receipt_file'], 'safe'],
+            [['receipt_file'], 'safe', 'on' => [self::SCENARIO_DEFAULT]],
+            //
+            [['pay_status'], 'in', 'range' => array_keys(self::validStatuses()), 'on' => [self::SCENARIO_DEFAULT]],
             //
             [['price'], 'integer', 'min' => 0, 'on' => ['carts_count']],
             [['carts_count'], 'validCartsCount', 'on' => ['carts_count']],
@@ -134,6 +138,16 @@ class Invoice extends ActiveRecord
         return true;
     }
 
+    public function setStatus($statusAttribute, $status, $text = '')
+    {
+        $result = false;
+        if ($this->hasAttribute($statusAttribute)) {
+            $this->$statusAttribute = $status;
+            $result = $this->save();
+        }
+        return $result;
+    }
+
     public function upload()
     {
         $gallery = Gallery::uploadBase64($this->receipt_file, Gallery::TYPE_RECEIPT);
@@ -164,6 +178,7 @@ class Invoice extends ActiveRecord
             'lng' => $this->lng,
             'des' => $this->des,
             'receipt' => $this->receipt,
+            'pay_status' => $this->pay_status,
             //
             'price' => $this->price,
             'carts_count' => $this->carts_count,
@@ -176,5 +191,45 @@ class Invoice extends ActiveRecord
         $query->andWhere(['blog_name' => Yii::$app->user->getId()]);
         $query->andFilterWhere(['id' => $id]);
         return $query;
+    }
+
+    /**
+     * Gets query for [[BlogName]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBlogName()
+    {
+        return $this->hasOne(Blog::class, ['name' => 'blog_name']);
+    }
+
+    /**
+     * Gets query for [[Customer]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCustomer()
+    {
+        return $this->hasOne(Customer::class, ['id' => 'customer_id']);
+    }
+
+    /**
+     * Gets query for [[InvoiceItems]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInvoiceItems()
+    {
+        return $this->hasMany(InvoiceItem::class, ['Invoice_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[Gallery]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getGallery()
+    {
+        return $this->hasOne(Gallery::class, ['name' => 'receipt']);
     }
 }
