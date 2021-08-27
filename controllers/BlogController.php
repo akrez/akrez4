@@ -8,6 +8,7 @@ use app\components\Jdf;
 use app\models\Gallery;
 use app\models\Status;
 use app\models\Blog;
+use app\models\CustomerSearch;
 use app\models\LogApi;
 use Yii;
 use yii\data\ActiveDataProvider;
@@ -20,7 +21,7 @@ class BlogController extends Controller
     {
         return $this->defaultBehaviors([
             [
-                'actions' => ['index', 'profile'],
+                'actions' => ['index', 'profile', 'customers'],
                 'allow' => true,
                 'verbs' => ['POST', 'GET'],
                 'roles' => ['@'],
@@ -55,6 +56,16 @@ class BlogController extends Controller
                 'categories' => Cache::getBlogCacheCategory(Yii::$app->user->getIdentity()),
             ],
             'logApiFilterModel' => $logApiFilterModel,
+        ]);
+    }
+
+    public function actionCustomers()
+    {
+        $searchModel = new CustomerSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->get());
+        return $this->render('customers', [
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
         ]);
     }
 
