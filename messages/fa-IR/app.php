@@ -71,6 +71,7 @@ return [
     'Categories' => 'دسته‌بندی‌ها',
     'Category' => 'دسته‌بندی',
     'Colors' => 'رنگ‌ها',
+    'Customers' => 'مشتریان',
     'Page' => 'صفحه',
     'Pages' => 'صفحات',
     'Invoices' => 'سفارشات',
