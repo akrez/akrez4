@@ -76,7 +76,7 @@ $this->registerJs($format, View::POS_READY);
                 <?php if (!Yii::$app->user->isGuest) : ?>
                     <ul class="nav navbar-nav">
                         <li><a href="<?= Url::toRoute(['/blog/index']) ?>"><?= Blog::print('title') ?></a></li>
-                        <li><a href="<?= Url::toRoute(['/blog/invoices']) ?>"><?= Yii::t('app', 'Invoices') ?></a></li>
+                        <li><a href="<?= Url::toRoute(['/invoice/index']) ?>"><?= Yii::t('app', 'Invoices') ?></a></li>
                         <li><a href="<?= Url::toRoute(['/category']) ?>"><?= Yii::t('app', 'Categories') ?></a></li>
                         <li><a href="<?= Url::toRoute(['/blog/customers']) ?>"><?= Yii::t('app', 'Customers') ?></a></li>
                         <li class="dropdown">
