@@ -22,7 +22,7 @@ class Formatter extends BaseFormatter
 
     public function asStatus($value)
     {
-        if ($value) {
+        if (mb_strlen($value)) {
             return Status::getLabel($value);
         }
         return $this->nullDisplay;
