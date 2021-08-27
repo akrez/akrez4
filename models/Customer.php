@@ -147,7 +147,7 @@ class Customer extends ActiveRecord implements IdentityInterface
     {
         $customer = null;
         if (!$this->hasErrors()) {
-            $customer = self::blogValidQuery($this->blog_name, $this->mobile, [])
+            $customer = self::findCustomerQueryForApi($this->blog_name, $this->mobile, [])
                 ->one();
             if ($customer) {
                 $message = Yii::t('yii', '{attribute} "{value}" has already been taken.', [
@@ -173,7 +173,7 @@ class Customer extends ActiveRecord implements IdentityInterface
     public function resetPasswordRequestValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $customer = self::blogValidQuery($this->blog_name, $this->mobile, self::validStatusesKey())
+            $customer = self::findCustomerQueryForApi($this->blog_name, $this->mobile, self::validStatusesKey())
                 ->one();
             if ($customer) {
                 return $this->_customer = $customer;
@@ -186,7 +186,7 @@ class Customer extends ActiveRecord implements IdentityInterface
     public function verifyRequestValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $customer = self::blogValidQuery($this->blog_name, $this->mobile, Status::STATUS_UNVERIFIED)
+            $customer = self::findCustomerQueryForApi($this->blog_name, $this->mobile, Status::SIGNUP_STATUS)
                 ->one();
             if ($customer) {
                 return $this->_customer = $customer;
@@ -199,7 +199,7 @@ class Customer extends ActiveRecord implements IdentityInterface
     public function resetPasswordValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $customer = self::blogValidQuery($this->blog_name, $this->mobile, self::validStatusesKey())
+            $customer = self::findCustomerQueryForApi($this->blog_name, $this->mobile, self::validStatusesKey())
                 ->andWhere(['reset_token' => $this->reset_token])
                 ->andWhere(['>', 'reset_at', time() - self::TIMEOUT_RESET])
                 ->one();
@@ -214,7 +214,7 @@ class Customer extends ActiveRecord implements IdentityInterface
     public function verifyValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $customer = self::blogValidQuery($this->blog_name, $this->mobile, Status::STATUS_UNVERIFIED)
+            $customer = self::findCustomerQueryForApi($this->blog_name, $this->mobile, Status::SIGNUP_STATUS)
                 ->andWhere(['verify_token' => $this->verify_token])
                 ->andWhere(['>', 'verify_at', time() - self::TIMEOUT_RESET])
                 ->one();
@@ -305,20 +305,33 @@ class Customer extends ActiveRecord implements IdentityInterface
         return $response;
     }
 
-    public static function validStatuses()
+    public static function validStatuses($includeUnverifiedStatus = false)
     {
-        return [
+        $statuses = [
             Status::STATUS_ACTIVE => Yii::t('app', 'Active'),
             Status::STATUS_DISABLE => Yii::t('app', 'Disable'),
         ];
+        if ($includeUnverifiedStatus) {
+            $statuses[Status::STATUS_UNVERIFIED] = Yii::t('app', 'Unverified');
+        }
+        return $statuses;
     }
 
-    public static function validStatusesKey()
+    public static function validStatusesKey($includeUnverifiedStatus = false)
     {
-        return array_keys(self::validStatuses());
+        return array_keys(self::validStatuses($includeUnverifiedStatus = false));
     }
 
-    public static function blogValidQuery($blogName, $mobile, $statusMode)
+    public static function blogValidQuery($id = null, $includeUnverifiedStatus = true)
+    {
+        $query = Customer::find();
+        $query->andWhere(['status' => array_keys(Customer::validStatuses($includeUnverifiedStatus))]);
+        $query->andWhere(['blog_name' => Yii::$app->user->getId()]);
+        $query->andFilterWhere(['id' => $id]);
+        return $query;
+    }
+
+    public static function findCustomerQueryForApi($blogName, $mobile, $statusMode)
     {
         return Customer::find()
             ->where(['blog_name' =>  $blogName])
