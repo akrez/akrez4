@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Aug 28, 2021 at 12:27 AM
+-- Generation Time: Aug 28, 2021 at 12:34 AM
 -- Server version: 5.7.32-cll-lve
 -- PHP Version: 7.3.6
 
@@ -77,6 +77,7 @@ CREATE TABLE `cart` (
   `package_id` int(11) DEFAULT NULL,
   `customer_id` int(11) DEFAULT NULL,
   `blog_name` varchar(31) COLLATE utf8mb4_persian_ci DEFAULT NULL,
+  `product_id` int(11) NOT NULL,
   `cache_parents_active_status` tinyint(4) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_persian_ci;
 
@@ -182,7 +183,9 @@ CREATE TABLE `invoice` (
   `phone` varchar(24) COLLATE utf8mb4_persian_ci DEFAULT NULL,
   `price` double NOT NULL,
   `carts_count` int(11) NOT NULL,
+  `pay_status` tinyint(4) DEFAULT NULL,
   `params` text COLLATE utf8mb4_persian_ci,
+  `receipt` varchar(16) COLLATE utf8mb4_persian_ci NOT NULL,
   `blog_name` varchar(60) COLLATE utf8mb4_persian_ci NOT NULL,
   `customer_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_persian_ci;
@@ -373,7 +376,8 @@ ALTER TABLE `cart`
   ADD PRIMARY KEY (`id`),
   ADD KEY `package_id` (`package_id`),
   ADD KEY `blog_name` (`blog_name`),
-  ADD KEY `customer_id` (`customer_id`);
+  ADD KEY `customer_id` (`customer_id`),
+  ADD KEY `product_id` (`product_id`);
 
 --
 -- Indexes for table `category`
@@ -420,7 +424,8 @@ ALTER TABLE `gallery`
 ALTER TABLE `invoice`
   ADD PRIMARY KEY (`id`),
   ADD KEY `customer_id` (`customer_id`),
-  ADD KEY `blog_name` (`blog_name`);
+  ADD KEY `blog_name` (`blog_name`),
+  ADD KEY `receipt` (`receipt`);
 
 --
 -- Indexes for table `invoice_item`
@@ -586,7 +591,8 @@ ALTER TABLE `blog_account`
 ALTER TABLE `cart`
   ADD CONSTRAINT `cart_ibfk_1` FOREIGN KEY (`blog_name`) REFERENCES `blog` (`name`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `cart_ibfk_2` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `cart_ibfk_3` FOREIGN KEY (`package_id`) REFERENCES `package` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `cart_ibfk_3` FOREIGN KEY (`package_id`) REFERENCES `package` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `cart_ibfk_4` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `category`
@@ -617,7 +623,8 @@ ALTER TABLE `field`
 --
 ALTER TABLE `invoice`
   ADD CONSTRAINT `invoice_ibfk_1` FOREIGN KEY (`blog_name`) REFERENCES `blog` (`name`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `invoice_ibfk_2` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `invoice_ibfk_2` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `invoice_ibfk_3` FOREIGN KEY (`receipt`) REFERENCES `gallery` (`name`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `invoice_item`
