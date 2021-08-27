@@ -31,6 +31,7 @@ class Gallery extends ActiveRecord
     const TYPE_BROWSER = 'browser';
     const TYPE_OS = 'os';
     const TYPE_STORY = 'story';
+    const TYPE_RECEIPT = 'receipt';
 
     public static function typeList()
     {
@@ -41,6 +42,7 @@ class Gallery extends ActiveRecord
             self::TYPE_BROWSER => Yii::t('app', 'browser'),
             self::TYPE_OS => Yii::t('app', 'os'),
             self::TYPE_STORY => Yii::t('app', 'story'),
+            self::TYPE_RECEIPT => Yii::t('app', 'receipt'),
         ];
     }
 
@@ -129,7 +131,7 @@ class Gallery extends ActiveRecord
         return parent::delete();
     }
 
-    public static function upload($src, $type, $productId = null, $options = [])
+    public static function upload($src, $type, $productId = null, $options = [], $tryUnlinkSrc = false)
     {
         $gallery = new Gallery();
 
@@ -147,6 +149,17 @@ class Gallery extends ActiveRecord
             $gallery->blog_name = \Yii::$app->user->getId();
             $gallery->save();
         }
+        if ($tryUnlinkSrc) {
+            @unlink($src);
+        }
         return $gallery;
+    }
+
+    public static function uploadBase64($base64, $type, $productId = null, $options = [], $tryUnlinkSrc = true)
+    {
+        $tmpfname = tempnam(sys_get_temp_dir(), $type . '_');
+        $base64 = explode(',', $base64) + [1 => '',];
+        @file_put_contents($tmpfname, base64_decode($base64[1]));
+        return self::upload($tmpfname, $type, $productId, $options, $tryUnlinkSrc);
     }
 }
