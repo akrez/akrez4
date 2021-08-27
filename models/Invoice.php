@@ -19,6 +19,7 @@ use yii\helpers\Json;
  * @property float $price
  * @property int $carts_count
  * @property string|null $params
+ * @property string $receipt
  * @property string $blog_name
  * @property int $customer_id
  *
@@ -28,6 +29,7 @@ use yii\helpers\Json;
  */
 class Invoice extends ActiveRecord
 {
+    public $receipt_file;
     public $postal_code;
     public $city;
     public $address;
@@ -57,7 +59,7 @@ class Invoice extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'mobile', 'phone', 'postal_code', 'city', 'address', 'lat', 'lng',], 'required', 'on' => [self::SCENARIO_DEFAULT]],
+            [['name', 'mobile', 'phone', 'postal_code', 'city', 'address', 'lat', 'lng', '!receipt'], 'required', 'on' => [self::SCENARIO_DEFAULT]],
             [['name'], 'string', 'max' => 60, 'on' => [self::SCENARIO_DEFAULT]],
             [['mobile',], 'match', 'pattern' => '/^09[0-9]{9,15}$/', 'on' => [self::SCENARIO_DEFAULT]],
             [['phone',], 'match', 'pattern' => "/^0[0-9]{8,23}$/", 'on' => [self::SCENARIO_DEFAULT]],
@@ -67,6 +69,7 @@ class Invoice extends ActiveRecord
             [['address'], 'string', 'on' => [self::SCENARIO_DEFAULT]],
             [['lat',], 'match', 'pattern' => "/^[-]?(([0-8]?[0-9])\.(\d+))|(90(\.0+)?)$/", 'on' => [self::SCENARIO_DEFAULT]],
             [['lng',], 'match', 'pattern' => "/^[-]?((((1[0-7][0-9])|([0-9]?[0-9]))\.(\d+))|180(\.0+)?)$/", 'on' => [self::SCENARIO_DEFAULT]],
+            [['receipt_file'], 'safe'],
             //
             [['price'], 'integer', 'min' => 0, 'on' => ['carts_count']],
             [['carts_count'], 'validCartsCount', 'on' => ['carts_count']],
@@ -131,6 +134,17 @@ class Invoice extends ActiveRecord
         return true;
     }
 
+    public function upload()
+    {
+        $gallery = Gallery::uploadBase64($this->receipt_file, Gallery::TYPE_RECEIPT);
+        if ($gallery->hasErrors()) {
+            $this->addErrors(['receipt_file' => $gallery->getErrorSummary(true)]);
+            return false;
+        }
+        $this->receipt = $gallery->name;
+        return true;
+    }
+
     public function toArray(array $fields = [], array $expand = [], $recursive = true)
     {
         return [
@@ -149,6 +163,7 @@ class Invoice extends ActiveRecord
             'lat' => $this->lat,
             'lng' => $this->lng,
             'des' => $this->des,
+            'receipt' => $this->receipt,
             //
             'price' => $this->price,
             'carts_count' => $this->carts_count,
