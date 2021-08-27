@@ -452,11 +452,16 @@ class Api1Controller extends Api
         $customer = self::customer();
         $post = \Yii::$app->request->post();
 
+        //bypass max_allowed_packet sql error
+        LogApi::setData(['data_post' => json_encode([
+            'receipt_file' => 'bypass max_allowed_packet error - set in ' . Yii::$app->controller->id . '-' . Yii::$app->controller->action->id . ' manually',
+        ] + $post)]);
+
         $invoice = new Invoice();
         $invoice->load($post, '');
         $invoice->blog_name = $blog->name;
         $invoice->customer_id = $customer->id;
-        if ($invoice->validate()) {
+        if ($invoice->upload() && $invoice->validate()) {
 
             $invoice->setScenario('carts_count');
             $carts = Cart::cartResponse($blog, $customer, true);
