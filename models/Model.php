@@ -63,6 +63,7 @@ class Model extends BaseModel
             'price_max' => 'بیشترین قیمت',
             'value_max' => 'بیشترین مقدار فیلتر',
             'blog_name' => 'نام کاربری',
+            'verify_at' => 'تاریخ ارسال کد فعال‌سازی',
             'color_code' => 'رنگ',
             'in_summary' => 'نمایش در خلاصه',
             'updated_at' => 'تاریخ ویرایش',
