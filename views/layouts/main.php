@@ -76,8 +76,17 @@ $this->registerJs($format, View::POS_READY);
                 <?php if (!Yii::$app->user->isGuest) : ?>
                     <ul class="nav navbar-nav">
                         <li><a href="<?= Url::toRoute(['/blog/index']) ?>"><?= Blog::print('title') ?></a></li>
+                        <li><a href="<?= Url::toRoute(['/blog/invoices']) ?>"><?= Yii::t('app', 'Invoices') ?></a></li>
                         <li><a href="<?= Url::toRoute(['/category']) ?>"><?= Yii::t('app', 'Categories') ?></a></li>
-                        <li><a href="<?= Url::toRoute(['/blog/profile']) ?>"><?= Yii::t('app', 'Profile') ?></a></li>
+                        <li><a href="<?= Url::toRoute(['/blog/customers']) ?>"><?= Yii::t('app', 'Customers') ?></a></li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><?= Yii::t('app', 'Settings') ?><span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="<?= Url::toRoute(['/blog/profile']) ?>"><?= Yii::t('app', 'Profile') ?></a></li>
+                                <li><a href="<?= Url::toRoute(['/color/index']) ?>"><?= Yii::t('app', 'Colors') ?></a></li>
+                                <li><a href="<?= Url::toRoute(['/blog-account/index']) ?>"><?= Yii::t('app', 'Blog Account') ?></a></li>
+                            </ul>
+                        </li>
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><?= Yii::t('app', 'Pages') ?><span class="caret"></span></a>
                             <ul class="dropdown-menu">
@@ -86,8 +95,6 @@ $this->registerJs($format, View::POS_READY);
                                 <?php } ?>
                             </ul>
                         </li>
-                        <li><a href="<?= Url::toRoute(['/color/index']) ?>"><?= Yii::t('app', 'Colors') ?></a></li>
-                        <li><a href="<?= Url::toRoute(['/blog-account/index']) ?>"><?= Yii::t('app', 'Blog Account') ?></a></li>
                     </ul>
                 <?php endif; ?>
 
