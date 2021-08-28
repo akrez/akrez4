@@ -220,7 +220,7 @@ class Invoice extends ActiveRecord
      */
     public function getInvoiceItems()
     {
-        return $this->hasMany(InvoiceItem::class, ['Invoice_id' => 'id']);
+        return $this->hasMany(InvoiceItem::class, ['invoice_id' => 'id']);
     }
 
     /**

@@ -27,7 +27,10 @@ use yii\helpers\Json;
  *
  * @property Blog $blogName
  * @property Customer $customer
+ * @property Gallery $gallery
  * @property Invoice $invoice
+ * @property Package $package
+ * @property Product $product
  */
 class InvoiceItem extends ActiveRecord
 {
@@ -93,6 +96,13 @@ class InvoiceItem extends ActiveRecord
         $this->des = $arrayParams['des'];
     }
 
+    public static function blogValidQuery($id = null)
+    {
+        return InvoiceItem::find()
+            ->andWhere(['blog_name' => Yii::$app->user->getId(),])
+            ->andFilterWhere(['id' => $id]);
+    }
+
     public function toArray(array $fields = [], array $expand = [], $recursive = true)
     {
         return [
@@ -138,6 +148,16 @@ class InvoiceItem extends ActiveRecord
     }
 
     /**
+     * Gets query for [[Gallery]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getGallery()
+    {
+        return $this->hasOne(Gallery::class, ['name' => 'image']);
+    }
+
+    /**
      * Gets query for [[Invoice]].
      *
      * @return \yii\db\ActiveQuery
@@ -145,5 +165,25 @@ class InvoiceItem extends ActiveRecord
     public function getInvoice()
     {
         return $this->hasOne(Invoice::class, ['id' => 'invoice_id']);
+    }
+
+    /**
+     * Gets query for [[Package]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPackage()
+    {
+        return $this->hasOne(Package::class, ['id' => 'package_id']);
+    }
+
+    /**
+     * Gets query for [[Product]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getProduct()
+    {
+        return $this->hasOne(Product::class, ['id' => 'product_id']);
     }
 }

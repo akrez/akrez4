@@ -5,6 +5,7 @@ namespace app\controllers;
 use app\components\Helper;
 use app\models\CartSearch;
 use app\models\Invoice;
+use app\models\InvoiceItemSearch;
 use app\models\InvoiceSearch;
 use Yii;
 use yii\web\NotFoundHttpException;
@@ -43,8 +44,8 @@ class InvoiceController extends Controller
     {
         $invoice = Helper::findOrFail(Invoice::blogValidQuery()->andWhere(['id' => $id]));
         //
-        $searchModel = new CartSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->get());
+        $searchModel = new InvoiceItemSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->get(), $invoice);
         return $this->render('view', [
             'invoice' => $invoice,
             'searchModel' => $searchModel,
