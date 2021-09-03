@@ -138,6 +138,7 @@ return [
     'Inventory left in stock is less than the specified amount' => 'موجودی باقی مانده در انبار، کمتر از مقدار تعیین شده است',
     'Unfortunately the product is not available at the moment' => 'متاسفانه در حال حاضر محصول موجود نیست',
     'You have no items in your shopping cart. Please add at least one product to cart!' => 'هیچ محصولی در سبد خرید وجود ندارد. لطفا یک محصول به سبد خرید اضافه کنید!',
+    'The amount is more than the maximum amount specified for each cart' => 'مقدار بیشتر از حداکثر مقدار مشخص شده برای هر سبد خرید است',
     //
     "Azarbayjan-e Sharqi" => "آذربایجان شرقی",
     "Azarbayjan-e Gharbi" => "آذربایجان غربی",
