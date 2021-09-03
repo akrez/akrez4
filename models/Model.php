@@ -77,6 +77,7 @@ class Model extends BaseModel
             'category_id' => 'دسته‌بندی',
             'reset_token' => 'کد بازیابی رمز عبور',
             'carts_count' => 'تعداد اقلام',
+            'max_per_cart' => 'حداکثر مقدار مجاز در سبد خرید',
             'verify_token' => 'کد فعال‌سازی',
             'identity_type' => 'نوع شناسه',
             'captcha' => 'کد تأیید',

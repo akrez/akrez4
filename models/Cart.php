@@ -119,13 +119,15 @@ class Cart extends ActiveRecord
 
     public function packageValidation($package)
     {
-        if (0 < $package->cache_stock) {
-            if ($this->cnt <= $package->cache_stock) {
-            } else {
+        if ($package->check_stock) {
+            if ($package->cache_stock <= 0) {
                 $this->addError('cnt', Yii::t('app', 'Unfortunately the product is not available at the moment'));
+            } elseif ($package->cache_stock < $this->cnt) {
+                $this->addError('cnt', Yii::t('app', 'Inventory left in stock is less than the specified amount'));
             }
-        } else {
-            $this->addError('cnt', Yii::t('app', 'Inventory left in stock is less than the specified amount'));
+        }
+        if (strlen($package->max_per_cart) && $package->max_per_cart < $this->cnt) {
+            $this->addError('cnt', Yii::t('app', 'The amount is more than the maximum amount specified for each cart'));
         }
     }
 

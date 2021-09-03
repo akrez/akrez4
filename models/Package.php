@@ -17,6 +17,8 @@ use yii\helpers\Json;
  * @property string $guaranty
  * @property string|null $color_code
  * @property int|null $cache_stock
+ * @property int|null $max_per_cart
+ * @property int|null $check_stock
  * @property string $des
  * @property int $product_id
  * @property string|null $blog_name
@@ -26,12 +28,30 @@ use yii\helpers\Json;
  */
 class Package extends ActiveRecord
 {
+    const MAX_IN_CART = 20;
 
     public $guaranty;
     public $des;
     //
     public $price_min;
     public $price_max;
+
+    const CHECK_STOCK_NO = 0;
+    const CHECK_STOCK_YES = 1;
+
+    public static function checkStockList()
+    {
+        return [
+            self::CHECK_STOCK_NO => Yii::t('yii', 'No'),
+            self::CHECK_STOCK_YES => Yii::t('yii', 'Yes'),
+        ];
+    }
+
+    public static function getCheckStockLabel($item)
+    {
+        $list = self::checkStockList();
+        return (isset($list[$item]) ? $list[$item] : null);
+    }
 
     public static function tableName()
     {
@@ -45,7 +65,9 @@ class Package extends ActiveRecord
             [['color_code'], 'in', 'range' => array_keys(Cache::getBlogCacheColor(Yii::$app->user->getIdentity()))],
             [['price', 'status', 'guaranty'], 'required'],
             [['price'], 'number', 'numberPattern' => '/^\s*[-+]?[0-9,]*[.]?[0-9]+([eE][-+]?[0-9]+)?\s*$/'],
-            [['cache_stock'], 'number'],
+            [['cache_stock'], 'integer'],
+            [['max_per_cart'], 'integer', 'min' => 0],
+            [['check_stock'], 'in', 'range' => array_keys(self::checkStockList())],
             [['guaranty', 'des'], 'safe'],
         ];
     }
@@ -126,13 +148,26 @@ class Package extends ActiveRecord
         return $query;
     }
 
+    public static function calcMaxInCart($package)
+    {
+        $mins = [self::MAX_IN_CART];
+        if ($package->check_stock) {
+            $mins[] = $package->cache_stock;
+        }
+        if (strlen($package->max_per_cart)) {
+            $mins[] = $package->max_per_cart;
+        }
+        $min = min($mins);
+        return ($min > 0 ? $min : 0);
+    }
+
     public function toArray(array $fields = [], array $expand = [], $recursive = true)
     {
         return [
             'id' => $this->id,
             'updated_at' => $this->updated_at,
             'status' => $this->status,
-            'stock' => intval($this->cache_stock),
+            'max_in_cart' => self::calcMaxInCart($this),
             'price' => $this->price,
             'product_id' => $this->product_id,
             'blog_name' => $this->blog_name,

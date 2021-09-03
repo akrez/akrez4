@@ -54,8 +54,17 @@ $colorTagId = Html::getInputId($model, 'color_code') . '-' . $model->id;
         ]);
         ?>
     </div>
+</div>
+
+<div class="row">
+    <div class="col-xs-12 col-sm-3">
+        <?= $form->field($model, 'check_stock')->dropDownList(Package::checkStockList()) ?>
+    </div>
     <div class="col-xs-12 col-sm-3">
         <?= $form->field($model, 'cache_stock')->textInput() ?>
+    </div>
+    <div class="col-xs-12 col-sm-3">
+        <?= $form->field($model, 'max_per_cart')->textInput() ?>
     </div>
 </div>
 

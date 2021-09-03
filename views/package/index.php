@@ -119,6 +119,7 @@ $('#table').yiiGridView(" . json_encode([
                     <tr class="info">
                         <th><?= $modelClass->getAttributeLabel('guaranty') ?></th>
                         <th><?= $sort->link('color_code', ['label' => $modelClass->getAttributeLabel('color_code')]) ?></th>
+                        <th><?= $sort->link('check_stock', ['label' => $modelClass->getAttributeLabel('check_stock')]) ?></th>
                         <th><?= $sort->link('cache_stock', ['label' => $modelClass->getAttributeLabel('cache_stock')]) ?></th>
                         <th><?= $modelClass->getAttributeLabel('des') ?></th>
                         <th><?= $sort->link('status', ['label' => $modelClass->getAttributeLabel('status')]) ?></th>
@@ -130,6 +131,7 @@ $('#table').yiiGridView(" . json_encode([
                     <tr id="table-filters" class="info">
                         <th></th>
                         <th></th>
+                        <th><?= Html::activeDropDownList($searchModel, 'check_stock', Package::checkStockList(), ['class' => 'form-control', 'prompt' => '']) ?></th>
                         <th></th>
                         <th></th>
                         <th><?= Html::activeDropDownList($searchModel, 'status', Package::validStatuses(), ['class' => 'form-control', 'prompt' => '']) ?></th>
@@ -157,6 +159,9 @@ $('#table').yiiGridView(" . json_encode([
                                     <?php if ($dataProviderModel->color_code) : ?>
                                         <span class="color-class" style="background-color: <?= $dataProviderModel->color_code ?>;">⠀⠀</span> <?= Cache::getBlogCacheColorLabel(Yii::$app->user->getIdentity(), $dataProviderModel->color_code) ?>
                                     <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?= Package::getCheckStockLabel($dataProviderModel->check_stock) ?>
                                 </td>
                                 <td>
                                     <?= HtmlPurifier::process($dataProviderModel->cache_stock) ?>
@@ -191,20 +196,20 @@ $('#table').yiiGridView(" . json_encode([
                             }
                             ?>
                             <tr class="" style="<?= $displayStyle ?>" id="<?= "row-update-" . $dataProviderModel->id ?>">
-                                <td colspan="9">
+                                <td colspan="10">
                                     <?= $this->render('_form', ['model' => $dataProviderModel]) ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php } else { ?>
                         <tr class="danger">
-                            <td colspan="9">
+                            <td colspan="10">
                                 <?= Yii::t('yii', 'No results found.') ?>
                             </td>
                         </tr>
                     <?php } ?>
                     <tr class="success">
-                        <td colspan="9">
+                        <td colspan="10">
                             <?= $this->render('_form', ['model' => $newModel]) ?>
                         </td>
                     </tr>
