@@ -73,6 +73,7 @@ class Model extends BaseModel
             'package_id' => 'شرایط فروش',
             'pay_status' => 'وضعیت پرداخت',
             'cache_stock' => 'موجودی انبار',
+            'check_stock' => 'بررسی موجودی انبار',
             'postal_code' => 'کد پستی',
             'category_id' => 'دسته‌بندی',
             'reset_token' => 'کد بازیابی رمز عبور',
