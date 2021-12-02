@@ -84,7 +84,7 @@ $this->registerJs($format, View::POS_READY);
                             <ul class="dropdown-menu">
                                 <li><a href="<?= Url::toRoute(['/blog/profile']) ?>"><?= Yii::t('app', 'Profile') ?></a></li>
                                 <li><a href="<?= Url::toRoute(['/color/index']) ?>"><?= Yii::t('app', 'Colors') ?></a></li>
-                                <li><a href="<?= Url::toRoute(['/blog-account/index']) ?>"><?= Yii::t('app', 'Blog Account') ?></a></li>
+                                <li><a href="<?= Url::toRoute(['/financial-account/index']) ?>"><?= Yii::t('app', 'Financial Account') ?></a></li>
                             </ul>
                         </li>
                         <li class="dropdown">

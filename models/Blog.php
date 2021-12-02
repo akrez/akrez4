@@ -62,7 +62,7 @@ class Blog extends ActiveRecord implements IdentityInterface
     public $des;
     //
     public $cache_color;
-    public $cache_blog_account;
+    public $cache_financial_account;
     public $cache_category;
     //
     public $captcha;
@@ -282,7 +282,7 @@ class Blog extends ActiveRecord implements IdentityInterface
             'address' => null,
             //
             'cache_color' => [],
-            'cache_blog_account' => [],
+            'cache_financial_account' => [],
             'cache_category' => [],
             'cache_has_page' => [],
         ];
@@ -299,7 +299,7 @@ class Blog extends ActiveRecord implements IdentityInterface
         $this->address = $arrayParams['address'];
         //
         $this->cache_color = $arrayParams['cache_color'];
-        $this->cache_blog_account = $arrayParams['cache_blog_account'];
+        $this->cache_financial_account = $arrayParams['cache_financial_account'];
         $this->cache_category = $arrayParams['cache_category'];
         $this->cache_has_page = $arrayParams['cache_has_page'];
     }
@@ -323,7 +323,7 @@ class Blog extends ActiveRecord implements IdentityInterface
             'address' => $this->address,
             //
             'cache_color' => (array) $this->cache_color,
-            'cache_blog_account' => (array) $this->cache_blog_account,
+            'cache_financial_account' => (array) $this->cache_financial_account,
             'cache_category' => (array) $this->cache_category,
             'cache_has_page' => (array) $this->cache_has_page,
         ];
@@ -554,7 +554,7 @@ class Blog extends ActiveRecord implements IdentityInterface
             'google_site_verification' => $this->google_site_verification,
             'has_page' => Cache::getCachePages($this),
             'color' => Cache::getBlogCacheColor($this),
-            'blog_account' => Cache::getBlogAccount($this),
+            'financial_account' => Cache::getFinancialAccount($this),
         ];
     }
 

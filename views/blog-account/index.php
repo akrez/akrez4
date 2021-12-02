@@ -1,7 +1,7 @@
 <?php
 
 use app\components\Alert;
-use app\models\BlogAccount;
+use app\models\FinancialAccount;
 use yii\grid\GridViewAsset;
 use yii\helpers\Html;
 use yii\helpers\HtmlPurifier;
@@ -9,12 +9,12 @@ use yii\helpers\Url;
 use yii\web\View;
 use yii\widgets\Pjax;
 
-$this->title = Yii::t('app', 'Blog Account');
+$this->title = Yii::t('app', 'Financial Account');
 
 GridViewAsset::register($this);
 
 $sort = $dataProvider->sort;
-$modelClass = new BlogAccount();
+$modelClass = new FinancialAccount();
 
 $this->registerCss("
 .table th {
@@ -93,7 +93,7 @@ Pjax::begin([
 
 $this->registerJs("
 $('#table').yiiGridView(" . json_encode([
-    'filterUrl' => Url::current(['BlogAccountSearch' => null,]),
+    'filterUrl' => Url::current(['FinancialAccountSearch' => null,]),
     'filterSelector' => '#table-filters input, #table-filters select',
     'filterOnFocusOut' => true,
 ]) . ");
@@ -108,7 +108,7 @@ $('#table').yiiGridView(" . json_encode([
     <div class="col-sm-12">
         <div class="panel panel-primary" style="position: relative;">
             <div class="ajax-splash-show splash-style"></div>
-            <div class="panel-heading"><?= Yii::t('app', 'Blog Account') ?></div>
+            <div class="panel-heading"><?= Yii::t('app', 'Financial Account') ?></div>
             <table id="table" class="table table-bordered table-striped">
                 <thead>
                     <tr class="info">
@@ -119,7 +119,7 @@ $('#table').yiiGridView(" . json_encode([
                     </tr>
                     <tr id="table-filters" class="info">
                         <th><?= Html::activeInput('text', $searchModel, 'name', ['class' => 'form-control']) ?></th>
-                        <th><?= Html::activeDropDownList($searchModel, 'identity_type', BlogAccount::getTypeList(), ['class' => 'form-control', 'prompt' => '']) ?></th>
+                        <th><?= Html::activeDropDownList($searchModel, 'identity_type', FinancialAccount::getTypeList(), ['class' => 'form-control', 'prompt' => '']) ?></th>
                         <th><?= Html::activeInput('text', $searchModel, 'identity', ['class' => 'form-control']) ?></th>
                         <th></th>
                     </tr>
@@ -141,7 +141,7 @@ $('#table').yiiGridView(" . json_encode([
                                     <?= HtmlPurifier::process($dataProviderModel->name) ?>
                                 </td>
                                 <td>
-                                    <?= BlogAccount::getTypeLabel($dataProviderModel->identity_type) ?>
+                                    <?= FinancialAccount::getTypeLabel($dataProviderModel->identity_type) ?>
                                 </td>
                                 <td>
                                     <?= HtmlPurifier::process($dataProviderModel->identity) ?>

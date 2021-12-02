@@ -1,6 +1,6 @@
 <?php
 
-use app\models\BlogAccount;
+use app\models\FinancialAccount;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
@@ -9,7 +9,7 @@ use yii\widgets\ActiveForm;
 <?php
 $form = ActiveForm::begin([
     'options' => ['data-pjax' => true],
-    'action' => Url::current(['blog-account/index', 'id' => $model->id, 'state' => ($model->isNewRecord ? 'create' : 'update'),]),
+    'action' => Url::current(['financial-account/index', 'id' => $model->id, 'state' => ($model->isNewRecord ? 'create' : 'update'),]),
     'fieldConfig' => [
         'template' => '<div class="input-group">{label}{input}</div>{hint}{error}',
         'labelOptions' => [
@@ -23,7 +23,7 @@ $form = ActiveForm::begin([
         <?= $form->field($model, 'name')->textInput() ?>
     </div>
     <div class="col-sm-3">
-        <?= $form->field($model, 'identity_type')->dropDownList(BlogAccount::getTypeList()) ?>
+        <?= $form->field($model, 'identity_type')->dropDownList(FinancialAccount::getTypeList()) ?>
     </div>
     <div class="col-sm-6">
         <?= $form->field($model, 'identity')->textInput() ?>
@@ -36,7 +36,7 @@ $form = ActiveForm::begin([
     <div class="col-sm-3">
         <?php
         if (!$model->isNewRecord) :
-            echo Html::a(' <span class="glyphicon glyphicon-trash"></span> ' . Yii::t('app', 'Remove'), Url::to([0 => 'blog-account/index', 'state' => 'remove', 'id' => $model->id]), [
+            echo Html::a(' <span class="glyphicon glyphicon-trash"></span> ' . Yii::t('app', 'Remove'), Url::to([0 => 'financial-account/index', 'state' => 'remove', 'id' => $model->id]), [
                 'class' => 'btn btn-danger btn-block btn-social',
                 'data-confirm' => Yii::t('yii', 'Are you sure you want to delete this item?'),
             ]);

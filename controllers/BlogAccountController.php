@@ -4,14 +4,14 @@ namespace app\controllers;
 
 use app\components\Cache;
 use app\components\Helper;
-use app\models\BlogAccount;
-use app\models\BlogAccountSearch;
+use app\models\FinancialAccount;
+use app\models\FinancialAccountSearch;
 use Yii;
 
 /**
- * BlogAccountController implements the CRUD actions for BlogAccount model.
+ * FinancialAccountController implements the CRUD actions for FinancialAccount model.
  */
-class BlogAccountController extends Controller
+class FinancialAccountController extends Controller
 {
     public function behaviors()
     {
@@ -33,12 +33,12 @@ class BlogAccountController extends Controller
         $updateCacheNeeded = null;
         //
         if ($id) {
-            $model = Helper::findOrFail(BlogAccount::blogValidQuery($id)->andWhere(['id' => $id]));
+            $model = Helper::findOrFail(FinancialAccount::blogValidQuery($id)->andWhere(['id' => $id]));
         } else {
             $model = null;
         }
-        $newModel = new BlogAccount();
-        $searchModel = new BlogAccountSearch();
+        $newModel = new FinancialAccount();
+        $searchModel = new FinancialAccountSearch();
         //
         if ($state == 'create' && $newModel->load($post)) {
             $updateCacheNeeded = Helper::store($newModel, $post, [
@@ -52,7 +52,7 @@ class BlogAccountController extends Controller
             $updateCacheNeeded = Helper::delete($model);
         }
         if ($updateCacheNeeded) {
-            $newModel = new BlogAccount();
+            $newModel = new FinancialAccount();
             Cache::updateBlogCacheAccount(Yii::$app->user->getIdentity());
         }
         //

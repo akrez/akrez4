@@ -6,7 +6,7 @@ use Yii;
 use yii\helpers\ArrayHelper;
 
 /**
- * This is the model class for table "blog_account".
+ * This is the model class for table "financial_account".
  *
  * @property int $id
  * @property string $name
@@ -16,7 +16,7 @@ use yii\helpers\ArrayHelper;
  *
  * @property Blog $blogName
  */
-class BlogAccount extends ActiveRecord
+class FinancialAccount extends ActiveRecord
 {
     const TYPE_CARD = 'card';
     const TYPE_ACCOUNT = 'account';
@@ -42,7 +42,7 @@ class BlogAccount extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'blog_account';
+        return 'financial_account';
     }
 
     /**
@@ -59,7 +59,7 @@ class BlogAccount extends ActiveRecord
 
     public static function getList()
     {
-        $list = BlogAccount::blogValidQuery()->all();
+        $list = FinancialAccount::blogValidQuery()->all();
         $list = ArrayHelper::toArray($list);
         return $list;
     }
@@ -75,7 +75,7 @@ class BlogAccount extends ActiveRecord
 
     public static function blogValidQuery($id = null)
     {
-        $query = BlogAccount::find();
+        $query = FinancialAccount::find();
         $query->andWhere(['blog_name' => Yii::$app->user->getId(),]);
         $query->andFilterWhere(['id' => $id]);
         return $query;

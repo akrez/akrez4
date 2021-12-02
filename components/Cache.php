@@ -4,7 +4,7 @@ namespace app\components;
 
 use app\models\Cart;
 use app\models\Blog;
-use app\models\BlogAccount;
+use app\models\FinancialAccount;
 use app\models\Category;
 use app\models\Package;
 use app\models\Product;
@@ -68,13 +68,13 @@ class Cache extends Component
 
     public static function updateBlogCacheAccount($blog)
     {
-        $blog->cache_blog_account = BlogAccount::getList();
+        $blog->cache_financial_account = FinancialAccount::getList();
         $blog->save();
     }
 
-    public static function getBlogAccount(Blog $blog)
+    public static function getFinancialAccount(Blog $blog)
     {
-        return (array) $blog->cache_blog_account;
+        return (array) $blog->cache_financial_account;
     }
 
     public static function getBlogCacheColorLabel(Blog $blog, $item)

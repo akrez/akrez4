@@ -4,12 +4,12 @@ namespace app\models;
 
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\BlogAccount;
+use app\models\FinancialAccount;
 
 /**
- * BlogAccountSearch represents the model behind the search form of `app\models\BlogAccount`.
+ * FinancialAccountSearch represents the model behind the search form of `app\models\FinancialAccount`.
  */
-class BlogAccountSearch extends BlogAccount
+class FinancialAccountSearch extends FinancialAccount
 {
     /**
      * {@inheritdoc}
@@ -39,7 +39,7 @@ class BlogAccountSearch extends BlogAccount
      */
     public function search($params)
     {
-        $query = BlogAccount::find();
+        $query = FinancialAccount::find();
 
         // add conditions that should always apply here
 
