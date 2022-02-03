@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\helpers\Json;
 
 /**
  * This is the model class for table "delivery".
@@ -27,6 +28,13 @@ use Yii;
  */
 class Delivery extends ActiveRecord
 {
+    public $postal_code;
+    public $city;
+    public $address;
+    public $lat;
+    public $lng;
+    public $des;
+
     /**
      * {@inheritdoc}
      */
@@ -41,19 +49,53 @@ class Delivery extends ActiveRecord
     public function rules()
     {
         return [
-            [['updated_at', 'created_at', 'deleted_at', 'status', 'customer_id', 'invoice_id'], 'integer'],
-            [['params'], 'string'],
-            [['blog_name', 'customer_id'], 'required'],
-            [['name', 'blog_name'], 'string', 'max' => 60],
-            [['mobile'], 'string', 'max' => 15],
-            [['phone'], 'string', 'max' => 24],
-            [['unique_hash'], 'string', 'max' => 32],
-            [['deleted_at', 'customer_id', 'invoice_id'], 'unique', 'targetAttribute' => ['deleted_at', 'customer_id', 'invoice_id']],
-            [['unique_hash'], 'unique'],
-            [['blog_name'], 'exist', 'skipOnError' => true, 'targetClass' => Blog::class, 'targetAttribute' => ['blog_name' => 'name']],
-            [['customer_id'], 'exist', 'skipOnError' => true, 'targetClass' => Customer::class, 'targetAttribute' => ['customer_id' => 'id']],
-            [['invoice_id'], 'exist', 'skipOnError' => true, 'targetClass' => Invoice::class, 'targetAttribute' => ['invoice_id' => 'id']],
+            [['name', 'mobile', 'phone', 'postal_code', 'city', 'address', 'lat', 'lng'], 'required'],
+            [['lat',], 'match', 'pattern' => "/^[-]?(([0-8]?[0-9])\.(\d+))|(90(\.0+)?)$/"],
+            [['lng',], 'match', 'pattern' => "/^[-]?((((1[0-7][0-9])|([0-9]?[0-9]))\.(\d+))|180(\.0+)?)$/"],
+            [['name'], 'string', 'max' => 60],
+            [['mobile',], 'match', 'pattern' => '/^09[0-9]{9,15}$/'],
+            [['phone',], 'match', 'pattern' => "/^0[0-9]{8,23}$/"],
+            [['des'], 'string'],
+            [['city'], 'in', 'range' => array_keys(City::getList())],
+            [['postal_code',], 'match', 'pattern' => "/^(\d{10})$/"],
+            [['address'], 'string'],
         ];
+    }
+
+    public function afterFind()
+    {
+        parent::afterFind();
+        $arrayParams = (array) Json::decode($this->params) + [
+            'postal_code' => null,
+            'city' => null,
+            'address' => null,
+            'lat' => null,
+            'lng' => null,
+            'des' => null,
+        ];
+        $this->postal_code = $arrayParams['postal_code'];
+        $this->city = $arrayParams['city'];
+        $this->address = $arrayParams['address'];
+        $this->lat = $arrayParams['lat'];
+        $this->lng = $arrayParams['lng'];
+        $this->des = $arrayParams['des'];
+    }
+
+    public function beforeSave($insert)
+    {
+        if (!parent::beforeSave($insert)) {
+            return false;
+        }
+        $this->params = [
+            'postal_code' => $this->postal_code,
+            'city' => $this->city,
+            'address' => $this->address,
+            'lat' => $this->lat,
+            'lng' => $this->lng,
+            'des' => $this->des,
+        ];
+        $this->params = Json::encode($this->params);
+        return true;
     }
 
     /**
