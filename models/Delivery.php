@@ -11,7 +11,7 @@ use yii\helpers\Json;
  * @property int $id
  * @property int|null $updated_at
  * @property int|null $created_at
- * @property int|null $deleted_at
+ * @property int|null $is_template
  * @property int|null $status
  * @property string|null $name
  * @property string|null $mobile
@@ -20,11 +20,13 @@ use yii\helpers\Json;
  * @property string $blog_name
  * @property int $customer_id
  * @property int|null $invoice_id
- * @property string|null $unique_hash
+ * @property int|null $parent_id
  *
  * @property Blog $blogName
  * @property Customer $customer
+ * @property Delivery[] $deliveries
  * @property Invoice $invoice
+ * @property Delivery $parent
  */
 class Delivery extends ActiveRecord
 {
@@ -119,6 +121,16 @@ class Delivery extends ActiveRecord
     }
 
     /**
+     * Gets query for [[Deliveries]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getDeliveries()
+    {
+        return $this->hasMany(Delivery::class, ['parent_id' => 'id']);
+    }
+
+    /**
      * Gets query for [[Invoice]].
      *
      * @return \yii\db\ActiveQuery
@@ -126,5 +138,15 @@ class Delivery extends ActiveRecord
     public function getInvoice()
     {
         return $this->hasOne(Invoice::class, ['id' => 'invoice_id']);
+    }
+
+    /**
+     * Gets query for [[Parent]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getParent()
+    {
+        return $this->hasOne(Delivery::class, ['id' => 'parent_id']);
     }
 }
