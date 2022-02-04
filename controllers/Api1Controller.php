@@ -24,6 +24,7 @@ use app\models\Package;
 use app\models\Page;
 use app\models\Product;
 use app\models\City;
+use app\models\Delivery;
 use app\models\Search;
 use app\models\Status;
 use Throwable;
@@ -147,7 +148,12 @@ class Api1Controller extends Api
                         'roles' => ['?', '@'],
                     ],
                     [
-                        'actions' => ['signout', 'profile',  'cart', 'cart-add', 'cart-delete', 'invoice-submit', 'invoice-add', 'invoice-view', 'invoice-remove', 'invoices', 'invoice-view',],
+                        'actions' => [
+                            'signout', 'profile',
+                            'cart', 'cart-add', 'cart-delete',
+                            'invoice-submit', 'invoice-add', 'invoice-view', 'invoice-remove', 'invoices', 'invoice-view',
+                            'delivery-add', 'delivery-view', 'delivery-edit', 'delivery-delete', 'deliveries',
+                        ],
                         'allow' => true,
                         'verbs' => ['POST'],
                         'roles' => ['@'],
@@ -577,6 +583,128 @@ class Api1Controller extends Api
 
         return [
             'status' => $status,
+        ];
+    }
+
+    public static function actionDeliveries()
+    {
+        $page = Yii::$app->request->post('page');
+        $page_size = Yii::$app->request->post('page_size');
+        //
+        $blog = self::blog();
+        $customer = self::customer();
+        //
+        $query = Delivery::findDeliveryQueryForApi($blog->name, $customer->id, true);
+        //
+        $countOfResults = $query->count('id');
+        //
+        $page_size = intval($page_size);
+        if ($page_size == -1) {
+            $page_size = $countOfResults;
+        } elseif ($page_size > 0) {
+            $page_size = $page_size;
+        } else {
+            $page_size = 12;
+        }
+
+
+        $pagination = new Pagination([
+            'params' => [
+                'page' => $page,
+                'per-page' => $page_size,
+            ],
+            'totalCount' => $countOfResults,
+        ]);
+
+        $deliveries = $query
+            ->orderBy(['id' => SORT_DESC])
+            ->offset($pagination->offset)
+            ->limit($pagination->limit)
+            ->all();
+
+        return [
+            'deliveries' => $deliveries,//ArrayHelper::toArray($deliveries),
+            'pagination' => [
+                'page_count' => $pagination->getPageCount(),
+                'page_size' => $pagination->getPageSize(),
+                'page' => $pagination->getPage(),
+                'total_count' => $countOfResults,
+            ],
+        ];
+    }
+
+    public static function actionDeliveryDelete($delivery_id)
+    {
+        $blog = self::blog();
+        $customer = self::customer();
+        //
+        $delivery = Delivery::findDeliveryQueryForApi($blog->name, $customer->id, true)
+            ->andWhere(['id' => $delivery_id])
+            ->one();
+
+        if ($delivery) {
+        } else {
+            Api::exceptionNotFoundHttp();
+        }
+
+        return [
+            'status' => $delivery->delete(),
+        ];
+    }
+
+    public static function actionDeliveryEdit($delivery_id)
+    {
+        $blog = self::blog();
+        $customer = self::customer();
+        $post = \Yii::$app->request->post();
+        //
+        $delivery = Delivery::findDeliveryQueryForApi($blog->name, $customer->id, true)
+            ->andWhere(['id' => $delivery_id])
+            ->one();
+
+        if ($delivery) {
+        } else {
+            Api::exceptionNotFoundHttp();
+        }
+
+        Delivery::storeAsTemplate($delivery, $post, $blog, $customer);
+
+        return [
+            'delivery' => $delivery->deliveryResponse(),
+        ];
+    }
+
+    public static function actionDeliveryView($delivery_id)
+    {
+        $blog = self::blog();
+        $customer = self::customer();
+        //
+        $delivery = Delivery::findDeliveryQueryForApi($blog->name, $customer->id, true)
+            ->andWhere(['id' => $delivery_id])
+            ->one();
+
+        if ($delivery) {
+        } else {
+            Api::exceptionNotFoundHttp();
+        }
+
+        return [
+            'delivery' => $delivery->deliveryResponse(),
+        ];
+    }
+
+    public static function actionDeliveryAdd()
+    {
+        $blog = self::blog();
+        $customer = self::customer();
+        $post = \Yii::$app->request->post();
+        //
+        $delivery = new Delivery();
+
+        Delivery::storeAsTemplate($delivery, $post, $blog, $customer);
+
+        return [
+            'delivery' => $delivery->deliveryResponse(),
         ];
     }
 

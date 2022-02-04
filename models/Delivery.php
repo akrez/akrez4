@@ -149,4 +149,49 @@ class Delivery extends ActiveRecord
     {
         return $this->hasOne(Delivery::class, ['id' => 'parent_id']);
     }
+
+    public function deliveryResponse()
+    {
+        return $this->toArray() + [
+            'errors' => $this->errors,
+        ];
+    }
+
+    public function toArray(array $fields = [], array $expand = [], $recursive = true)
+    {
+        return [
+            'id' => $this->id,
+            'blog_name' => $this->blog_name,
+            'customer_id' => $this->customer_id,
+            'updated_at' => $this->updated_at,
+            'created_at' => $this->created_at,
+            'status' => $this->status,
+            'name' => $this->name,
+            'mobile' => $this->mobile,
+            'phone' => $this->phone,
+            'postal_code' => $this->postal_code,
+            'city' => $this->city,
+            'address' => $this->address,
+            'lat' => $this->lat,
+            'lng' => $this->lng,
+            'des' => $this->des,
+        ];
+    }
+
+    public static function storeAsTemplate(Delivery &$delivery, $post, $blog, $customer)
+    {
+        $delivery->load($post, '');
+        $delivery->blog_name = $blog->name;
+        $delivery->customer_id = $customer->id;
+        $delivery->is_template = true;
+        $delivery->save();
+    }
+
+    public static function findDeliveryQueryForApi($blogName, $customerId, $isTemplate)
+    {
+        return Delivery::find()
+            ->andWhere(['blog_name' => $blogName])
+            ->andWhere(['customer_id' => $customerId])
+            ->andWhere(['is_template' => $isTemplate]);
+    }
 }
