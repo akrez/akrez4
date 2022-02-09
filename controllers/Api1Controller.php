@@ -447,7 +447,11 @@ class Api1Controller extends Api
         try {
             $blog = self::blog();
             $customer = self::customer();
-            return Cart::cartResponse($blog, $customer, false);
+            return Cart::cartResponse($blog, $customer, false) + [
+                'deliveries' => Delivery::findDeliveryQueryForApi($blog->name, $customer->id, true)
+                    ->orderBy(['id' => SORT_DESC])
+                    ->all(),
+            ];
         } catch (Throwable $e) {
             Api::exceptionBadRequestHttp($e);
         }
@@ -470,8 +474,9 @@ class Api1Controller extends Api
         $invoice->customer_id = $customer->id;
         if ($invoice->upload() && $invoice->validate()) {
 
-            $invoice->setScenario('carts_count');
             $carts = Cart::cartResponse($blog, $customer, true);
+
+            $invoice->setScenario('carts_count');
             $invoice->carts_count = $carts['carts_count'];
             $invoice->pay_status = Status::STATUS_UNVERIFIED;
             $invoice->price = $carts['price'];
@@ -594,7 +599,8 @@ class Api1Controller extends Api
         $blog = self::blog();
         $customer = self::customer();
         //
-        $query = Delivery::findDeliveryQueryForApi($blog->name, $customer->id, true);
+        $query = Delivery::findDeliveryQueryForApi($blog->name, $customer->id, true)
+            ->orderBy(['id' => SORT_DESC]);
         //
         $countOfResults = $query->count('id');
         //
@@ -607,7 +613,6 @@ class Api1Controller extends Api
             $page_size = 12;
         }
 
-
         $pagination = new Pagination([
             'params' => [
                 'page' => $page,
@@ -617,13 +622,12 @@ class Api1Controller extends Api
         ]);
 
         $deliveries = $query
-            ->orderBy(['id' => SORT_DESC])
             ->offset($pagination->offset)
             ->limit($pagination->limit)
             ->all();
 
         return [
-            'deliveries' => $deliveries,//ArrayHelper::toArray($deliveries),
+            'deliveries' => $deliveries,
             'pagination' => [
                 'page_count' => $pagination->getPageCount(),
                 'page_size' => $pagination->getPageSize(),
