@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use Yii;
+
 /**
  * This is the model class for table "payment".
  *
@@ -9,6 +11,12 @@ namespace app\models;
  * @property int|null $created_at
  * @property string $receipt
  * @property int|null $invoice_id
+ * @property string $blog_name
+ * @property int $customer_id
+ *
+ * @property Blog $blogName
+ * @property Customer $customer
+ * @property Gallery $gallery
  */
 class Payment extends ActiveRecord
 {
@@ -54,7 +62,27 @@ class Payment extends ActiveRecord
     }
 
     /**
-     * Gets query for [[Gallery]].
+     * Gets query for [[BlogName]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBlogName()
+    {
+        return $this->hasOne(Blog::class, ['name' => 'blog_name']);
+    }
+
+    /**
+     * Gets query for [[Customer]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCustomer()
+    {
+        return $this->hasOne(Customer::class, ['id' => 'customer_id']);
+    }
+
+    /**
+     * Gets query for [[Receipt0]].
      *
      * @return \yii\db\ActiveQuery
      */
