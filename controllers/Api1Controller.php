@@ -25,6 +25,7 @@ use app\models\Page;
 use app\models\Product;
 use app\models\City;
 use app\models\Delivery;
+use app\models\Payment;
 use app\models\Search;
 use app\models\Status;
 use Throwable;
@@ -153,6 +154,7 @@ class Api1Controller extends Api
                             'cart', 'cart-add', 'cart-delete',
                             'invoice-submit', 'invoice-add', 'invoice-view', 'invoice-remove', 'invoices', 'invoice-view',
                             'delivery-add', 'delivery-view', 'delivery-edit', 'delivery-delete', 'deliveries',
+                            'payment-add', 'payment-delete', 'payments',
                         ],
                         'allow' => true,
                         'verbs' => ['POST'],
@@ -451,6 +453,9 @@ class Api1Controller extends Api
                 'deliveries' => Delivery::findDeliveryQueryForApi($blog->name, $customer->id, true)
                     ->orderBy(['id' => SORT_DESC])
                     ->all(),
+                'payments' => Payment::findPaymentQueryForApi($blog->name, $customer->id, null)
+                    ->orderBy(['id' => SORT_DESC])
+                    ->all(),
             ];
         } catch (Throwable $e) {
             Api::exceptionBadRequestHttp($e);
@@ -588,6 +593,65 @@ class Api1Controller extends Api
 
         return [
             'status' => $status,
+        ];
+    }
+
+    public static function actionPayments($invoice_id = null)
+    {
+        $blog = self::blog();
+        $customer = self::customer();
+        $invoice_id = ($invoice_id ? $invoice_id : null);
+        //
+        $query = Payment::findPaymentQueryForApi($blog->name, $customer->id, $invoice_id)
+            ->orderBy(['id' => SORT_DESC]);
+
+        return [
+            'payments' => $query->all(),
+        ];
+    }
+
+    public static function actionPaymentDelete($payment_id = null)
+    {
+        $blog = self::blog();
+        $customer = self::customer();
+        //
+        $payment = Payment::findPaymentQueryForApi($blog->name, $customer->id, null)
+            ->andWhere(['id' => $payment_id])
+            ->one();
+
+        if ($payment) {
+        } else {
+            Api::exceptionNotFoundHttp();
+        }
+
+        return [
+            'status' => $payment->delete(),
+        ];
+    }
+
+    public static function actionPaymentAdd($invoice_id = null)
+    {
+        $blog = self::blog();
+        $customer = self::customer();
+        $post = \Yii::$app->request->post();
+        $invoice_id = ($invoice_id ? $invoice_id : null);
+
+        //bypass max_allowed_packet sql error
+        LogApi::setData(['data_post' => json_encode([
+            'receipt_file' => 'bypass max_allowed_packet error - set in ' . Yii::$app->controller->id . '-' . Yii::$app->controller->action->id . ' manually',
+        ] + $post)]);
+
+        $payment = new Payment();
+        $payment->load($post, '');
+        $payment->blog_name = $blog->name;
+        $payment->customer_id = $customer->id;
+        $payment->invoice_id = $invoice_id;
+
+        $payment->upload();
+        $payment->save();
+
+        return [
+            'payment' => $payment->paymentResponse(),
         ];
     }
 

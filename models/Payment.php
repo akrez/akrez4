@@ -53,12 +53,31 @@ class Payment extends ActiveRecord
         return true;
     }
 
-    public static function findPaymentQueryForApi($blogName, $customerId, $invoiceId = null)
+    public static function findPaymentQueryForApi($blogName, $customerId, $invoiceId)
     {
         return Payment::find()
             ->andWhere(['blog_name' => $blogName])
             ->andWhere(['customer_id' => $customerId])
             ->andWhere(['invoice_id' => $invoiceId]);
+    }
+
+    public function toArray(array $fields = [], array $expand = [], $recursive = true)
+    {
+        return [
+            'id' => $this->id,
+            'blog_name' => $this->blog_name,
+            'customer_id' => $this->customer_id,
+            'created_at' => $this->created_at,
+            'receipt' => $this->receipt,
+            'invoice_id' => $this->invoice_id,
+        ];
+    }
+
+    public function paymentResponse()
+    {
+        return $this->toArray() + [
+            'errors' => $this->errors,
+        ];
     }
 
     /**
