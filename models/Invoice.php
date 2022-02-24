@@ -13,39 +13,32 @@ use yii\helpers\Json;
  * @property int|null $updated_at
  * @property int|null $created_at
  * @property int|null $status
- * @property string|null $name
- * @property string|null $mobile
- * @property string|null $phone
  * @property float $price
  * @property int $carts_count
- * @property int|null $pay_status
+ * @property int|null $parent_delivery_id
+ * @property int|null $delivery_id
+ * @property int|null $delivery_at
+ * @property int|null $payment_id
+ * @property int|null $payment_at
  * @property string|null $params
- * @property string $receipt
  * @property string $blog_name
  * @property int $customer_id
  *
  * @property Blog $blogName
  * @property Customer $customer
+ * @property Delivery[] $deliveries
+ * @property Delivery $delivery
  * @property InvoiceItem[] $invoiceItems
- * @property Gallery $gallery
+ * @property Delivery $parentDelivery
+ * @property Payment $payment
+ * @property Payment[] $payments
  */
 class Invoice extends ActiveRecord
 {
-    public $receipt_file;
-    public $postal_code;
-    public $city;
-    public $address;
-    public $lat;
-    public $lng;
+    public $_delivery;
+    public $_carts;
+    public $_payments;
     public $des;
-
-    public static function validStatuses()
-    {
-        return [
-            Status::STATUS_ACTIVE => Yii::t('app', 'Active'),
-            Status::STATUS_DISABLE => Yii::t('app', 'Disable'),
-        ];
-    }
 
     /**
      * {@inheritdoc}
@@ -61,31 +54,60 @@ class Invoice extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'mobile', 'phone', 'postal_code', 'city', 'address', 'lat', 'lng', '!receipt'], 'required', 'on' => [self::SCENARIO_DEFAULT]],
-            [['name'], 'string', 'max' => 60, 'on' => [self::SCENARIO_DEFAULT]],
-            [['mobile',], 'match', 'pattern' => '/^09[0-9]{9,15}$/', 'on' => [self::SCENARIO_DEFAULT]],
-            [['phone',], 'match', 'pattern' => "/^0[0-9]{8,23}$/", 'on' => [self::SCENARIO_DEFAULT]],
-            [['des'], 'string', 'on' => [self::SCENARIO_DEFAULT]],
-            [['postal_code',], 'match', 'pattern' => "/^(\d{10})$/", 'on' => [self::SCENARIO_DEFAULT]],
-            [['city'], 'in', 'range' => array_keys(City::getList()), 'on' => [self::SCENARIO_DEFAULT]],
-            [['address'], 'string', 'on' => [self::SCENARIO_DEFAULT]],
-            [['lat',], 'match', 'pattern' => "/^[-]?(([0-8]?[0-9])\.(\d+))|(90(\.0+)?)$/", 'on' => [self::SCENARIO_DEFAULT]],
-            [['lng',], 'match', 'pattern' => "/^[-]?((((1[0-7][0-9])|([0-9]?[0-9]))\.(\d+))|180(\.0+)?)$/", 'on' => [self::SCENARIO_DEFAULT]],
-            [['receipt_file'], 'safe', 'on' => [self::SCENARIO_DEFAULT]],
+            [['des'], 'string', 'skipOnEmpty' => false, 'on' => self::SCENARIO_DEFAULT],
             //
-            [['pay_status'], 'in', 'range' => array_keys(self::validStatuses()), 'on' => [self::SCENARIO_DEFAULT]],
+            [['parent_delivery_id'], 'required', 'skipOnEmpty' => false, 'on' => self::SCENARIO_DEFAULT],
+            [['parent_delivery_id'], 'integer', 'skipOnEmpty' => false, 'on' => self::SCENARIO_DEFAULT],
+            [['parent_delivery_id'], 'deliveryValidation', 'skipOnEmpty' => false, 'on' => self::SCENARIO_DEFAULT],
             //
-            [['price'], 'integer', 'min' => 0, 'on' => ['carts_count']],
-            [['carts_count'], 'validCartsCount', 'on' => ['carts_count']],
+            [['!carts_count'], 'cartsValidation', 'skipOnEmpty' => false, 'on' => self::SCENARIO_DEFAULT],
+            [['!price'], 'integer', 'min' => 0, 'skipOnEmpty' => false, 'on' => self::SCENARIO_DEFAULT],
+            //
+            [['!payment_id'], 'paymentValidation', 'skipOnEmpty' => false, 'on' => self::SCENARIO_DEFAULT],
+            /////
+            [['!delivery_id'], 'required', 'skipOnEmpty' => false, 'on' => 'setDeliveryId'],
+            [['!delivery_id'], 'integer', 'skipOnEmpty' => false, 'on' => 'setDeliveryId'],
         ];
     }
 
-    public function validCartsCount($attribute, $params, $validator)
+    public function paymentValidation($attribute, $params)
     {
-        $this->carts_count = intval($this->carts_count);
-        if ($this->carts_count <= 0) {
+        if (!$this->hasErrors()) {
+            $payments = Payment::findPaymentQueryForApi($this->blog_name, $this->customer_id, null)->orderBy(['created_at' => SORT_DESC])->all();
+            if ($payments) {
+                $lastPayment = reset($payments);
+                $this->payment_id = $lastPayment->id;
+                return $this->_payments = $payments;
+            }
+            $this->addError($attribute, Yii::t('yii', '{attribute} cannot be blank.', ['attribute' => $this->getAttributeLabel($attribute)]));
+        }
+        return $this->_payments = null;
+    }
+
+    public function cartsValidation($attribute, $params, $validator)
+    {
+        if (!$this->hasErrors()) {
+            $carts = Cart::cartResponse($this->blog_name, $this->customer_id, true);
+            if (intval($carts['carts_count']) > 0) {
+                $this->price = $carts['price'];
+                $this->carts_count = intval($carts['carts_count']);
+                return $this->_carts = $carts;
+            }
             $this->addError($attribute, Yii::t('app', 'You have no items in your shopping cart. Please add at least one product to cart!'));
         }
+        return $this->_payments = null;
+    }
+
+    public function deliveryValidation($attribute, $params)
+    {
+        if (!$this->hasErrors()) {
+            $delivery = Delivery::findDeliveryQueryForApi($this->blog_name, $this->customer_id, true)->one();
+            if ($delivery) {
+                return $this->_delivery = $delivery;
+            }
+            $this->addError($attribute, Yii::t('yii', '{attribute} is invalid.', ['attribute' => $this->getAttributeLabel($attribute)]));
+        }
+        return $this->_delivery = null;
     }
 
     public function invoiceResponse()
@@ -106,18 +128,8 @@ class Invoice extends ActiveRecord
     {
         parent::afterFind();
         $arrayParams = (array) Json::decode($this->params) + [
-            'postal_code' => null,
-            'city' => null,
-            'address' => null,
-            'lat' => null,
-            'lng' => null,
             'des' => null,
         ];
-        $this->postal_code = $arrayParams['postal_code'];
-        $this->city = $arrayParams['city'];
-        $this->address = $arrayParams['address'];
-        $this->lat = $arrayParams['lat'];
-        $this->lng = $arrayParams['lng'];
         $this->des = $arrayParams['des'];
     }
 
@@ -127,35 +139,9 @@ class Invoice extends ActiveRecord
             return false;
         }
         $this->params = [
-            'postal_code' => $this->postal_code,
-            'city' => $this->city,
-            'address' => $this->address,
-            'lat' => $this->lat,
-            'lng' => $this->lng,
             'des' => $this->des,
         ];
         $this->params = Json::encode($this->params);
-        return true;
-    }
-
-    public function setStatus($statusAttribute, $status, $text = '')
-    {
-        $result = false;
-        if ($this->hasAttribute($statusAttribute)) {
-            $this->$statusAttribute = $status;
-            $result = $this->save();
-        }
-        return $result;
-    }
-
-    public function upload()
-    {
-        $gallery = Gallery::uploadBase64($this->receipt_file, Gallery::TYPE_RECEIPT);
-        if ($gallery->hasErrors()) {
-            $this->addErrors(['receipt_file' => $gallery->getErrorSummary(true)]);
-            return false;
-        }
-        $this->receipt = $gallery->name;
         return true;
     }
 
@@ -168,21 +154,22 @@ class Invoice extends ActiveRecord
             'updated_at' => $this->updated_at,
             'created_at' => $this->created_at,
             'status' => $this->status,
-            'name' => $this->name,
-            'mobile' => $this->mobile,
-            'phone' => $this->phone,
-            'postal_code' => $this->postal_code,
-            'city' => $this->city,
-            'address' => $this->address,
-            'lat' => $this->lat,
-            'lng' => $this->lng,
+            'parent_delivery_id' => $this->parent_delivery_id,
+            'delivery_id' => $this->delivery_id,
+            'delivery_at' => $this->delivery_at,
+            'payment_id' => $this->payment_id,
+            'payment_at' => $this->payment_at,
             'des' => $this->des,
-            'receipt' => $this->receipt,
-            'pay_status' => $this->pay_status,
-            //
             'price' => $this->price,
             'carts_count' => $this->carts_count,
         ];
+    }
+
+    public function saveDeliveryId($delivery)
+    {
+        $this->setScenario('setDeliveryId');
+        $this->delivery_id = $delivery->id;
+        return $this->save();
     }
 
     public static function blogValidQuery($id = null)
@@ -224,12 +211,53 @@ class Invoice extends ActiveRecord
     }
 
     /**
-     * Gets query for [[Gallery]].
+     * Gets query for [[Delivery]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getGallery()
+    public function getDelivery()
     {
-        return $this->hasOne(Gallery::class, ['name' => 'receipt']);
+        return $this->hasOne(Delivery::class, ['id' => 'delivery_id']);
+    }
+
+    /**
+     * Gets query for [[Deliveries]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getDeliveries()
+    {
+        return $this->hasMany(Delivery::class, ['invoice_id' => 'id']);
+    }
+
+
+    /**
+     * Gets query for [[ParentDelivery]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getParentDelivery()
+    {
+        return $this->hasOne(Delivery::class, ['id' => 'parent_delivery_id']);
+    }
+
+    /**
+     * Gets query for [[Payment]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPayment()
+    {
+        return $this->hasOne(Payment::class, ['id' => 'payment_id']);
+    }
+
+    /**
+     * Gets query for [[Payments]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPayments()
+    {
+        return $this->hasMany(Payment::class, ['invoice_id' => 'id']);
     }
 }

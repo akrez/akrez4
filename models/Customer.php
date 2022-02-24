@@ -186,7 +186,7 @@ class Customer extends ActiveRecord implements IdentityInterface
     public function verifyRequestValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $customer = self::findCustomerQueryForApi($this->blog_name, $this->mobile, Status::SIGNUP_STATUS)
+            $customer = self::findCustomerQueryForApi($this->blog_name, $this->mobile, self::SIGNUP_STATUS)
                 ->one();
             if ($customer) {
                 return $this->_customer = $customer;
@@ -214,7 +214,7 @@ class Customer extends ActiveRecord implements IdentityInterface
     public function verifyValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $customer = self::findCustomerQueryForApi($this->blog_name, $this->mobile, Status::SIGNUP_STATUS)
+            $customer = self::findCustomerQueryForApi($this->blog_name, $this->mobile, self::SIGNUP_STATUS)
                 ->andWhere(['verify_token' => $this->verify_token])
                 ->andWhere(['>', 'verify_at', time() - self::TIMEOUT_RESET])
                 ->one();

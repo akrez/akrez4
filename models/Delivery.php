@@ -26,6 +26,7 @@ use yii\helpers\Json;
  * @property Customer $customer
  * @property Delivery[] $deliveries
  * @property Invoice $invoice
+ * @property Invoice[] $invoices
  * @property Delivery $parent
  */
 class Delivery extends ActiveRecord
@@ -62,6 +63,25 @@ class Delivery extends ActiveRecord
             [['postal_code',], 'match', 'pattern' => "/^(\d{10})$/"],
             [['address'], 'string'],
         ];
+    }
+
+    /**
+     * @return self
+     */
+    public static function clone(Delivery $parentDelivery, $invoiceId)
+    {
+        $delivery = clone $parentDelivery;
+        //
+        $delivery->isNewRecord = true;
+        $delivery->id = null;
+        //
+        $delivery->invoice_id = $invoiceId;
+        $delivery->parent_id = $parentDelivery->id;
+        $delivery->is_template = null;
+        //
+        $delivery->save();
+        //
+        return $delivery;
     }
 
     public function afterFind()

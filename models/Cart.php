@@ -75,7 +75,7 @@ class Cart extends ActiveRecord
         ];
     }
 
-    public static function cartResponse($blog, $customer, $asCardModel = false)
+    public static function cartResponse($blogName, $customerId, $asCardModel = false)
     {
         $price = 0;
         $carts_count = 0;
@@ -83,14 +83,14 @@ class Cart extends ActiveRecord
         $packages = [];
         $products = [];
         //
-        $cartQuery = Cart::findCartFullQueryForApi($blog->name, $customer->id);
+        $cartQuery = Cart::findCartFullQueryForApi($blogName, $customerId);
         $cartModels = $cartQuery->all();
         //
         if ($cartModels) {
-            $packagesQuery = Package::findPackageFullQueryForApi($blog->name)->where(['id' => (clone $cartQuery)->select('package_id')]);
+            $packagesQuery = Package::findPackageFullQueryForApi($blogName)->where(['id' => (clone $cartQuery)->select('package_id')]);
             $packages = $packagesQuery->indexBy('id')->all();
             //
-            $productsQuery = Product::findProductFullQueryForApi($blog->name)->where(['id' => (clone $packagesQuery)->select('product_id')]);
+            $productsQuery = Product::findProductFullQueryForApi($blogName)->where(['id' => (clone $packagesQuery)->select('product_id')]);
             $products = $productsQuery->indexBy('id')->all();
             //
             foreach ($cartModels as $cartModel) {

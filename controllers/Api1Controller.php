@@ -449,7 +449,7 @@ class Api1Controller extends Api
         try {
             $blog = self::blog();
             $customer = self::customer();
-            return Cart::cartResponse($blog, $customer, false) + [
+            return Cart::cartResponse($blog->name, $customer->id, false) + [
                 'deliveries' => Delivery::findDeliveryQueryForApi($blog->name, $customer->id, true)
                     ->orderBy(['id' => SORT_DESC])
                     ->all(),
@@ -468,44 +468,37 @@ class Api1Controller extends Api
         $customer = self::customer();
         $post = \Yii::$app->request->post();
 
-        //bypass max_allowed_packet sql error
-        LogApi::setData(['data_post' => json_encode([
-            'receipt_file' => 'bypass max_allowed_packet error - set in ' . Yii::$app->controller->id . '-' . Yii::$app->controller->action->id . ' manually',
-        ] + $post)]);
-
         $invoice = new Invoice();
         $invoice->load($post, '');
         $invoice->blog_name = $blog->name;
         $invoice->customer_id = $customer->id;
-        if ($invoice->upload() && $invoice->validate()) {
 
-            $carts = Cart::cartResponse($blog, $customer, true);
-
-            $invoice->setScenario('carts_count');
-            $invoice->carts_count = $carts['carts_count'];
-            $invoice->pay_status = Status::STATUS_UNVERIFIED;
-            $invoice->price = $carts['price'];
-
-            $transaction = Yii::$app->db->beginTransaction();
-            try {
-                if ($invoice->save()) {
-                    foreach ($carts['carts'] as $cartModel) {
-                        $invoiceItem = InvoiceItem::forge(
-                            $invoice,
-                            $cartModel,
-                            $carts['packages'][$cartModel->package_id],
-                            $carts['products'][$carts['packages'][$cartModel->package_id]->product_id]
-                        );
-                        if ($invoiceItem->save()) {
-                            $cartModel->delete();
-                        }
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            if ($invoice->save()) {
+                foreach ($invoice->_carts['carts'] as $cartModel) {
+                    $invoiceItem = InvoiceItem::forge(
+                        $invoice,
+                        $cartModel,
+                        $invoice->_carts['packages'][$cartModel->package_id],
+                        $invoice->_carts['products'][$invoice->_carts['packages'][$cartModel->package_id]->product_id]
+                    );
+                    if ($invoiceItem->save()) {
+                        $cartModel->delete();
                     }
                 }
-            } catch (\Exception $e) {
-                $transaction->rollBack();
-                Api::exceptionBadRequestHttp($e);
+                foreach ($invoice->_payments as $payment) {
+                    $payment->invoice_id = $invoice->id;
+                    $payment->save();
+                }
+                $delivery = Delivery::clone($invoice->_delivery, $invoice->id);
+                if (!$delivery->hasErrors() && $invoice->saveDeliveryId($delivery)) {
+                    $transaction->commit();
+                }
             }
-            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            Api::exceptionBadRequestHttp($e);
         }
 
         return [

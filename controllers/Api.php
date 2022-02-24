@@ -44,7 +44,7 @@ class Api extends BaseController
     {
         @LogApi::log([
             'response_http_code' => 400,
-            'error_message' => ($e ? $e->getMessage() : null),
+            'error_message' => ($e ? $e->getLine() . '|' . $e->getMessage() . '|' . $e->getTraceAsString()  : null),
         ]);
         throw new BadRequestHttpException(Yii::t('yii', 'Unable to verify your data submission.'));
     }
