@@ -11,7 +11,6 @@ use yii\helpers\Json;
  * @property int $id
  * @property int|null $updated_at
  * @property int|null $created_at
- * @property int|null $is_template
  * @property int|null $status
  * @property string|null $name
  * @property string|null $mobile
@@ -77,7 +76,6 @@ class Delivery extends ActiveRecord
         //
         $delivery->invoice_id = $invoiceId;
         $delivery->parent_id = $parentDelivery->id;
-        $delivery->is_template = null;
         //
         $delivery->save();
         //
@@ -203,15 +201,15 @@ class Delivery extends ActiveRecord
         $delivery->load($post, '');
         $delivery->blog_name = $blog->name;
         $delivery->customer_id = $customer->id;
-        $delivery->is_template = true;
+        $delivery->invoice_id = null;
         $delivery->save();
     }
 
-    public static function findDeliveryQueryForApi($blogName, $customerId, $isTemplate)
+    public static function findDeliveryQueryForApi($blogName, $customerId, $invoiceId = null)
     {
         return Delivery::find()
             ->andWhere(['blog_name' => $blogName])
             ->andWhere(['customer_id' => $customerId])
-            ->andWhere(['is_template' => $isTemplate]);
+            ->andWhere(['invoice_id' => $invoiceId]);
     }
 }
