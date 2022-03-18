@@ -2,6 +2,7 @@
 
 namespace app\components;
 
+use app\models\Invoice;
 use app\models\Status;
 use yii\i18n\Formatter as BaseFormatter;
 
@@ -24,6 +25,14 @@ class Formatter extends BaseFormatter
     {
         if (mb_strlen($value)) {
             return Status::getLabel($value);
+        }
+        return $this->nullDisplay;
+    }
+
+    public function asInvoiceStatus($value)
+    {
+        if (mb_strlen($value)) {
+            return Invoice::getLabel($value);
         }
         return $this->nullDisplay;
     }
