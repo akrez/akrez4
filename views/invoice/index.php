@@ -1,7 +1,5 @@
 <?php
 
-use app\models\City;
-use app\models\Gallery;
 use app\models\Invoice;
 use yii\helpers\Html;
 use yii\grid\GridView;
@@ -27,37 +25,18 @@ $this->registerCss("
     'filterModel' => $searchModel,
     'columns' => [
         'id',
-        'price:price',
-        'carts_count',
-        'updated_at:datetimefa',
-        'name',
-        'phone',
-        'mobile',
         [
-            'attribute' => 'city',
-            'value' => function ($model, $key, $index, $grid) {
-                return City::getLabel($model->city);
-            },
-            'filter' => true,
-        ],
-        [
-            'attribute' => 'receipt',
-            'value' => function ($model, $key, $index, $grid) {
-                $src = Gallery::getImageUrl(Gallery::TYPE_RECEIPT, $model->receipt);
-                $img = Html::img($src, [
-                    "style" => "max-height: 40px;",
-                ]);
-                return Html::a($img, $src, ['target' => '_blank']);
-            },
-            'filter' => false,
-            'format' => 'raw',
-            'enableSorting' => false
-        ],
-        [
-            'attribute' => 'pay_status',
-            'format' => 'status',
+            'attribute' => 'status',
+            'format' => 'invoiceStatus',
             'filter' => Invoice::validStatuses(),
         ],
+        'customer.mobile',
+        'updated_at:datetimefa',
+        [
+            'attribute' => 'delivery.address',
+        ],
+        'price:price',
+        'carts_count',
         [
             'label' => '',
             'format' => 'raw',

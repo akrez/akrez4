@@ -3,9 +3,7 @@
 namespace app\controllers;
 
 use app\components\Helper;
-use app\models\CartSearch;
 use app\models\Invoice;
-use app\models\InvoiceItemSearch;
 use app\models\InvoiceSearch;
 use Yii;
 use yii\web\NotFoundHttpException;
@@ -30,27 +28,31 @@ class InvoiceController extends Controller
         ]);
     }
 
+    /**
+     * Lists all Invoice models.
+     *
+     * @return string
+     */
     public function actionIndex()
     {
         $searchModel = new InvoiceSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->get());
+        $dataProvider = $searchModel->search($this->request->queryParams);
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
         ]);
     }
 
+    /**
+     * Displays a single Invoice model.
+     * @param int $id شناسه
+     * @return string
+     * @throws NotFoundHttpException if the model cannot be found
+     */
     public function actionView($id)
     {
         $invoice = Helper::findOrFail(Invoice::blogValidQuery()->andWhere(['id' => $id]));
-        //
-        $searchModel = new InvoiceItemSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->get(), $invoice);
-        return $this->render('view', [
-            'invoice' => $invoice,
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-        ]);
+        return $this->render('view', $invoice->invoiceFullResponse());
     }
 
     public function actionSetStatus($id, $attribute, $status)
@@ -69,7 +71,7 @@ class InvoiceController extends Controller
      */
     protected function findModel($id)
     {
-        if (($model = Invoice::findOne($id)) !== null) {
+        if (($model = Invoice::findOne(['id' => $id])) !== null) {
             return $model;
         }
 
