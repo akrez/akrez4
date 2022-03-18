@@ -3,7 +3,7 @@
 namespace app\models;
 
 use Yii;
-use app\models\City;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
 
 /**
@@ -17,9 +17,6 @@ use yii\helpers\Json;
  * @property int $carts_count
  * @property int|null $parent_delivery_id
  * @property int|null $delivery_id
- * @property int|null $delivery_at
- * @property int|null $payment_id
- * @property int|null $payment_at
  * @property string|null $params
  * @property string $blog_name
  * @property int $customer_id
@@ -35,10 +32,37 @@ use yii\helpers\Json;
  */
 class Invoice extends ActiveRecord
 {
-    public $_delivery;
-    public $_carts;
-    public $_payments;
-    public $des;
+    public $_delivery = null;
+    public $_carts = [];
+    public $_payments = [];
+    public $des = '';
+
+    const STATUS_PENDING = 0;
+    const STATUS_ON_HOLD = 10;
+    const STATUS_WAITING_FOR_PAYMENT = 15;
+    const STATUS_PROCESSING = 30;
+    const STATUS_SHIPPED = 40;
+    const STATUS_COMPLETED = 50;
+    const STATUS_REFUNDED = 60;
+
+    public static function validStatuses()
+    {
+        return [
+            self::STATUS_PENDING => Yii::t('app', 'pending'),
+            self::STATUS_ON_HOLD => Yii::t('app', 'on hold'),
+            self::STATUS_WAITING_FOR_PAYMENT => Yii::t('app', 'waiting for payment'),
+            self::STATUS_PROCESSING => Yii::t('app', 'processing'),
+            self::STATUS_SHIPPED => Yii::t('app', 'shipped'),
+            self::STATUS_COMPLETED => Yii::t('app', 'completed'),
+            self::STATUS_REFUNDED => Yii::t('app', 'refunded'),
+        ];
+    }
+
+    public static function getLabel($item)
+    {
+        $list = self::validStatuses();
+        return (isset($list[$item]) ? $list[$item] : $item);
+    }
 
     /**
      * {@inheritdoc}
@@ -63,7 +87,7 @@ class Invoice extends ActiveRecord
             [['!carts_count'], 'cartsValidation', 'skipOnEmpty' => false, 'on' => self::SCENARIO_DEFAULT],
             [['!price'], 'integer', 'min' => 0, 'skipOnEmpty' => false, 'on' => self::SCENARIO_DEFAULT],
             //
-            [['!payment_id'], 'paymentValidation', 'skipOnEmpty' => false, 'on' => self::SCENARIO_DEFAULT],
+            [['!carts_count'], 'paymentValidation', 'skipOnEmpty' => false, 'on' => self::SCENARIO_DEFAULT],
             /////
             [['!delivery_id'], 'required', 'skipOnEmpty' => false, 'on' => 'setDeliveryId'],
             [['!delivery_id'], 'integer', 'skipOnEmpty' => false, 'on' => 'setDeliveryId'],
@@ -73,15 +97,13 @@ class Invoice extends ActiveRecord
     public function paymentValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $payments = Payment::findPaymentQueryForApi($this->blog_name, $this->customer_id, null)->orderBy(['created_at' => SORT_DESC])->all();
+            $payments = Payment::findPaymentQueryForApi($this->blog_name, $this->customer_id, null)->all();
             if ($payments) {
-                $lastPayment = reset($payments);
-                $this->payment_id = $lastPayment->id;
                 return $this->_payments = $payments;
             }
             $this->addError($attribute, Yii::t('yii', '{attribute} cannot be blank.', ['attribute' => $this->getAttributeLabel($attribute)]));
         }
-        return $this->_payments = null;
+        return $this->_payments = [];
     }
 
     public function cartsValidation($attribute, $params, $validator)
@@ -95,13 +117,13 @@ class Invoice extends ActiveRecord
             }
             $this->addError($attribute, Yii::t('app', 'You have no items in your shopping cart. Please add at least one product to cart!'));
         }
-        return $this->_payments = null;
+        return $this->_carts = [];
     }
 
     public function deliveryValidation($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $delivery = Delivery::findDeliveryQueryForApi($this->blog_name, $this->customer_id, true)->one();
+            $delivery = Delivery::findDeliveryQueryForApi($this->blog_name, $this->customer_id)->one();
             if ($delivery) {
                 return $this->_delivery = $delivery;
             }
@@ -115,6 +137,42 @@ class Invoice extends ActiveRecord
         return $this->toArray() + [
             'errors' => $this->errors,
         ];
+    }
+
+    public function invoiceFullResponse($asArray = true)
+    {
+        $customer = null;
+        $payments = [];
+        $deliveries = [];
+        $invoiceItems = [];
+        if ($this->id) {
+            $customer = Customer::findCustomerQueryForApi($this->blog_name, null, Customer::validStatusesKey())
+                ->andWhere(['id' => $this->customer_id])
+                ->one();
+            $deliveries = Delivery::findDeliveryQueryForApi($this->blog_name, $this->customer_id, $this->id)
+                ->orderBy(['id' => SORT_DESC])
+                ->all();
+            $payments = Payment::findPaymentQueryForApi($this->blog_name, $this->customer_id, $this->id)
+                ->orderBy(['id' => SORT_DESC])
+                ->all();
+            $invoiceItems = InvoiceItem::findInvoiceItemQueryForApi($this->blog_name, $this->customer_id)
+                ->andWhere(['invoice_id' => $this->id])
+                ->all();
+        }
+
+        $data = [
+            'customer' => $customer,
+            'deliveries' => $deliveries,
+            'payments' => $payments,
+            'invoiceItems' => $invoiceItems,
+            'invoice' => $this,
+        ];
+
+        if ($asArray) {
+            $data['invoice'] = $data['invoice']->invoiceResponse();
+            return ArrayHelper::toArray($data);
+        }
+        return $data;
     }
 
     public static function findInvoiceQueryForApi($blogName, $customerId)
@@ -156,9 +214,6 @@ class Invoice extends ActiveRecord
             'status' => $this->status,
             'parent_delivery_id' => $this->parent_delivery_id,
             'delivery_id' => $this->delivery_id,
-            'delivery_at' => $this->delivery_at,
-            'payment_id' => $this->payment_id,
-            'payment_at' => $this->payment_at,
             'des' => $this->des,
             'price' => $this->price,
             'carts_count' => $this->carts_count,
@@ -239,16 +294,6 @@ class Invoice extends ActiveRecord
     public function getParentDelivery()
     {
         return $this->hasOne(Delivery::class, ['id' => 'parent_delivery_id']);
-    }
-
-    /**
-     * Gets query for [[Payment]].
-     *
-     * @return \yii\db\ActiveQuery
-     */
-    public function getPayment()
-    {
-        return $this->hasOne(Payment::class, ['id' => 'payment_id']);
     }
 
     /**
