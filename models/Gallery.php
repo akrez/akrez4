@@ -15,7 +15,7 @@ use yii\helpers\Url;
  * @property int $height
  * @property string $type
  * @property string|null $telegram_id
- * @property int|null $entity_id
+ * @property int|null $product_id
  * @property string|null $blog_name
  *
  * @property Blog[] $blogs
@@ -54,7 +54,7 @@ class Gallery extends ActiveRecord
     {
         return [
             [['name', 'width', 'height', 'type'], 'required'],
-            [['created_at', 'width', 'height', 'entity_id'], 'integer'],
+            [['created_at', 'width', 'height', 'product_id'], 'integer'],
             [['name'], 'string', 'max' => 16],
             [['type'], 'string', 'max' => 12],
             [['telegram_id'], 'string', 'max' => 127],
@@ -63,9 +63,9 @@ class Gallery extends ActiveRecord
         ];
     }
 
-    public static function findProductGalleryQueryForApi($blogName, $entityId)
+    public static function findProductGalleryQueryForApi($blogName, $productId)
     {
-        return Gallery::find()->where(['blog_name' => $blogName, 'type' => Gallery::TYPE_PRODUCT, 'entity_id' => $entityId]);
+        return Gallery::find()->where(['blog_name' => $blogName, 'type' => Gallery::TYPE_PRODUCT, 'product_id' => $productId]);
     }
 
     public static function findLogoGalleryQueryForApi($blogName)
@@ -76,11 +76,6 @@ class Gallery extends ActiveRecord
     public static function findReceiptGalleryQueryForApi($blogName)
     {
         return Gallery::find()->where(['blog_name' => $blogName, 'type' => Gallery::TYPE_LOGO]);
-    }
-
-    public function getBlogs()
-    {
-        return $this->hasMany(Blog::class, ['logo' => 'name']);
     }
 
     private static function getUrl($type, $name, $schema = null)
@@ -135,8 +130,12 @@ class Gallery extends ActiveRecord
         return parent::delete();
     }
 
-    public static function upload($src, $type, $entityId = null, $options = [], $tryUnlinkSrc = false)
+    public static function upload($src, $type, $productId = null, $options = [], $tryUnlinkSrc = false, $invoiceId = null, $blogName = null)
     {
+        if ($blogName === null) {
+            $blogName = \Yii::$app->user->getId();
+        }
+
         $gallery = new Gallery();
 
         $handler = new Image();
@@ -149,8 +148,9 @@ class Gallery extends ActiveRecord
             $gallery->height = $info['desHeight'];
             $gallery->name = $info['desName'];
             $gallery->type = $type;
-            $gallery->entity_id = $entityId;
-            $gallery->blog_name = \Yii::$app->user->getId();
+            $gallery->product_id = $productId;
+            $gallery->invoice_id = $invoiceId;
+            $gallery->blog_name = $blogName;
             $gallery->save();
         }
         if ($tryUnlinkSrc) {
@@ -159,11 +159,21 @@ class Gallery extends ActiveRecord
         return $gallery;
     }
 
-    public static function uploadBase64($base64, $type, $entityId = null, $options = [], $tryUnlinkSrc = true)
+    public static function uploadBase64($base64, $type, $productId = null, $options = [], $tryUnlinkSrc = true, $invoiceId = null, $blogName = null)
     {
         $tmpfname = tempnam(sys_get_temp_dir(), $type . '_');
         $base64 = explode(',', $base64) + [1 => '',];
         @file_put_contents($tmpfname, base64_decode($base64[1]));
-        return self::upload($tmpfname, $type, $entityId, $options, $tryUnlinkSrc);
+        return self::upload($tmpfname, $type, $productId, $options, $tryUnlinkSrc, $invoiceId, $blogName);
+    }
+
+    /**
+     * Gets query for [[Blogs]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBlogs()
+    {
+        return $this->hasMany(Blog::class, ['logo' => 'name']);
     }
 }
