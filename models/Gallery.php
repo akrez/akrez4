@@ -11,11 +11,13 @@ use yii\helpers\Url;
  *
  * @property string $name
  * @property int|null $created_at
+ * @property int|null $updated_at
  * @property int $width
  * @property int $height
  * @property string $type
  * @property string|null $telegram_id
  * @property int|null $product_id
+ * @property int|null $invoice_id
  * @property string|null $blog_name
  *
  * @property Blog[] $blogs
@@ -54,7 +56,7 @@ class Gallery extends ActiveRecord
     {
         return [
             [['name', 'width', 'height', 'type'], 'required'],
-            [['created_at', 'width', 'height', 'product_id'], 'integer'],
+            [['created_at', 'updated_at', 'width', 'height', 'product_id', 'invoice_id'], 'integer'],
             [['name'], 'string', 'max' => 16],
             [['type'], 'string', 'max' => 12],
             [['telegram_id'], 'string', 'max' => 127],
