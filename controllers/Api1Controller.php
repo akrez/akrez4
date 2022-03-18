@@ -450,7 +450,7 @@ class Api1Controller extends Api
             $blog = self::blog();
             $customer = self::customer();
             return Cart::cartResponse($blog->name, $customer->id, false) + [
-                'deliveries' => Delivery::findDeliveryQueryForApi($blog->name, $customer->id, true)
+                'deliveries' => Delivery::findDeliveryQueryForApi($blog->name, $customer->id)
                     ->orderBy(['id' => SORT_DESC])
                     ->all(),
                 'payments' => Payment::findPaymentQueryForApi($blog->name, $customer->id, null)
@@ -472,6 +472,7 @@ class Api1Controller extends Api
         $invoice->load($post, '');
         $invoice->blog_name = $blog->name;
         $invoice->customer_id = $customer->id;
+        $invoice->status = Invoice::STATUS_PENDING;
 
         $transaction = Yii::$app->db->beginTransaction();
         try {
@@ -501,9 +502,7 @@ class Api1Controller extends Api
             Api::exceptionBadRequestHttp($e);
         }
 
-        return [
-            'invoice' => $invoice->invoiceResponse(),
-        ];
+        return $invoice->invoiceFullResponse();
     }
 
     public function actionInvoices()
@@ -558,19 +557,11 @@ class Api1Controller extends Api
         $customer = self::customer();
         //
         $invoice = Invoice::findInvoiceQueryForApi($blog->name, $customer->id)->andWhere(['id' => $invoice_id])->one();
-        if ($invoice) {
-            $invoice = $invoice->toArray();
-        } else {
+        if (!$invoice) {
             Api::exceptionNotFoundHttp();
         }
         //
-        $invoiceItems = InvoiceItem::findInvoiceItemQueryForApi($blog->name, $customer->id)->andWhere(['invoice_id' => $invoice['id']])->all();
-        $invoiceItems = ArrayHelper::toArray($invoiceItems);
-        //
-        return [
-            'invoice' => $invoice,
-            'invoiceItems' => $invoiceItems,
-        ];
+        return $invoice->invoiceFullResponse();
     }
 
     public static function actionCartDelete($package_id)
@@ -656,7 +647,7 @@ class Api1Controller extends Api
         $blog = self::blog();
         $customer = self::customer();
         //
-        $query = Delivery::findDeliveryQueryForApi($blog->name, $customer->id, true)
+        $query = Delivery::findDeliveryQueryForApi($blog->name, $customer->id)
             ->orderBy(['id' => SORT_DESC]);
         //
         $countOfResults = $query->count('id');
@@ -699,7 +690,7 @@ class Api1Controller extends Api
         $blog = self::blog();
         $customer = self::customer();
         //
-        $delivery = Delivery::findDeliveryQueryForApi($blog->name, $customer->id, true)
+        $delivery = Delivery::findDeliveryQueryForApi($blog->name, $customer->id)
             ->andWhere(['id' => $delivery_id])
             ->one();
 
@@ -719,7 +710,7 @@ class Api1Controller extends Api
         $customer = self::customer();
         $post = \Yii::$app->request->post();
         //
-        $delivery = Delivery::findDeliveryQueryForApi($blog->name, $customer->id, true)
+        $delivery = Delivery::findDeliveryQueryForApi($blog->name, $customer->id)
             ->andWhere(['id' => $delivery_id])
             ->one();
 
@@ -740,7 +731,7 @@ class Api1Controller extends Api
         $blog = self::blog();
         $customer = self::customer();
         //
-        $delivery = Delivery::findDeliveryQueryForApi($blog->name, $customer->id, true)
+        $delivery = Delivery::findDeliveryQueryForApi($blog->name, $customer->id)
             ->andWhere(['id' => $delivery_id])
             ->one();
 
