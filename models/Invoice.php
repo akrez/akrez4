@@ -146,8 +146,7 @@ class Invoice extends ActiveRecord
         $deliveries = [];
         $invoiceItems = [];
         if ($this->id) {
-            $customer = Customer::findCustomerQueryForApi($this->blog_name, null, Customer::validStatusesKey())
-                ->andWhere(['id' => $this->customer_id])
+            $customer = Customer::findCustomerQueryForApiById($this->blog_name, $this->customer_id, Customer::validStatusesKey())
                 ->one();
             $deliveries = Delivery::findDeliveryQueryForApi($this->blog_name, $this->customer_id, $this->id)
                 ->orderBy(['id' => SORT_DESC])

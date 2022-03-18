@@ -17,7 +17,7 @@ class InvoiceSearch extends Invoice
     public function rules()
     {
         return [
-            [['id', 'updated_at', 'created_at', 'status', 'carts_count', 'parent_delivery_id', 'delivery_id', 'delivery_at', 'payment_id', 'payment_at', 'customer_id'], 'integer'],
+            [['id', 'updated_at', 'created_at', 'status', 'carts_count', 'parent_delivery_id', 'delivery_id', 'customer_id'], 'integer'],
             [['price'], 'number'],
         ];
     }
@@ -74,9 +74,6 @@ class InvoiceSearch extends Invoice
             'carts_count' => $this->carts_count,
             'parent_delivery_id' => $this->parent_delivery_id,
             'delivery_id' => $this->delivery_id,
-            'delivery_at' => $this->delivery_at,
-            'payment_id' => $this->payment_id,
-            'payment_at' => $this->payment_at,
             'customer_id' => $this->customer_id,
         ]);
 

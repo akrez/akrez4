@@ -338,4 +338,12 @@ class Customer extends ActiveRecord implements IdentityInterface
             ->andWhere(['mobile' => $mobile])
             ->andFilterWhere(['status' => $statusMode]);
     }
+
+    public static function findCustomerQueryForApiById($blogName, $id, $statusMode)
+    {
+        return Customer::find()
+            ->where(['blog_name' =>  $blogName])
+            ->andWhere(['id' => $id])
+            ->andFilterWhere(['status' => $statusMode]);
+    }
 }
