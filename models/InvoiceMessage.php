@@ -5,7 +5,7 @@ namespace app\models;
 use Yii;
 
 /**
- * This is the model class for table "invoice_chat".
+ * This is the model class for table "invoice_message".
  *
  * @property int $id
  * @property int|null $created_at
@@ -17,14 +17,14 @@ use Yii;
  * @property Blog $blogName
  * @property Invoice $invoice
  */
-class InvoiceChat extends ActiveRecord
+class InvoiceMessage extends ActiveRecord
 {
     /**
      * {@inheritdoc}
      */
     public static function tableName()
     {
-        return 'invoice_chat';
+        return 'invoice_message';
     }
 
     /**
@@ -39,14 +39,14 @@ class InvoiceChat extends ActiveRecord
         ];
     }
 
-    public static function createInvoiceChat($blogName, $invoiceId, $message, $isCustomer)
+    public static function createInvoiceMessage($blogName, $invoiceId, $message, $isCustomer)
     {
-        $invoiceChat = new InvoiceChat();
-        $invoiceChat->blog_name = $blogName;
-        $invoiceChat->invoice_id = $invoiceId;
-        $invoiceChat->message = $message;
-        $invoiceChat->is_customer = $isCustomer;
-        $invoiceChat->save();
+        $invoiceMessage = new InvoiceMessage();
+        $invoiceMessage->blog_name = $blogName;
+        $invoiceMessage->invoice_id = $invoiceId;
+        $invoiceMessage->message = $message;
+        $invoiceMessage->is_customer = $isCustomer;
+        $invoiceMessage->save();
     }
 
     public function toArray(array $fields = [], array $expand = [], $recursive = true)
@@ -60,7 +60,7 @@ class InvoiceChat extends ActiveRecord
         ];
     }
 
-    public static function findInvoiceChatQueryForApi($blogName, $invoiceId)
+    public static function findInvoiceMessageQueryForApi($blogName, $invoiceId)
     {
         return InvoiceStatus::find()
             ->andWhere(['blog_name' => $blogName])
