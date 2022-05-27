@@ -9,7 +9,7 @@ use Yii;
  *
  * @property int $id
  * @property int|null $created_at
- * @property string $receipt
+ * @property string $payment_name
  * @property int|null $invoice_id
  * @property string $blog_name
  * @property int $customer_id
@@ -20,7 +20,7 @@ use Yii;
  */
 class Payment extends ActiveRecord
 {
-    public $receipt_file;
+    public $payment_name_file;
 
     /**
      * {@inheritdoc}
@@ -36,20 +36,20 @@ class Payment extends ActiveRecord
     public function rules()
     {
         return [
-            [['!receipt'], 'required'],
-            [['receipt_file'], 'safe', 'on' => [self::SCENARIO_DEFAULT]],
+            [['!payment_name'], 'required'],
+            [['payment_name_file'], 'safe', 'on' => [self::SCENARIO_DEFAULT]],
 
         ];
     }
 
     public function upload()
     {
-        $gallery = Gallery::uploadBase64($this->receipt_file, Gallery::TYPE_RECEIPT);
+        $gallery = Gallery::uploadBase64($this->payment_name_file, Gallery::TYPE_PAYMENT, null, [], true, $this->blog_name);
         if ($gallery->hasErrors()) {
-            $this->addErrors(['receipt_file' => $gallery->getErrorSummary(true)]);
+            $this->addErrors(['payment_name_file' => $gallery->getErrorSummary(true)]);
             return false;
         }
-        $this->receipt = $gallery->name;
+        $this->payment_name = $gallery->name;
         return true;
     }
 
@@ -68,7 +68,7 @@ class Payment extends ActiveRecord
             'blog_name' => $this->blog_name,
             'customer_id' => $this->customer_id,
             'created_at' => $this->created_at,
-            'receipt' => $this->receipt,
+            'payment_name' => $this->payment_name,
             'invoice_id' => $this->invoice_id,
         ];
     }
@@ -101,12 +101,12 @@ class Payment extends ActiveRecord
     }
 
     /**
-     * Gets query for [[Receipt0]].
+     * Gets query for [[Gallery]].
      *
      * @return \yii\db\ActiveQuery
      */
     public function getGallery()
     {
-        return $this->hasOne(Gallery::class, ['name' => 'receipt']);
+        return $this->hasOne(Gallery::class, ['name' => 'payment_name']);
     }
 }

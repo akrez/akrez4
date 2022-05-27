@@ -87,8 +87,8 @@ class Model extends BaseModel
             'telegram_bot_token' => 'Telegram Bot Token',
             
             'receive_until' => 'تحویل تا',
-            'receipt' => 'رسید پرداخت',
-            'receipt_file' => 'رسید پرداخت',
+            'payment_name' => 'رسید پرداخت',
+            'payment_name_file' => 'رسید پرداخت',
         ];
     }
 }

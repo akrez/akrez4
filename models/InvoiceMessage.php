@@ -33,9 +33,19 @@ class InvoiceMessage extends ActiveRecord
     public function rules()
     {
         return [
-            [['created_at', 'invoice_id', 'is_customer'], 'integer'],
-            [['message'], 'string'],
+            [['created_at', 'invoice_id'], 'integer'],
+            [['message'], 'safe'],
             [['blog_name'], 'string', 'max' => 31],
+            //
+            [['message'], 'required'],
+            [['is_customer'], 'boolean'],
+        ];
+    }
+
+    public function invoiceMessageResponse()
+    {
+        return $this->toArray() + [
+            'errors' => $this->errors,
         ];
     }
 
@@ -47,6 +57,7 @@ class InvoiceMessage extends ActiveRecord
         $invoiceMessage->message = $message;
         $invoiceMessage->is_customer = $isCustomer;
         $invoiceMessage->save();
+        return $invoiceMessage;
     }
 
     public function toArray(array $fields = [], array $expand = [], $recursive = true)
@@ -57,12 +68,13 @@ class InvoiceMessage extends ActiveRecord
             'invoice_id' => $this->invoice_id,
             'message' => $this->message,
             'is_customer' => $this->is_customer,
+            'created_at' => $this->created_at,
         ];
     }
 
     public static function findInvoiceMessageQueryForApi($blogName, $invoiceId)
     {
-        return InvoiceStatus::find()
+        return InvoiceMessage::find()
             ->andWhere(['blog_name' => $blogName])
             ->andWhere(['invoice_id' => $invoiceId]);
     }

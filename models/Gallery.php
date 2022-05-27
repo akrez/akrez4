@@ -17,7 +17,6 @@ use yii\helpers\Url;
  * @property string $type
  * @property string|null $telegram_id
  * @property int|null $product_id
- * @property int|null $invoice_id
  * @property string|null $blog_name
  *
  * @property Blog[] $blogs
@@ -32,7 +31,7 @@ class Gallery extends ActiveRecord
     const TYPE_BROWSER = 'browser';
     const TYPE_OS = 'os';
     const TYPE_STORY = 'story';
-    const TYPE_RECEIPT = 'receipt';
+    const TYPE_PAYMENT = 'payment';
 
     public static function typeList()
     {
@@ -43,7 +42,7 @@ class Gallery extends ActiveRecord
             self::TYPE_BROWSER => Yii::t('app', 'browser'),
             self::TYPE_OS => Yii::t('app', 'os'),
             self::TYPE_STORY => Yii::t('app', 'story'),
-            self::TYPE_RECEIPT => Yii::t('app', 'receipt'),
+            self::TYPE_PAYMENT => Yii::t('app', 'payment'),
         ];
     }
 
@@ -56,7 +55,7 @@ class Gallery extends ActiveRecord
     {
         return [
             [['name', 'width', 'height', 'type'], 'required'],
-            [['created_at', 'updated_at', 'width', 'height', 'product_id', 'invoice_id'], 'integer'],
+            [['created_at', 'updated_at', 'width', 'height', 'product_id'], 'integer'],
             [['name'], 'string', 'max' => 16],
             [['type'], 'string', 'max' => 12],
             [['telegram_id'], 'string', 'max' => 127],
@@ -75,7 +74,7 @@ class Gallery extends ActiveRecord
         return Gallery::find()->where(['blog_name' => $blogName, 'type' => Gallery::TYPE_LOGO]);
     }
 
-    public static function findReceiptGalleryQueryForApi($blogName)
+    public static function findPaymentGalleryQueryForApi($blogName)
     {
         return Gallery::find()->where(['blog_name' => $blogName, 'type' => Gallery::TYPE_LOGO]);
     }
@@ -132,7 +131,7 @@ class Gallery extends ActiveRecord
         return parent::delete();
     }
 
-    public static function upload($src, $type, $productId = null, $options = [], $tryUnlinkSrc = false, $invoiceId = null, $blogName = null)
+    public static function upload($src, $type, $productId = null, $options = [], $tryUnlinkSrc = false, $blogName = null)
     {
         if ($blogName === null) {
             $blogName = \Yii::$app->user->getId();
@@ -151,7 +150,6 @@ class Gallery extends ActiveRecord
             $gallery->name = $info['desName'];
             $gallery->type = $type;
             $gallery->product_id = $productId;
-            $gallery->invoice_id = $invoiceId;
             $gallery->blog_name = $blogName;
             $gallery->save();
         }
@@ -161,12 +159,12 @@ class Gallery extends ActiveRecord
         return $gallery;
     }
 
-    public static function uploadBase64($base64, $type, $productId = null, $options = [], $tryUnlinkSrc = true, $invoiceId = null, $blogName = null)
+    public static function uploadBase64($base64, $type, $productId = null, $options = [], $tryUnlinkSrc = true, $blogName = null)
     {
         $tmpfname = tempnam(sys_get_temp_dir(), $type . '_');
         $base64 = explode(',', $base64) + [1 => '',];
         @file_put_contents($tmpfname, base64_decode($base64[1]));
-        return self::upload($tmpfname, $type, $productId, $options, $tryUnlinkSrc, $invoiceId, $blogName);
+        return self::upload($tmpfname, $type, $productId, $options, $tryUnlinkSrc, $blogName);
     }
 
     /**

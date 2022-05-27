@@ -25,6 +25,7 @@ use app\models\Page;
 use app\models\Product;
 use app\models\City;
 use app\models\Delivery;
+use app\models\InvoiceMessage;
 use app\models\Payment;
 use app\models\Search;
 use app\models\Status;
@@ -155,6 +156,7 @@ class Api1Controller extends Api
                             'invoice-submit', 'invoice-add', 'invoice-view', 'invoice-remove', 'invoices', 'invoice-view',
                             'delivery-add', 'delivery-view', 'delivery-edit', 'delivery-delete', 'deliveries',
                             'payment-add', 'payment-delete', 'payments',
+                            'invoice-message-create',
                         ],
                         'allow' => true,
                         'verbs' => ['POST'],
@@ -188,6 +190,7 @@ class Api1Controller extends Api
                 'city' => City::getList(),
                 'language' => Language::getList(),
                 'entity_page' => Page::entityPage(),
+                'invoice_valid_statuses' => Invoice::validStatuses(),
                 'financial_account_identity_type' => FinancialAccount::getTypeList(),
             ];
         }
@@ -462,6 +465,24 @@ class Api1Controller extends Api
         }
     }
 
+    public static function actionInvoiceMessageCreate($invoice_id)
+    {
+        $blog = self::blog();
+        $customer = self::customer();
+        //
+        $message = \Yii::$app->request->post('message');
+        //
+        $invoice = Invoice::findInvoiceQueryForApi($blog->name, $customer->id)->andWhere(['id' => $invoice_id])->one();
+        if (!$invoice) {
+            Api::exceptionNotFoundHttp();
+        }
+
+        $invoiceMessage = InvoiceMessage::createInvoiceMessage($blog->name, $invoice->id, $message, true);
+        return [
+            'invoiceMessage' => $invoiceMessage->invoiceMessageResponse(),
+        ];
+    }
+
     public static function actionInvoiceSubmit()
     {
         $blog = self::blog();
@@ -472,7 +493,6 @@ class Api1Controller extends Api
         $invoice->load($post, '');
         $invoice->blog_name = $blog->name;
         $invoice->customer_id = $customer->id;
-        $invoice->status = Invoice::STATUS_PENDING;
 
         $transaction = Yii::$app->db->beginTransaction();
         try {
@@ -496,6 +516,7 @@ class Api1Controller extends Api
                 if (!$delivery->hasErrors() && $invoice->saveDeliveryId($delivery)) {
                     $transaction->commit();
                 }
+                $invoice->setNewStatus(Invoice::STATUS_PENDING);
             }
         } catch (\Exception $e) {
             $transaction->rollBack();
@@ -539,6 +560,10 @@ class Api1Controller extends Api
             ->offset($pagination->offset)
             ->limit($pagination->limit)
             ->all();
+
+        $invoices = array_map(function ($invoice) {
+            return $invoice->invoiceFullResponse();
+        }, $invoices);
 
         return [
             'invoices' => $invoices,
@@ -622,7 +647,7 @@ class Api1Controller extends Api
 
         //bypass max_allowed_packet sql error
         LogApi::setData(['data_post' => json_encode([
-            'receipt_file' => 'bypass max_allowed_packet error - set in ' . Yii::$app->controller->id . '-' . Yii::$app->controller->action->id . ' manually',
+            'payment_name_file' => 'bypass max_allowed_packet error - set in ' . Yii::$app->controller->id . '-' . Yii::$app->controller->action->id . ' manually',
         ] + $post)]);
 
         $payment = new Payment();

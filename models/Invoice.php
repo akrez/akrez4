@@ -40,6 +40,7 @@ class Invoice extends ActiveRecord
     const STATUS_PENDING = 0;
     const STATUS_ON_HOLD = 10;
     const STATUS_WAITING_FOR_PAYMENT = 15;
+    const STATUS_WAITING_FOR_PAYMENT_VERIFICATION = 20;
     const STATUS_PROCESSING = 30;
     const STATUS_SHIPPED = 40;
     const STATUS_COMPLETED = 50;
@@ -51,6 +52,7 @@ class Invoice extends ActiveRecord
             self::STATUS_PENDING => Yii::t('app', 'pending'),
             self::STATUS_ON_HOLD => Yii::t('app', 'on hold'),
             self::STATUS_WAITING_FOR_PAYMENT => Yii::t('app', 'waiting for payment'),
+            self::STATUS_WAITING_FOR_PAYMENT_VERIFICATION => Yii::t('app', 'waiting for payment verification'),
             self::STATUS_PROCESSING => Yii::t('app', 'processing'),
             self::STATUS_SHIPPED => Yii::t('app', 'shipped'),
             self::STATUS_COMPLETED => Yii::t('app', 'completed'),
@@ -91,6 +93,8 @@ class Invoice extends ActiveRecord
             /////
             [['!delivery_id'], 'required', 'skipOnEmpty' => false, 'on' => 'setDeliveryId'],
             [['!delivery_id'], 'integer', 'skipOnEmpty' => false, 'on' => 'setDeliveryId'],
+            /////
+            [['status'], 'in', 'range' => array_keys(Invoice::validStatuses()), 'on' => 'setStatus'],
         ];
     }
 
@@ -139,39 +143,41 @@ class Invoice extends ActiveRecord
         ];
     }
 
-    public function invoiceFullResponse($asArray = true)
+    public function invoiceFullResponse()
     {
-        $customer = null;
-        $payments = [];
-        $deliveries = [];
-        $invoiceItems = [];
-        if ($this->id) {
-            $customer = Customer::findCustomerQueryForApiById($this->blog_name, $this->customer_id, Customer::validStatusesKey())
-                ->one();
-            $deliveries = Delivery::findDeliveryQueryForApi($this->blog_name, $this->customer_id, $this->id)
-                ->orderBy(['id' => SORT_DESC])
-                ->all();
-            $payments = Payment::findPaymentQueryForApi($this->blog_name, $this->customer_id, $this->id)
-                ->orderBy(['id' => SORT_DESC])
-                ->all();
-            $invoiceItems = InvoiceItem::findInvoiceItemQueryForApi($this->blog_name, $this->customer_id)
-                ->andWhere(['invoice_id' => $this->id])
-                ->all();
-        }
-
         $data = [
-            'customer' => $customer,
-            'deliveries' => $deliveries,
-            'payments' => $payments,
-            'invoiceItems' => $invoiceItems,
             'invoice' => $this,
+            'customer' => null,
+            //
+            'invoiceItems' => [],
+            //
+            'deliveries' => [],
+            'payments' => [],
+            //
+            'invoiceStatuses' => [],
+            'invoiceMessages' => [],
         ];
 
-        if ($asArray) {
-            $data['invoice'] = $data['invoice']->invoiceResponse();
-            return ArrayHelper::toArray($data);
+        if ($this->id) {
+            $data['customer'] = Customer::findCustomerQueryForApiById($this->blog_name, $this->customer_id, Customer::validStatusesKey())
+                ->one();
+            $data['deliveries'] = Delivery::findDeliveryQueryForApi($this->blog_name, $this->customer_id, $this->id)
+                ->orderBy(['id' => SORT_DESC])
+                ->all();
+            $data['payments'] = Payment::findPaymentQueryForApi($this->blog_name, $this->customer_id, $this->id)
+                ->orderBy(['id' => SORT_DESC])
+                ->all();
+            $data['invoiceItems'] = InvoiceItem::findInvoiceItemQueryForApi($this->blog_name, $this->customer_id)
+                ->andWhere(['invoice_id' => $this->id])
+                ->all();
+            $data['invoiceStatuses'] = InvoiceStatus::findInvoiceStatusQueryForApi($this->blog_name, $this->id)
+                ->all();
+            $data['invoiceMessages'] = InvoiceMessage::findInvoiceMessageQueryForApi($this->blog_name, $this->id)
+                ->all();
         }
-        return $data;
+
+        $data['invoice'] = $data['invoice']->invoiceResponse();
+        return ArrayHelper::toArray($data);
     }
 
     public static function findInvoiceQueryForApi($blogName, $customerId)
@@ -179,6 +185,21 @@ class Invoice extends ActiveRecord
         return Invoice::find()
             ->andWhere(['blog_name' => $blogName])
             ->andWhere(['customer_id' => $customerId]);
+    }
+
+    public function setNewStatus($newStatus)
+    {
+        $result = false;
+        $oldStatus = $this->status;
+        if ($newStatus !== $oldStatus) {
+            $this->setScenario('setStatus');
+            $this->status = $newStatus;
+            $result = $this->save();
+            if ($result) {
+                InvoiceStatus::createInvoiceStatus($this->blog_name, $this->id, $oldStatus, $newStatus);
+            }
+        }
+        return $result;
     }
 
     public function afterFind()

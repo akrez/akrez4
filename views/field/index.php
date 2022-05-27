@@ -32,10 +32,10 @@ $this->registerCss("
 $this->registerJs("
 function applyFilter() { 
 $('#table').yiiGridView(" . json_encode([
-            'filterUrl' => Url::current(),
-            'filterSelector' => '#table-filters input, #table-filters select',
-            'filterOnFocusOut' => true,
-        ]) . ");
+    'filterUrl' => Url::current(),
+    'filterSelector' => '#table-filters input, #table-filters select',
+    'filterOnFocusOut' => true,
+]) . ");
 }
 $(document).on('click','.toggler',function() {
 
@@ -86,14 +86,14 @@ Pjax::begin([
     <div class="col-sm-12">
         <div class="panel panel-primary" style="position: relative;">
             <div class="ajax-splash-show splash-style"></div>
-            <div class="panel-heading"><?= Yii::t('app', 'Fields') ?></div> 
+            <div class="panel-heading"><?= Yii::t('app', 'Fields') ?></div>
             <table id="table" class="table table-bordered table-condensed">
-                <thead> 
+                <thead>
                     <tr class="info">
-                        <th><?= $sort->link('title', ['label' => $modelClass->getAttributeLabel('title')]) ?></th> 
-                        <th><?= $sort->link('in_summary', ['label' => $modelClass->getAttributeLabel('in_summary')]) ?></th> 
-                        <th><?= $sort->link('seq', ['label' => $modelClass->getAttributeLabel('seq')]) ?></th> 
-                        <th><?= $sort->link('unit', ['label' => $modelClass->getAttributeLabel('unit')]) ?></th> 
+                        <th><?= $sort->link('title', ['label' => $modelClass->getAttributeLabel('title')]) ?></th>
+                        <th><?= $sort->link('in_summary', ['label' => $modelClass->getAttributeLabel('in_summary')]) ?></th>
+                        <th><?= $sort->link('seq', ['label' => $modelClass->getAttributeLabel('seq')]) ?></th>
+                        <th><?= $sort->link('unit', ['label' => $modelClass->getAttributeLabel('unit')]) ?></th>
                         <th></th>
                     </tr>
                     <tr id="table-filters" class="info filters">
@@ -102,11 +102,11 @@ Pjax::begin([
                         <th><?= Html::activeInput('text', $searchModel, 'seq', ['class' => 'form-control']) ?></th>
                         <th><?= Html::activeInput('text', $searchModel, 'unit', ['class' => 'form-control']) ?></th>
                         <th></th>
-                    </tr> 
+                    </tr>
                 </thead>
                 <tbody>
-                    <?php if ($dataProvider->getModels()): ?>
-                        <?php foreach ($dataProvider->getModels() as $dataProviderModelKey => $dataProviderModel): ?>
+                    <?php if ($dataProvider->getModels()) : ?>
+                        <?php foreach ($dataProvider->getModels() as $dataProviderModelKey => $dataProviderModel) : ?>
 
                             <?php
                             $trCssClass = ($dataProviderModelKey % 2 == 0 ? 'active' : '');
@@ -121,9 +121,9 @@ Pjax::begin([
                                 <td><?= HtmlPurifier::process($dataProviderModel->title) ?></td>
                                 <td>
                                     <?php
-                                    if ($dataProviderModel->in_summary):
+                                    if ($dataProviderModel->in_summary) :
                                         echo '<span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>';
-                                    else:
+                                    else :
                                         echo '<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span>';
                                     endif;
                                     ?>
@@ -145,7 +145,7 @@ Pjax::begin([
                                 </td>
                             </tr>
                         <?php endforeach; ?>
-                    <?php else: ?>
+                    <?php else : ?>
                         <tr>
                             <td colspan="<?= $colspan ?>">
                                 <?= Yii::t('yii', 'No results found.') ?>
@@ -156,14 +156,14 @@ Pjax::begin([
                         <td colspan="<?= $colspan ?>">
                             <?php
                             $form = ActiveForm::begin([
-                                        'options' => ['data-pjax' => true],
-                                        'action' => Url::current(['field/index', 'state' => 'batchSave', 'id' => null]),
-                                        'fieldConfig' => [
-                                            'template' => '<div class="input-group">{label}{input}</div>{hint}{error}',
-                                            'labelOptions' => [
-                                                'class' => 'input-group-addon',
-                                            ],
-                                        ]
+                                'options' => ['data-pjax' => true],
+                                'action' => Url::current(['field/index', 'state' => 'batchSave', 'id' => null]),
+                                'fieldConfig' => [
+                                    'template' => '<div class="input-group">{label}{input}</div>{hint}{error}',
+                                    'labelOptions' => [
+                                        'class' => 'input-group-addon',
+                                    ],
+                                ]
                             ]);
                             ?>
                             <div class="row">
@@ -183,7 +183,7 @@ Pjax::begin([
                             <?php ActiveForm::end(); ?>
                         </td>
                     </tr>
-                </tbody> 
+                </tbody>
             </table>
         </div>
     </div>

@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\components\Helper;
 use app\models\Invoice;
+use app\models\InvoiceMessage;
 use app\models\InvoiceSearch;
 use Yii;
 use yii\web\NotFoundHttpException;
@@ -45,14 +46,34 @@ class InvoiceController extends Controller
 
     /**
      * Displays a single Invoice model.
-     * @param int $id شناسه
+     * @param int $id id
      * @return string
      * @throws NotFoundHttpException if the model cannot be found
      */
     public function actionView($id)
     {
         $invoice = Helper::findOrFail(Invoice::blogValidQuery()->andWhere(['id' => $id]));
-        return $this->render('view', $invoice->invoiceFullResponse());
+
+        $post = Yii::$app->request->post();
+        $state = Yii::$app->request->get('state', '');
+        $newStatus = Yii::$app->request->get('new_status');
+        $invoiceMessage = new InvoiceMessage();
+
+        if ($state) {
+            $updateCacheNeeded = false;
+
+            if ($state == 'setStatus' and mb_strlen($newStatus)) {
+                $updateCacheNeeded = (bool) $invoice->setNewStatus($newStatus);
+            } else if ($state == 'newMessage' and $invoiceMessage->load($post)) {
+                $updateCacheNeeded = (bool) InvoiceMessage::createInvoiceMessage($invoice->blog_name, $invoice->id, $invoiceMessage->message, false);
+            }
+
+            return $this->redirect(['invoice/view', 'id' => $id]);
+        }
+
+        return $this->render('view', $invoice->invoiceFullResponse() + [
+            'invoiceMessageModel' => $invoiceMessage,
+        ]);
     }
 
     public function actionSetStatus($id, $attribute, $status)

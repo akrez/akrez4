@@ -68,6 +68,9 @@ return [
     'Default' => 'پیش فرض',
     'Settings' => 'تنظیمات',
     //
+    'ivoiceStatusInit' => 'سفارش با وضعیت "{new_status}" ایجاد شد',
+    'ivoiceStatusChange' => 'وضعیت سفارش از "{old_status}" به "{new_status}" تغییر کرد',
+    //
     'Categories' => 'دسته‌بندی‌ها',
     'Category' => 'دسته‌بندی',
     'Colors' => 'رنگ‌ها',

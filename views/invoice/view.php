@@ -2,20 +2,24 @@
 
 use app\assets\LeafletAsset;
 use app\components\Cache;
-use app\components\Helper;
 use app\models\Customer;
+use app\models\Delivery;
 use app\models\Gallery;
 use app\models\Invoice;
 use app\models\InvoiceItem;
+use yii\bootstrap\ActiveForm;
 use yii\data\ArrayDataProvider;
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\helpers\ArrayHelper;
+use yii\helpers\HtmlPurifier;
+use yii\helpers\Url;
 
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\InvoiceSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
+const IS_CUSTOMER = false;
 
 function getAttributeLabelOfCustomer($attribute)
 {
@@ -35,57 +39,85 @@ function getAttributeLabelOfInvoiceItem($attribute)
     return $model->getAttributeLabel($attribute);
 }
 
+function getAttributeLabelOfDelivery($attribute)
+{
+    $model = Delivery::instance();
+    return $model->getAttributeLabel($attribute);
+}
+
+function getPageTitle($invoice = null)
+{
+    return Yii::t('app', 'Invoices') . ': ' . $invoice['id'];
+}
+
+function getInvoiceValidStatuses()
+{
+    return Invoice::validStatuses();
+}
+
+function getUrl()
+{
+    return Invoice::validStatuses();
+}
+
 $deliveries = ArrayHelper::index($deliveries, 'id');
 $delivery = $deliveries[$invoice['delivery_id']];
 
-$this->title = Yii::t('app', 'Invoices') . ': ' . $invoice['id'];
+$this->title = getPageTitle($invoice);
 
 LeafletAsset::register($this);
 
 $this->registerCss("
-.table td {
-    vertical-align: middle !important;
-    text-align: center;
-}
-.table-vertical-align-middle td,
-.table-vertical-align-middle thead th {
-    vertical-align: middle;
-    text-align: center;
-}
-.wizard-steps {
-    direction: ltr;
-}
-.wizard-steps.btn-group > .btn:first-child:not(:last-child):not(.dropdown-toggle) {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-    border-bottom-left-radius: 4px;
-    border-top-left-radius: 4px;
-}
-.wizard-steps.btn-group > .btn:last-child:not(:first-child), .btn-group > .dropdown-toggle:not(:first-child) {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 4px;
-    border-top-right-radius: 4px;
-}
 ");
 ?>
 
+<style>
+    .table td {
+        vertical-align: middle !important;
+        text-align: center;
+    }
+
+    .table-vertical-align-middle td,
+    .table-vertical-align-middle thead th {
+        vertical-align: middle;
+        text-align: center;
+    }
+
+    .deprecated-panel {
+        opacity: .58;
+    }
+
+    .deprecated-panel:hover {
+        opacity: 1;
+    }
+
+    .max-height-256 {
+        max-height: 256px;
+    }
+
+    .glyphicon-send::before {
+        line-height: 1.1;
+    }
+</style>
+
 <h1 class="pb20"><?= Html::encode($this->title) ?></h1>
 
-<div class="row">
-    <div class="col-sm-12 pb20">
-        <div class="btn-group btn-group-justified btn-group-lg wizard-steps" role="group" style="margin: 0;">
+<div class="row pb20">
+    <div class="col-sm-12">
+        <div class="btn-group btn-group-justified btn-group-md" role="group" style="margin: 0;">
             <?php
-            foreach (Invoice::validStatuses() as $validStatusKey => $validStatus) {
+            foreach (getInvoiceValidStatuses() as $validStatusKey => $validStatus) {
                 $validStatusBtnClass = 'btn-default';
                 if ($validStatusKey < $invoice['status']) {
                     $validStatusBtnClass = 'btn-success';
                 } elseif ($invoice['status'] == $validStatusKey) {
                     $validStatusBtnClass = 'btn-info';
                 }
-            ?>
-                <a href="#" class="btn <?= $validStatusBtnClass ?>" role="button"> <?= $validStatus ?> </a>
-            <?php } ?>
+                echo Html::a($validStatus, Url::to([0 => 'invoice/view', 'id' => $invoice['id'], 'state' => 'setStatus', 'new_status' => $validStatusKey]), [
+                    'class' => 'btn ' . $validStatusBtnClass,
+                    'role' => 'button',
+                ]);
+            } ?>
         </div>
     </div>
 </div>
@@ -200,4 +232,109 @@ $this->registerCss("
     ],
 ]); ?>
 
-<?= $this->render('../delivery/_delivery_table', ['delivery' => $delivery]) ?>
+<hr>
+
+<?php
+$form = ActiveForm::begin([
+    'options' => ['data-pjax' => true],
+    'action' => Url::current(['invoice/view', 'state' => 'newMessage', 'id' => $invoice['id']]),
+    'fieldConfig' => [
+        'template' => '<div class="input-group">{input}<span class="input-group-btn"> ' .
+            Html::submitButton(' <span class="glyphicon glyphicon-send"></span> ', ['class' => 'btn btn-success']) .
+            '</span></div>',
+        'labelOptions' => [
+            'class' => 'input-group-addon',
+        ],
+    ]
+]);
+?>
+<div class="row">
+    <div class="col-sm-10">
+        <?= $form->field($invoiceMessageModel, 'message')->textInput(); ?>
+    </div>
+</div>
+
+<?php ActiveForm::end(); ?>
+
+<?php
+$dataParts = [];
+foreach ([
+    'invoiceMessages' => $invoiceMessages,
+    'invoiceStatuses' => $invoiceStatuses,
+    'payments' => $payments,
+    'deliveries' => $deliveries,
+] as $dataKey => $dataArray) {
+    foreach ($dataArray as $dataValue) {
+        $dataParts[$dataValue['created_at']][$dataKey][$dataValue['id']] = $dataValue;
+    }
+}
+
+krsort($dataParts);
+
+foreach ($dataParts as $dataCreatedAt => $dataPart) {
+    $dataCreatedAtFa = Yii::$app->formatter->asDatetimefa($dataCreatedAt);
+    foreach ($dataPart as $dataPartName => $dataValues) {
+        foreach ($dataValues as $dataValue) {
+?>
+
+            <?php if ($dataPartName == 'deliveries') { ?>
+                <div class="panel panel-default <?= ($dataValue['id'] == $invoice['delivery_id'] ? '' : 'deprecated-panel') ?>">
+                    <div class="panel-heading">
+                        <span class="glyphicon glyphicon-pushpin"></span>
+                        <small><?= $dataCreatedAtFa ?></small>
+                    </div>
+                    <?php echo $this->render('../delivery/_delivery_table', ['delivery' => $dataValue]); ?>
+                </div>
+            <?php } ?>
+
+            <?php if ($dataPartName == 'payments') { ?>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <span class="glyphicon glyphicon-list-alt"></span>
+                        <small><?= $dataCreatedAtFa ?></small>
+                    </div>
+                    <div class="panel-body">
+                        <a href="<?= Gallery::getImageUrl(Gallery::TYPE_PAYMENT, $dataValue['payment_name']) ?>" target="_blank">
+                            <img class="img img-responsive max-height-256" src="<?= Gallery::getImageUrl(Gallery::TYPE_PAYMENT, $dataValue['payment_name']) ?>">
+                        </a>
+                    </div>
+                </div>
+            <?php } ?>
+
+            <?php if ($dataPartName == 'invoiceStatuses') { ?>
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <span class="glyphicon glyphicon-bell"></span>
+                        <small><?= $dataCreatedAtFa ?></small>
+                        <br>
+                        <?= $dataValue['message'] ?>
+                    </div>
+                </div>
+            <?php } ?>
+
+            <?php if ($dataPartName == 'invoiceMessages') {
+                $isMineMessage = (IS_CUSTOMER == $dataValue['is_customer']);
+            ?>
+                <div class="row">
+                    <?php if (!$isMineMessage) { ?>
+                        <div class="col-sm-2">
+                        </div>
+                    <?php } ?>
+                    <div class="col-sm-10">
+                        <div class="panel <?= (!$isMineMessage ? 'panel-default' : 'panel-success') ?>">
+                            <div class="panel-heading">
+                                <span class="glyphicon glyphicon-comment"></span>
+                                <small><?= $dataCreatedAtFa ?></small>
+                                <br>
+                                <?= HtmlPurifier::process($dataValue['message']) ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php } ?>
+
+<?php
+        }
+    }
+}
+?>
