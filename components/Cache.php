@@ -39,7 +39,7 @@ class Cache extends Component
 
     public static function updateCachePages($entity, $page)
     {
-        $entity->cache_has_page[$page->page_type] = ($page->status == Status::STATUS_ACTIVE);
+        $entity->cache_has_page[$page->page_type] = ($page->status == Status::STATUS_ACTIVE ? md5($page->body) : '');
         $entity->save();
     }
 

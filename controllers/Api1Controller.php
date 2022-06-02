@@ -11,7 +11,6 @@ use app\components\Sms;
 use app\models\Cart;
 use app\models\Blog;
 use app\models\Category;
-use app\models\Color;
 use app\models\Customer;
 use app\models\Field;
 use app\models\FieldList;
